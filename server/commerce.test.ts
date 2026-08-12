@@ -66,7 +66,7 @@ const productInput = {
 describe("commerce tRPC procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "mousa@instapay", shippingFeeAmount: 0 });
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0 });
   });
 
   it("allows administrators to create a catalog product", async () => {
@@ -91,6 +91,25 @@ describe("commerce tRPC procedures", () => {
     expect(dbMocks.getDashboardMetrics).not.toHaveBeenCalled();
   });
 
+  it("rejects customers from reading the administrator order workspace", async () => {
+    await expect(appRouter.createCaller(context("user")).admin.orders({ status: "pending", query: "MG-100" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(dbMocks.getAllOrders).not.toHaveBeenCalled();
+  });
+
+  it("passes admin order filters through to the database layer", async () => {
+    dbMocks.getAllOrders.mockResolvedValue([]);
+    await appRouter.createCaller(context("admin")).admin.orders({ status: "pending", paymentStatus: "under_review", query: "MG-100", limit: 25 });
+    expect(dbMocks.getAllOrders).toHaveBeenCalledWith({ status: "pending", paymentStatus: "under_review", query: "MG-100", limit: 25 });
+  });
+
+  it("returns a detailed admin order and reports missing orders clearly", async () => {
+    const detail = { id: 100, orderNumber: "MG-100", items: [], paymentProofs: [] };
+    dbMocks.getOrderById.mockResolvedValue(detail);
+    await expect(appRouter.createCaller(context("admin")).admin.order({ id: 100 })).resolves.toEqual(detail);
+    dbMocks.getOrderById.mockResolvedValue(null);
+    await expect(appRouter.createCaller(context("admin")).admin.order({ id: 404 })).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
   it("creates an InstaPay order attached to the authenticated customer and returns WhatsApp handoff", async () => {
     dbMocks.createCheckoutOrder.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", totalAmount: 26000 });
     const result = await appRouter.createCaller(context("user")).orders.create({
@@ -103,9 +122,27 @@ describe("commerce tRPC procedures", () => {
       items: [{ productId: 5, quantity: 2 }],
     });
     expect(dbMocks.createCheckoutOrder).toHaveBeenCalledWith(expect.objectContaining({ userId: 2, paymentMethod: "instapay", items: [{ productId: 5, quantity: 2 }] }));
-    expect(result).toMatchObject({ orderNumber: "MG-ORDER-22", instaPayHandle: "mousa@instapay" });
+    expect(result).toMatchObject({ orderNumber: "MG-ORDER-22", instaPayHandle: "01060223037" });
     expect(result.whatsappUrl).toContain("201020848619");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-ORDER-22");
+    expect(decodeURIComponent(result.whatsappUrl)).toContain("I placed order");
+  });
+
+  it("creates a Cash on Delivery order with the configured WhatsApp confirmation handoff", async () => {
+    dbMocks.createCheckoutOrder.mockResolvedValue({ id: 23, orderNumber: "MG-COD-23", totalAmount: 12500 });
+    const result = await appRouter.createCaller(context("user")).orders.create({
+      customerName: "Cash Customer",
+      customerPhone: "2010602223037",
+      customerEmail: null,
+      shippingAddress: "Hurghada, Red Sea",
+      notes: "Cash on delivery",
+      paymentMethod: "cash_on_delivery",
+      items: [{ productId: 6, quantity: 1 }],
+    });
+    expect(dbMocks.createCheckoutOrder).toHaveBeenCalledWith(expect.objectContaining({ userId: 2, paymentMethod: "cash_on_delivery" }));
+    expect(result).toMatchObject({ orderNumber: "MG-COD-23", instaPayHandle: "01060223037" });
+    expect(result.whatsappUrl).toContain("https://wa.me/201020848619");
+    expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-COD-23");
   });
 
   it("stores an InstaPay proof only for the customer who owns the order", async () => {
@@ -116,6 +153,9 @@ describe("commerce tRPC procedures", () => {
     expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringContaining("payment-proofs/MG-ORDER-22"), expect.any(Buffer), "image/png");
     expect(dbMocks.addPaymentProof).toHaveBeenCalledWith(expect.objectContaining({ orderId: 22, originalFilename: "proof.png" }));
     expect(result.success).toBe(true);
+    expect(result.whatsappUrl).toContain("https://wa.me/201020848619");
+    expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-ORDER-22");
+    expect(decodeURIComponent(result.whatsappUrl)).toContain("proof for order");
   });
 
   it("rejects a payment proof upload when the customer does not own the order", async () => {

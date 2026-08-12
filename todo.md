@@ -25,3 +25,42 @@
 - [x] Fix the restored Arabic storefront mobile hero presentation and verify home/shop behavior after the correction.
 - [x] Directly review the Arabic ProductDetail, Checkout, Orders, DashboardLayout, and AdminDashboard implementations for copy, direction, and styling consistency.
 - [x] Review the authenticated Arabic order/payment and administrator dashboard/products/settings views before release.
+- [x] Verify and document whether any legacy product records or images are genuinely merchant-approved; keep the catalog empty until then.
+- [ ] Populate the live catalog only with verified product records and associated images.
+- [x] Configure verified WhatsApp and InstaPay payment details in store settings.
+- [x] Exercise controlled COD and InstaPay checkout flows and verify the WhatsApp confirmation destination and message.
+- [x] Document the owner sign-in process and secure administrator page access.
+- [x] Capture and review the repaired Arabic home page at both desktop and mobile viewport sizes.
+- [x] Configure WhatsApp and InstaPay using the two phone numbers supplied in the contact image.
+- [x] Keep catalog presentation ready for verified products without adding placeholder merchandise.
+- [ ] Place a controlled customer order in preview and verify the success screen and WhatsApp handoff for both COD and InstaPay without leaving test merchandise in the live catalog.
+- [ ] Create an isolated temporary product and exercise complete COD and InstaPay customer checkout paths in preview.
+- [ ] Remove all temporary product, order, and payment-proof data after browser-level verification.
+- [x] Install and run Lighthouse against the Arabic home page and relevant customer paths.
+- [x] Apply high-confidence Lighthouse performance, accessibility, and SEO remediations.
+- [x] Re-run validation and document every remaining production-launch dependency or gap.
+
+- [x] Upgrade admin analytics with richer operational summaries, inventory alerts, payment-review visibility, and clearer empty/loading/error states.
+- [x] Make admin order detail views deep-linkable and reliable, including order items, customer details, payment proof, status updates, and refresh behavior.
+- [x] Improve product creation and editing with stronger validation, image handling, stock controls, category assignment, and clearer feedback.
+- [x] Improve category, media, and store-settings workflows for efficient daily administration.
+- [x] Add and run targeted tests for admin permissions, filtered orders, order detail data, and product mutations.
+- [x] Verify all upgraded admin routes at desktop and mobile sizes and save a new project checkpoint.
+
+بحاجة إلى إضافة المنتجات الحقيقية لاحقاً من بيانات المتجر المعتمدة.
+
+- [x] Upgrade admin analytics with richer operational summaries, inventory alerts, payment-review visibility, and clearer empty/loading/error states.
+- [x] Make admin order detail views deep-linkable and reliable, including order items, customer details, payment proof, status updates, and refresh behavior.
+- [x] Improve product creation and editing with stronger validation, image handling, stock controls, category assignment, and clearer feedback.
+- [x] Improve category, media, and store-settings workflows for efficient daily administration.
+- [x] Add and run targeted tests for admin permissions, filtered orders, order detail data, and product mutations.
+- [x] Verify all upgraded admin routes at desktop and mobile sizes and save a new project checkpoint.
+- [x] Prevent horizontal clipping in shared admin shell on narrow screens.
+- [x] Run Lighthouse on public home, shop, product, cart, and checkout paths and record the findings.
+- [x] Apply only verified Lighthouse remediations and re-run validation.
+- [x] Split public and administrator pages into route-level chunks to reduce the initial JavaScript payload.
+- [x] Enable HTTP compression for built assets and JSON responses in production.
+- [x] Add an explicit loading state to the admin overview so pending analytics are not shown as zero.
+- [x] Add initial-load and save-error handling to the admin store-settings workflow.
+- [x] Run Lighthouse against a public product-detail path and record the result.
+- [ ] Save a fresh checkpoint after the final verified changes.

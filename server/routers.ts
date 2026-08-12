@@ -187,7 +187,9 @@ export const appRouter = router({
 
   admin: router({
     dashboard: adminProcedure.query(() => getDashboardMetrics()),
-    orders: adminProcedure.query(() => getAllOrders()),
+    orders: adminProcedure
+      .input(z.object({ status: orderStatus.optional(), paymentStatus: paymentStatus.optional(), query: z.string().trim().max(120).optional(), limit: z.number().int().min(1).max(200).optional() }).optional())
+      .query(({ input }) => getAllOrders(input ?? {})),
     order: adminProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
       const order = await getOrderById(input.id);
       if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Order not found." });

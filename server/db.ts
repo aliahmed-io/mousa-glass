@@ -53,10 +53,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet[field] = user[field] ?? null;
     }
   }
-  if (user.role !== undefined) {
-    values.role = user.role;
-    updateSet.role = user.role;
-  } else if (user.openId === ENV.ownerOpenId) {
+  if (user.openId === ENV.ownerOpenId) {
     values.role = "admin";
     updateSet.role = "admin";
   }
@@ -326,10 +323,39 @@ export async function getOrderForUser(orderId: number, userId: number) {
   return (await hydrateOrders(rows))[0] ?? null;
 }
 
-export async function getAllOrders() {
+export type AdminOrderFilters = {
+  status?: (typeof orders.status.enumValues)[number];
+  paymentStatus?: (typeof orders.paymentStatus.enumValues)[number];
+  query?: string;
+  limit?: number;
+};
+
+export async function getAllOrders(filters: AdminOrderFilters = {}) {
   const db = await getDb();
-  if (!db) return [];
-  return hydrateOrders(await db.select().from(orders).orderBy(desc(orders.createdAt)));
+  if (!db) return { items: [], total: 0 };
+  const conditions: SQL[] = [];
+  if (filters.status) conditions.push(eq(orders.status, filters.status));
+  if (filters.paymentStatus) conditions.push(eq(orders.paymentStatus, filters.paymentStatus));
+  const query = filters.query?.trim();
+  if (query) {
+    const term = `%${query}%`;
+    conditions.push(or(like(orders.orderNumber, term), like(orders.customerName, term), like(orders.customerPhone, term))!);
+  }
+  const where = conditions.length ? and(...conditions) : undefined;
+  const [rows, countRows] = await Promise.all([
+    db.select().from(orders).where(where).orderBy(desc(orders.createdAt)).limit(Math.min(Math.max(filters.limit ?? 100, 1), 200)),
+    db.select({ count: sql<number>`count(*)` }).from(orders).where(where),
+  ]);
+  return { items: await hydrateOrders(rows), total: Number(countRows[0]?.count ?? 0) };
+}
+
+export async function getAllOrdersLegacy() {
+  const result = await getAllOrders();
+  return result.items;
+}
+
+export async function getAllOrdersForAdmin(filters: AdminOrderFilters = {}) {
+  return getAllOrders(filters);
 }
 
 export async function getOrderById(orderId: number) {
@@ -355,11 +381,16 @@ export async function updateOrder(input: { id: number; status?: (typeof orders.s
 
 export async function getDashboardMetrics() {
   const db = await getDb();
-  if (!db) return { totalOrders: 0, revenueAmount: 0, pendingOrders: 0, topProducts: [], recentOrders: [] };
-  const [orderCount, revenue, pending, topProducts, recentOrders] = await Promise.all([
+  if (!db) return { totalOrders: 0, revenueAmount: 0, pendingOrders: 0, productsCount: 0, activeProducts: 0, lowStockCount: 0, categoriesCount: 0, awaitingPayments: 0, topProducts: [], recentOrders: [], statusBreakdown: [] };
+  const [orderCount, revenue, pending, productsCount, activeProducts, lowStockCount, categoriesCount, awaitingPayments, topProducts, recentOrders, statusBreakdown] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(orders),
     db.select({ total: sql<number>`coalesce(sum(${orders.totalAmount}), 0)` }).from(orders).where(ne(orders.status, "cancelled")),
     db.select({ count: sql<number>`count(*)` }).from(orders).where(eq(orders.status, "pending")),
+    db.select({ count: sql<number>`count(*)` }).from(products),
+    db.select({ count: sql<number>`count(*)` }).from(products).where(eq(products.isActive, true)),
+    db.select({ count: sql<number>`count(*)` }).from(products).where(and(eq(products.isActive, true), sql`${products.stock} <= 5`)),
+    db.select({ count: sql<number>`count(*)` }).from(categories),
+    db.select({ count: sql<number>`count(*)` }).from(orders).where(or(eq(orders.paymentStatus, "awaiting_proof"), eq(orders.paymentStatus, "under_review"))),
     db
       .select({ productName: orderItems.productName, quantity: sql<number>`sum(${orderItems.quantity})`, revenueAmount: sql<number>`sum(${orderItems.quantity} * ${orderItems.unitPriceAmount})` })
       .from(orderItems)
@@ -368,13 +399,20 @@ export async function getDashboardMetrics() {
       .groupBy(orderItems.productName)
       .orderBy(desc(sql`sum(${orderItems.quantity})`))
       .limit(5),
-    db.select().from(orders).orderBy(desc(orders.createdAt)).limit(6),
+    db.select().from(orders).orderBy(desc(orders.createdAt)).limit(8),
+    db.select({ status: orders.status, count: sql<number>`count(*)` }).from(orders).groupBy(orders.status),
   ]);
   return {
     totalOrders: Number(orderCount[0]?.count ?? 0),
     revenueAmount: Number(revenue[0]?.total ?? 0),
     pendingOrders: Number(pending[0]?.count ?? 0),
+    productsCount: Number(productsCount[0]?.count ?? 0),
+    activeProducts: Number(activeProducts[0]?.count ?? 0),
+    lowStockCount: Number(lowStockCount[0]?.count ?? 0),
+    categoriesCount: Number(categoriesCount[0]?.count ?? 0),
+    awaitingPayments: Number(awaitingPayments[0]?.count ?? 0),
     topProducts: topProducts.map(item => ({ ...item, quantity: Number(item.quantity), revenueAmount: Number(item.revenueAmount) })),
     recentOrders,
+    statusBreakdown: statusBreakdown.map(item => ({ status: item.status, count: Number(item.count) })),
   };
 }

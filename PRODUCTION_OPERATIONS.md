@@ -16,6 +16,14 @@ Mousa Glass is a server-rendered API and responsive web application for selling 
 
 After publishing the application, sign in with the project owner account. The owner identity is granted the **admin** role automatically on first sign-in. Visit `/admin/settings` and set the current WhatsApp number, InstaPay handle, store name, and shipping fee before accepting orders. Then create categories at `/admin/categories`, add products at `/admin/products`, and add alternate product photos at `/admin/media`.
 
+## Current payment contacts and administrator access
+
+The configured customer-confirmation contacts are **WhatsApp: 01020848619** and **InstaPay: 01060223037**. The first number opens the customer’s WhatsApp confirmation handoff after an order is placed, while the second is shown as the current InstaPay payment destination. Review these values in `/admin/settings` whenever the business contact or payment destination changes.
+
+To access administration, publish or preview the site, sign in using the project owner’s Manus account, and then visit `/admin`. The owner account receives the `admin` role automatically after its first sign-in. Other accounts remain customers until a deliberate role promotion is made.
+
+> The catalog is ready for real records, but no unverified legacy product names, prices, stock figures, ratings, reviews, or generic imagery have been inserted as merchandise. Add only supplier-confirmed product details and images through the administrator interface.
+
 > Never publish the live catalog with placeholder prices, inaccurate stock, or a test WhatsApp number. The checkout screen derives payment and WhatsApp instructions from the administrator-controlled settings.
 
 | Pre-launch task | Verification outcome |
