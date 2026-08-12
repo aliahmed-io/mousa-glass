@@ -1,0 +1,19 @@
+# Mousa Glass
+
+> Mousa Glass is an Arabic, right-to-left storefront for glass accessories serving Hurghada and the Red Sea area in Egypt.
+
+## Public pages
+
+- [Home](/): Store overview and featured products.
+- [Shop](/shop): Searchable product catalog.
+- [About Mousa](/about): Store overview and service approach.
+- [Contact](/contact): Phone numbers, WhatsApp, service area, and opening hours.
+- [Delivery and returns](/delivery&returns): How delivery, order confirmation, and issue review work.
+- [FAQ](/faq): Answers to common ordering and product-selection questions.
+
+## Contact
+
+- Phone: 01020848619
+- Phone: 01060223037
+- WhatsApp: https://wa.me/201020848619
+- Service area: Hurghada and the Red Sea area, Egypt.

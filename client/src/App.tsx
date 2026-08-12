@@ -5,9 +5,13 @@ import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
 
-const Home = lazy(() => import("@/pages/Home"));
-const Shop = lazy(() => import("@/pages/Shop"));
+const About = lazy(() => import("@/pages/About"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const DeliveryReturns = lazy(() => import("@/pages/DeliveryReturns"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
 const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
 const Cart = lazy(() => import("@/pages/Cart"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
@@ -25,6 +29,10 @@ function Router() {
   return <Suspense fallback={<PageLoading />}><Switch>
     <Route path="/" component={Home} />
     <Route path="/shop" component={Shop} />
+    <Route path="/about" component={About} />
+    <Route path="/contact" component={Contact} />
+    <Route path="/delivery&returns" component={DeliveryReturns} />
+    <Route path="/faq" component={FAQ} />
     <Route path="/products/:slug" component={ProductDetail} />
     <Route path="/cart" component={Cart} />
     <Route path="/checkout" component={Checkout} />

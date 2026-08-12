@@ -35,7 +35,7 @@
 - [x] Keep catalog presentation ready for verified products without adding placeholder merchandise.
 - [ ] Place a controlled customer order in preview and verify the success screen and WhatsApp handoff for both COD and InstaPay without leaving test merchandise in the live catalog.
 - [ ] Create an isolated temporary product and exercise complete COD and InstaPay customer checkout paths in preview.
-- [ ] Remove all temporary product, order, and payment-proof data after browser-level verification.
+- [x] Remove all temporary product, order, and payment-proof data after browser-level verification.
 - [x] Install and run Lighthouse against the Arabic home page and relevant customer paths.
 - [x] Apply high-confidence Lighthouse performance, accessibility, and SEO remediations.
 - [x] Re-run validation and document every remaining production-launch dependency or gap.
@@ -64,3 +64,16 @@
 - [x] Add initial-load and save-error handling to the admin store-settings workflow.
 - [x] Run Lighthouse against a public product-detail path and record the result.
 - [ ] Save a fresh checkpoint after the final verified changes.
+
+- [x] Remove the temporary QA product created for the interrupted browser checkout test.
+- [x] Add Arabic public About, Contact, Delivery & Returns, and FAQ storefront pages.
+- [x] Extend public navigation and footer links for the new customer-information pages.
+- [x] Add an accessible main landmark to public storefront pages.
+- [x] Improve mobile navigation, spacing, touch targets, and page layout across the customer storefront.
+- [x] Address the supplied shop Lighthouse findings, including render-blocking resources, unused JavaScript, crawler files, and production asset delivery.
+- [x] Run Lighthouse on About, Delivery & Returns, and FAQ at the mobile viewport and update the final audit record with those results.
+- [x] Correct the confirmed About hero-image loading and dimensions, then resolve the Delivery & Returns contrast finding.
+- [x] Replace the shared hero visual with a responsive optimized asset to reduce mobile LCP without changing the storefront art direction.
+- [x] Exclude development-only JSX location instrumentation from production bundles to reduce initial JavaScript delivery.
+
+> Browser checkout validation items 36–37 were intentionally superseded when the scope changed to complete the public storefront; no temporary order or payment-proof record was created.
