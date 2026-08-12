@@ -35,6 +35,7 @@ const catalogQuery = z.object({
   search: z.string().trim().max(100).optional(),
   categorySlug: z.string().trim().max(140).optional(),
   featuredOnly: z.boolean().optional(),
+  sort: z.enum(["featured", "newest", "price_asc", "price_desc", "name_asc"]).default("featured"),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(48).default(12),
 });

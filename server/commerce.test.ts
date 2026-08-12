@@ -86,6 +86,19 @@ describe("commerce tRPC procedures", () => {
     expect(dbMocks.updateProduct).toHaveBeenCalledWith(17, { stock: 4, isActive: true, isFeatured: false });
   });
 
+  it("passes customer category filters and Arabic catalog sort selections to the database layer", async () => {
+    dbMocks.getCatalogProducts.mockResolvedValue({ products: [], total: 0 });
+    await appRouter.createCaller(context("user")).products.list({ categorySlug: "door-handles", sort: "price_asc", page: 1, limit: 24 });
+    expect(dbMocks.getCatalogProducts).toHaveBeenCalledWith({ categorySlug: "door-handles", sort: "price_asc", page: 1, limit: 24 });
+  });
+
+  it("allows administrators to create and edit category name, visibility, and display order", async () => {
+    dbMocks.createCategory.mockResolvedValue(9);
+    await expect(appRouter.createCaller(context("admin")).categories.create({ name: "Door handles", slug: "door-handles", description: "For glass doors", isActive: true, sortOrder: 2 })).resolves.toEqual({ id: 9 });
+    await appRouter.createCaller(context("admin")).categories.update({ id: 9, name: "Premium door handles", isActive: false, sortOrder: 5 });
+    expect(dbMocks.updateCategory).toHaveBeenCalledWith(9, { name: "Premium door handles", isActive: false, sortOrder: 5 });
+  });
+
   it("prevents customers from viewing dashboard analytics", async () => {
     await expect(appRouter.createCaller(context("user")).admin.dashboard()).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(dbMocks.getDashboardMetrics).not.toHaveBeenCalled();

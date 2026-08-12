@@ -77,3 +77,11 @@
 - [x] Exclude development-only JSX location instrumentation from production bundles to reduce initial JavaScript delivery.
 
 > Browser checkout validation items 36–37 were intentionally superseded when the scope changed to complete the public storefront; no temporary order or payment-proof record was created.
+
+- [x] Add customer-facing catalog filtering by product category.
+- [x] Add customer-facing product sorting with Arabic labels and retained filter state.
+- [x] Improve administrator category creation and editing for reliable daily category management.
+- [x] Validate category filtering, sorting, and administrator category management with automated tests.
+- [x] Verify the updated catalog controls at mobile and desktop breakpoints.
+- [ ] Run and document a Lighthouse audit against the deployed production storefront.
+- [x] Verify the updated catalog filtering and sorting controls at a desktop breakpoint.

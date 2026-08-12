@@ -144,7 +144,9 @@ export async function deleteCategory(id: number) {
   await db.delete(categories).where(eq(categories.id, id));
 }
 
-export async function getCatalogProducts(input: { search?: string; categorySlug?: string; featuredOnly?: boolean; page: number; limit: number }) {
+export type CatalogSort = "featured" | "newest" | "price_asc" | "price_desc" | "name_asc";
+
+export async function getCatalogProducts(input: { search?: string; categorySlug?: string; featuredOnly?: boolean; sort?: CatalogSort; page: number; limit: number }) {
   const db = await getDb();
   if (!db) return { products: [], total: 0 };
   const filters: SQL[] = [eq(products.isActive, true)];
@@ -159,9 +161,18 @@ export async function getCatalogProducts(input: { search?: string; categorySlug?
     filters.push(eq(products.categoryId, category[0].id));
   }
   const where = and(...filters);
+  const orderBy = input.sort === "price_asc"
+    ? [asc(products.priceAmount), desc(products.createdAt)]
+    : input.sort === "price_desc"
+      ? [desc(products.priceAmount), desc(products.createdAt)]
+      : input.sort === "name_asc"
+        ? [asc(products.name), desc(products.createdAt)]
+        : input.sort === "newest"
+          ? [desc(products.createdAt)]
+          : [desc(products.isFeatured), desc(products.createdAt)];
   const [countResult, rows] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(products).where(where),
-    db.select().from(products).where(where).orderBy(desc(products.isFeatured), desc(products.createdAt)).limit(input.limit).offset((input.page - 1) * input.limit),
+    db.select().from(products).where(where).orderBy(...orderBy).limit(input.limit).offset((input.page - 1) * input.limit),
   ]);
   return { products: await enrichProducts(rows), total: Number(countResult[0]?.count ?? 0) };
 }
