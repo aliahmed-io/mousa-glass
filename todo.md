@@ -83,5 +83,5 @@
 - [x] Improve administrator category creation and editing for reliable daily category management.
 - [x] Validate category filtering, sorting, and administrator category management with automated tests.
 - [x] Verify the updated catalog controls at mobile and desktop breakpoints.
-- [ ] Run and document a Lighthouse audit against the deployed production storefront.
+- [x] Run and document a Lighthouse audit against the deployed production storefront.
 - [x] Verify the updated catalog filtering and sorting controls at a desktop breakpoint.
