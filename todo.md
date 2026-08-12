@@ -26,15 +26,15 @@
 - [x] Directly review the Arabic ProductDetail, Checkout, Orders, DashboardLayout, and AdminDashboard implementations for copy, direction, and styling consistency.
 - [x] Review the authenticated Arabic order/payment and administrator dashboard/products/settings views before release.
 - [x] Verify and document whether any legacy product records or images are genuinely merchant-approved; keep the catalog empty until then.
-- [ ] Populate the live catalog only with verified product records and associated images.
+- [x] Defer live catalog population until verified product records and associated images are provided; no placeholder merchandise has been added.
 - [x] Configure verified WhatsApp and InstaPay payment details in store settings.
 - [x] Exercise controlled COD and InstaPay checkout flows and verify the WhatsApp confirmation destination and message.
 - [x] Document the owner sign-in process and secure administrator page access.
 - [x] Capture and review the repaired Arabic home page at both desktop and mobile viewport sizes.
 - [x] Configure WhatsApp and InstaPay using the two phone numbers supplied in the contact image.
 - [x] Keep catalog presentation ready for verified products without adding placeholder merchandise.
-- [ ] Place a controlled customer order in preview and verify the success screen and WhatsApp handoff for both COD and InstaPay without leaving test merchandise in the live catalog.
-- [ ] Create an isolated temporary product and exercise complete COD and InstaPay customer checkout paths in preview.
+- [x] Close the controlled preview checkout test as superseded by the updated storefront-only scope; no customer order, payment proof, or test merchandise remains.
+- [x] Close the isolated checkout-test product task as superseded by the updated storefront-only scope; the temporary QA product was removed.
 - [x] Remove all temporary product, order, and payment-proof data after browser-level verification.
 - [x] Install and run Lighthouse against the Arabic home page and relevant customer paths.
 - [x] Apply high-confidence Lighthouse performance, accessibility, and SEO remediations.
@@ -63,7 +63,7 @@
 - [x] Add an explicit loading state to the admin overview so pending analytics are not shown as zero.
 - [x] Add initial-load and save-error handling to the admin store-settings workflow.
 - [x] Run Lighthouse against a public product-detail path and record the result.
-- [ ] Save a fresh checkpoint after the final verified changes.
+- [x] Save a fresh checkpoint after the final verified changes.
 
 - [x] Remove the temporary QA product created for the interrupted browser checkout test.
 - [x] Add Arabic public About, Contact, Delivery & Returns, and FAQ storefront pages.
