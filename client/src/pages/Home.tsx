@@ -1,33 +1,34 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+import StoreLayout from "@/components/StoreLayout";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
+import { formatMoney, primaryImage } from "@/lib/commerce";
+import { trpc } from "@/lib/trpc";
+import { ArrowRight, PackageCheck, ShieldCheck, Truck, Wrench } from "lucide-react";
+import { Link } from "wouter";
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Workflow, Frontend Best Practices, Design Guide and Common Pitfalls
- */
 export default function Home() {
-  // The useAuth hook provides authentication state.
-  // To implement login/logout, call logout(), or start login from an event
-  // handler: onClick={() => startLogin()} (imported from "@/const"). Never call
-  // startLogin() during render (no href={startLogin()}) — it mints a one-time
-  // nonce cookie and must run only at the moment of navigation.
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
-
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
-    </div>
-  );
+  const categories = trpc.categories.list.useQuery();
+  const featured = trpc.products.list.useQuery({ page: 1, limit: 4, featuredOnly: true });
+  return <StoreLayout>
+    <main>
+      <section className="relative isolate overflow-hidden bg-slate-950 text-white">
+        <img src="/manus-storage/hero-bg_5f0714c2_f1037568.jpg" alt="Glass door detail" className="absolute inset-0 -z-20 h-full w-full object-cover opacity-30" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/30" />
+        <div className="container grid min-h-[500px] items-center gap-10 py-16 md:grid-cols-[1.15fr_.85fr] md:py-24">
+          <div className="max-w-2xl">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-200"><span className="h-1.5 w-1.5 rounded-full bg-amber-300" />Built for glass professionals</p>
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">Precision hardware.<br /><span className="text-amber-300">Clearer possibilities.</span></h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">Source glass hardware, fittings, and installation essentials through a straightforward catalog and an order process built around personal confirmation.</p>
+            <div className="mt-8 flex flex-wrap gap-3"><Link href="/shop"><Button size="lg" className="bg-amber-500 text-slate-950 hover:bg-amber-400">Browse catalog <ArrowRight className="ml-2 h-4 w-4" /></Button></Link><a href="https://wa.me/201020848619" target="_blank" rel="noreferrer"><Button size="lg" variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white">Talk to an expert</Button></a></div>
+          </div>
+          <div className="hidden rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm md:block"><div className="rounded-2xl bg-white p-5 text-slate-950 shadow-xl"><p className="text-xs font-semibold uppercase tracking-[.18em] text-slate-500">How ordering works</p><ol className="mt-5 space-y-4"><li className="flex gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-amber-100 text-xs font-bold text-amber-900">1</span><span className="text-sm">Add the products and quantities you need.</span></li><li className="flex gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-amber-100 text-xs font-bold text-amber-900">2</span><span className="text-sm">Choose Cash on Delivery or InstaPay.</span></li><li className="flex gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-amber-100 text-xs font-bold text-amber-900">3</span><span className="text-sm">Confirm directly on WhatsApp and track your order online.</span></li></ol></div></div>
+        </div>
+      </section>
+      <section className="container py-14 sm:py-20">
+        <div className="flex items-end justify-between gap-6"><div><p className="text-xs font-semibold uppercase tracking-[.2em] text-amber-700">Explore by need</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Shop the essentials</h2></div><Link href="/shop" className="hidden text-sm font-semibold text-amber-700 hover:text-amber-800 sm:inline-flex">View all products <ArrowRight className="ml-1 h-4 w-4" /></Link></div>
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{categories.data?.slice(0, 4).map(category => <Link key={category.id} href={`/shop?category=${category.slug}`} className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-lg hover:shadow-slate-950/5"><p className="text-sm font-semibold">{category.name}</p><p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">{category.description || "Quality components for your next glass project."}</p><span className="mt-5 inline-flex items-center text-sm font-medium text-amber-700">Shop category <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" /></span></Link>)}{categories.isLoading && Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-40 animate-pulse rounded-2xl bg-slate-200" />)}</div>
+      </section>
+      <section className="border-y border-slate-200 bg-white"><div className="container py-14 sm:py-20"><div className="flex items-end justify-between gap-6"><div><p className="text-xs font-semibold uppercase tracking-[.2em] text-amber-700">Featured catalog</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Selected products</h2></div><Link href="/shop" className="text-sm font-semibold text-amber-700 hover:text-amber-800">View catalog</Link></div><div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{featured.data?.products.map(product => <Link key={product.id} href={`/products/${product.slug}`} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-950/10"><div className="aspect-[4/3] overflow-hidden bg-slate-100"><img src={primaryImage(product.images)} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div><div className="p-4"><p className="line-clamp-1 font-semibold">{product.name}</p><p className="mt-1 text-sm text-slate-500">{product.category?.name || "Glass hardware"}</p><p className="mt-4 font-semibold text-amber-700">{formatMoney(product.priceAmount)}</p></div></Link>)}{featured.isLoading && Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-72 animate-pulse rounded-2xl bg-slate-200" />)}{!featured.isLoading && featured.data?.products.length === 0 && <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">The catalog is being prepared. Please check back shortly or contact us on WhatsApp.</div>}</div></div></section>
+      <section className="container grid gap-5 py-14 sm:grid-cols-3 sm:py-20">{[[PackageCheck, "Curated catalog", "Product details and live stock for a clearer purchase decision."], [Truck, "Order tracking", "See the status of every authenticated order in one place."], [ShieldCheck, "Clear confirmation", "Cash on Delivery or proof-based InstaPay with human follow-up."], [Wrench, "Trade support", "Need a fitting recommendation? Start a conversation on WhatsApp."]].map(([Icon, title, description]) => { const C = Icon as typeof PackageCheck; return <div key={title as string} className="rounded-2xl bg-slate-100 p-5"><C className="h-5 w-5 text-amber-700" /><h3 className="mt-4 font-semibold">{title as string}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{description as string}</p></div>; })}</section>
+    </main>
+  </StoreLayout>;
 }
