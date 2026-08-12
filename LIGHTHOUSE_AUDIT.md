@@ -35,6 +35,10 @@ The live audit preserves the earlier **100 Accessibility** and **100 SEO** outco
 
 > A meaningful next performance step is to re-audit after production cache warm-up with real approved catalog data in place. If the score remains near 40, a dependency-level reduction of the shared application shell and hosting-cache configuration review will be needed; those require a larger scoped change rather than a safe catalog-control update.
 
+## Expanded landing-page validation
+
+After extending the Arabic landing page with the new value, service-journey, FAQ-preview, and call-to-action sections, the current local production build measured **85 Performance**, **100 Accessibility**, **82 Best Practices**, and **100 SEO** on the mobile Lighthouse preset. The key metrics were **3.3 s FCP**, **3.3 s LCP**, **0.012 CLS**, and **110 ms TBT**. This confirms that the additional content did not create a material layout-stability or accessibility regression. The service-step numeral contrast was increased after the first audit so the final page returns a full accessibility score.
+
 ## Remaining observations
 
 The remaining mobile performance opportunities are mainly render delay from the shared JavaScript application shell and normal network variability during the throttled Lighthouse run. The current 687 kB minified main bundle is shared across the storefront because of its e-commerce providers and component library; infrequently visited public, checkout, order, and administrator pages remain code-split. Further material reductions would require a larger dependency-level refactor rather than a safe final-pass change.

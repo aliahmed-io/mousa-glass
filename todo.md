@@ -85,3 +85,8 @@
 - [x] Verify the updated catalog controls at mobile and desktop breakpoints.
 - [x] Run and document a Lighthouse audit against the deployed production storefront.
 - [x] Verify the updated catalog filtering and sorting controls at a desktop breakpoint.
+
+- [x] Expand the Arabic landing page with richer conversion-oriented storefront sections and calls to action.
+- [x] Preserve mobile responsiveness, accessibility, and lightweight image loading in the expanded landing-page sections.
+- [x] Validate the expanded landing page with type checks, automated tests, and mobile/desktop visual review.
+- [x] Resolve the landing-page Lighthouse accessibility finding and confirm the expanded page remains performance-conscious.
