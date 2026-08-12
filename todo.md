@@ -17,3 +17,11 @@
 - [x] Run and verify the expanded product, permission, and rejected payment-proof tests.
 - [x] Run automated checks, test the critical responsive paths, and resolve identified issues.
 - [x] Document production operation, security controls, and cost-conscious deployment choices.
+- [x] Audit the legacy site’s Arabic copy, right-to-left layout, fonts, images, colors, and component patterns.
+- [x] Restore the public home and storefront interface to the legacy Arabic visual design.
+- [x] Translate catalog, product, cart, checkout, order history, and payment-confirmation interfaces into Arabic with right-to-left behavior.
+- [x] Restyle the administrator pages using the restored Arabic local design system.
+- [x] Verify responsive Arabic layouts, legacy asset usage, automated tests, and type safety after the visual restoration.
+- [x] Fix the restored Arabic storefront mobile hero presentation and verify home/shop behavior after the correction.
+- [x] Directly review the Arabic ProductDetail, Checkout, Orders, DashboardLayout, and AdminDashboard implementations for copy, direction, and styling consistency.
+- [x] Review the authenticated Arabic order/payment and administrator dashboard/products/settings views before release.

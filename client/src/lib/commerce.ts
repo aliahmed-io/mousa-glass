@@ -1,20 +1,31 @@
 export function formatMoney(amount: number, currency = "EGP") {
-  return new Intl.NumberFormat("en-EG", {
+  return new Intl.NumberFormat("ar-EG", {
     style: "currency",
     currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount / 100);
 }
 
 export function formatOrderDate(value: Date | string) {
-  return new Intl.DateTimeFormat("en-EG", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
 export function primaryImage(images: Array<{ url: string }> | undefined) {
-  return images?.[0]?.url ?? "/manus-storage/glass-products-hero_79a48c05_fa45b861.jpg";
+  return images?.[0]?.url ?? "/manus-storage/glass-products-hero_79a48c05_ae72e62e.jpg";
 }
 
 export function statusLabel(status: string) {
-  return status.replaceAll("_", " ").replace(/\b\w/g, letter => letter.toUpperCase());
+  const labels: Record<string, string> = {
+    pending: "قيد المراجعة",
+    confirmed: "تم التأكيد",
+    shipped: "تم الشحن",
+    delivered: "تم التسليم",
+    cancelled: "ملغي",
+    pending_review: "قيد المراجعة",
+    verified: "تم التحقق",
+    rejected: "مرفوض",
+    unpaid: "غير مدفوع",
+  };
+  return labels[status] ?? status;
 }
