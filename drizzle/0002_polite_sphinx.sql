@@ -1,0 +1,1 @@
+ALTER TABLE `storeSettings` ADD `isCatalogStaging` boolean DEFAULT true NOT NULL;

@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <aside className={`fixed inset-y-0 right-0 z-50 flex w-72 flex-col border-l border-[#d4af37]/15 bg-[#0b0b10] p-5 transition-transform lg:sticky lg:translate-x-0 ${open ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
-              <img src="/manus-storage/pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d193407d_32f06135.jpeg" alt="موسى" className="h-10 w-10 rounded-full object-cover ring-1 ring-[#d4af37]/50" />
+              <img src="/manus-storage/mousa-logo-128_bf907234.webp" alt="موسى" className="h-10 w-10 rounded-full object-cover ring-1 ring-[#d4af37]/50" />
               <div><p className="text-gold-gradient text-xl font-black">موسى</p><p className="text-xs text-[#f5f0e8]/40">لوحة الإدارة</p></div>
             </Link>
             <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="إغلاق القائمة"><X className="h-5 w-5 text-[#d4af37]" /></button>

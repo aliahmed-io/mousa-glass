@@ -1,0 +1,306 @@
+{
+  "requestedUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+  "finalUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+  "categories": {
+    "performance": 68,
+    "accessibility": 100,
+    "best-practices": 92,
+    "seo": 61
+  },
+  "metrics": [
+    {
+      "id": "first-contentful-paint",
+      "value": "3.3 s"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "value": "4.5 s"
+    },
+    {
+      "id": "total-blocking-time",
+      "value": "100 ms"
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "value": "0.002"
+    },
+    {
+      "id": "speed-index",
+      "value": "10.5 s"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "server-response-time",
+      "title": "Reduce initial server response time",
+      "score": 0,
+      "savingsMs": 2575,
+      "displayValue": "Root document took 2,680 ms"
+    },
+    {
+      "id": "unused-javascript",
+      "title": "Reduce unused JavaScript",
+      "score": 0,
+      "savingsMs": 450,
+      "displayValue": "Est savings of 52 KiB"
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "errors-in-console",
+      "title": "Browser errors were logged to the console",
+      "score": 0
+    },
+    {
+      "id": "inspector-issues",
+      "title": "Issues were logged in the `Issues` panel in Chrome Devtools",
+      "score": 0
+    },
+    {
+      "id": "is-crawlable",
+      "title": "Page is blocked from indexing",
+      "score": 0
+    },
+    {
+      "id": "bf-cache",
+      "title": "Page prevented back/forward cache restoration",
+      "score": 0,
+      "displayValue": "2 failure reasons"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0.5,
+      "displayValue": "Est savings of 31 KiB"
+    },
+    {
+      "id": "render-blocking-insight",
+      "title": "Render-blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 240 ms"
+    }
+  ],
+  "focusedEvidence": {
+    "consoleErrors": [
+      {
+        "source": "security",
+        "description": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 28,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-ApGQL/efXXIFjw7PJ6YmGzxedXyxK09f6IdOJN7vsw0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 119,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kp93lwgzlaYgae4ER/aK95sTlxpldakC71nyLX2kpLw='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 100,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-qOgOCo4Gdx/jjFtkwLJJ3qTQ6lf/Qg0tD99zQlSVeu0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 35,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://files.manuscdn.com/manus-space-dispatcher/spaceEditor-DPV-_I11.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://manus-analytics.com/umami' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      }
+    ],
+    "layoutShifts": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-1-DIV",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,0,DIV,3,DIV",
+          "selector": "div.pt-[72px] > main.min-h-[70vh] > div.container > div.mt-5",
+          "boundingRect": {
+            "top": 758,
+            "bottom": 3346,
+            "left": 16,
+            "right": 396,
+            "width": 380,
+            "height": 2588
+          },
+          "snippet": "<div class=\"mt-5 grid min-h-44 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-co…\">",
+          "nodeLabel": "ديكور زجاجي\n\nمزهرية كهرمانية — نموذج تجريبي\n\nقطعة عرض مولّدة لتجربة بطاقات المنت…"
+        },
+        "score": 0.002350197313442219
+      }
+    ],
+    "backForwardCache": [
+      {
+        "reason": "Pages whose main resource has cache-control:no-store cannot enter back/forward cache.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse"
+            }
+          ]
+        },
+        "protocolReason": "MainResourceHasCacheControlNoStore"
+      },
+      {
+        "reason": "Back/forward cache is disabled because some JavaScript network request received resource with Cache-Control: no-store header.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=cbe33973-lighthouse"
+            }
+          ]
+        },
+        "protocolReason": "JsNetworkRequestReceivedCacheControlNoStoreResource"
+      }
+    ],
+    "colorContrast": [],
+    "imageDelivery": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-5-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,0,DIV,3,DIV,2,ARTICLE,0,A,0,IMG",
+          "selector": "div.mt-5 > article.group > a.block > img.h-full",
+          "boundingRect": {
+            "top": 1802,
+            "bottom": 2086,
+            "left": 17,
+            "right": 395,
+            "width": 378,
+            "height": 284
+          },
+          "snippet": "<img alt=\"طقم أكواب بحافة كهرمانية — نموذج تجريبي\" loading=\"lazy\" decoding=\"async\" class=\"h-full w-full object-cover transition duration-700 group-hover:scale-105\" src=\"/manus-storage/mousa-glass-staging-amber-glassware-960_e4bd2db3.webp\">",
+          "nodeLabel": "طقم أكواب بحافة كهرمانية — نموذج تجريبي"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/mousa-glass-staging-amber-glassware-960_e4bd2db3.webp?Expires=1787509711&Signature=M5RVjZDnYZESaBnwFVfCODwxtz56eoOJLcYFEllyklGqbIDsJZiSIaS1gl4aSpztroDShe9PiMWy~GzlgDWyr~p8wNEM5krN1symetikno7~eoXWpFtGTx8Iref2bxwGhrFNIoq0OauPCo4qF0b3Ijts0zQ~cCskBxNNLKEL5OfeUHhB0wLZWml7EyIdjeWh5Nsoil9O-phpNUQRg54GVrW-X4NJ2K6NndGI~NTp2VaeNYNEisk4AEWoU8s~Zf4lzfuALKeoEPNLpk0QPBe0yiaPw8Nr-Q3jH3c46QM~vNjIMJ5914BgPcWsbH8Z1CDlME2O-8tnvFsZZfGJIMwdRg__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 69456,
+        "wastedBytes": 14647,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (960x722) for its displayed dimensions (662x827). Use responsive images to reduce the image download size.",
+              "wastedBytes": 14647
+            }
+          ]
+        }
+      },
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-6-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,0,DIV,3,DIV,0,ARTICLE,0,A,0,IMG",
+          "selector": "div.mt-5 > article.group > a.block > img.h-full",
+          "boundingRect": {
+            "top": 759,
+            "bottom": 1043,
+            "left": 17,
+            "right": 395,
+            "width": 378,
+            "height": 284
+          },
+          "snippet": "<img alt=\"مزهرية كهرمانية — نموذج تجريبي\" loading=\"lazy\" decoding=\"async\" class=\"h-full w-full object-cover transition duration-700 group-hover:scale-105\" src=\"/manus-storage/mousa-glass-staging-amber-vase-960_a1759e41.webp\">",
+          "nodeLabel": "مزهرية كهرمانية — نموذج تجريبي"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/mousa-glass-staging-amber-vase-960_a1759e41.webp?Expires=1787509711&Signature=yau13B0Uj9ZjjUJMKuwFgQ3SX-nTxsPa-PXjE9ojL-hdbvN~sOkuomC5UVp0altlnc9MfXv~swgFs~9OmsNv1owobb7x7kQm9YJxD7t7~ZMuXUiLVtxtUyDMploA9epGWpcY0laN8Irxo0vZEi-B5LjIwseqT5BC2FT67djvwRzHI8FYsiberPzbNNoKU6Zkq8tHpk8ewogSnEylisXUDlRsfrK2gTRjvwOJm7UOQrOQaym5NXJPB1JavA8xVaeEDq7Yje79HucjJ6~~eSejeYl~Jfe6ur9PpnhlGj~wyrJCCPhMlgWn6qnCjazJy6saYd0f1cUqa3XWeTEcNM4q-g__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 48854,
+        "wastedBytes": 10303,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (960x722) for its displayed dimensions (662x827). Use responsive images to reduce the image download size.",
+              "wastedBytes": 10303
+            }
+          ]
+        }
+      },
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-7-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,0,DIV,3,DIV,1,ARTICLE,0,A,0,IMG",
+          "selector": "div.mt-5 > article.group > a.block > img.h-full",
+          "boundingRect": {
+            "top": 1281,
+            "bottom": 1564,
+            "left": 17,
+            "right": 395,
+            "width": 378,
+            "height": 284
+          },
+          "snippet": "<img alt=\"مرآة بيضاوية دخانية — نموذج تجريبي\" loading=\"lazy\" decoding=\"async\" class=\"h-full w-full object-cover transition duration-700 group-hover:scale-105\" src=\"/manus-storage/mousa-glass-staging-smoked-mirror-960_2bbc7cec.webp\">",
+          "nodeLabel": "مرآة بيضاوية دخانية — نموذج تجريبي"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/mousa-glass-staging-smoked-mirror-960_2bbc7cec.webp?Expires=1787509711&Signature=Hlft2Il1cdAt4JYHkE1JjCbBMQlJKmsHAJoQ73phUCjcZz2WORPraIZEjPcLdb3ft8NmERyZo6XdRninUu-oeU2mO0eXchq59uGdna90sQIOd01JmX95UbGnuxvYrQokpZiogEqN0cFsMLJDr4ZrOh9praWGhcgs4~VV8qZeIxolpdXthrvBVqiCWycWe-DJgzP~XsTS6E3a~AHjyFFiDg2u28vPmAOD1YXWJJsJUr0RO8oUkgTouWpkTuVY8jnYsbhLqJkUngTFSa0CylvtIt64WxdsVuwNdToxhvxL5~UOcL3Y5yehy2UGfhWXgBLhwLHj0nr7dNc227LDKaxAVQ__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 31048,
+        "wastedBytes": 6409,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (960x718) for its displayed dimensions (662x827). Use responsive images to reduce the image download size.",
+              "wastedBytes": 6409
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,13 +1,11 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
-import Shop from "./pages/Shop";
 
+const Home = lazy(() => import("@/pages/Home"));
+const Shop = lazy(() => import("@/pages/Shop"));
 const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const DeliveryReturns = lazy(() => import("@/pages/DeliveryReturns"));
@@ -31,6 +29,7 @@ function Router() {
     <Route path="/shop" component={Shop} />
     <Route path="/about" component={About} />
     <Route path="/contact" component={Contact} />
+    <Route path="/delivery-returns" component={DeliveryReturns} />
     <Route path="/delivery&returns" component={DeliveryReturns} />
     <Route path="/faq" component={FAQ} />
     <Route path="/products/:slug" component={ProductDetail} />
@@ -50,5 +49,5 @@ function Router() {
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><CartProvider><Toaster /><Router /></CartProvider></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="light"><CartProvider><Router /></CartProvider></ThemeProvider></ErrorBoundary>;
 }

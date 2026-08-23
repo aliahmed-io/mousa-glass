@@ -8,6 +8,7 @@ const dbMocks = vi.hoisted(() => ({
   createCheckoutOrder: vi.fn(),
   createProduct: vi.fn(),
   deleteCategory: vi.fn(),
+  deletePaymentProof: vi.fn(),
   deleteProduct: vi.fn(),
   deleteProductImage: vi.fn(),
   getAdminProducts: vi.fn(),
@@ -29,8 +30,15 @@ const dbMocks = vi.hoisted(() => ({
 
 const storageMocks = vi.hoisted(() => ({ storagePut: vi.fn() }));
 
+const operationsMocks = vi.hoisted(() => ({
+  notifyOwnerNonBlocking: vi.fn(),
+  orderAlertPayload: vi.fn((input: { orderNumber: string }) => ({ title: "order", content: input.orderNumber })),
+  paymentProofAlertPayload: vi.fn((input: { orderNumber: string }) => ({ title: "proof", content: input.orderNumber })),
+}));
+
 vi.mock("./db", () => dbMocks);
 vi.mock("./storage", () => storageMocks);
+vi.mock("./_core/operations", () => operationsMocks);
 
 import { appRouter } from "./routers";
 
@@ -63,10 +71,12 @@ const productInput = {
   isFeatured: false,
 };
 
+const pngImageData = `data:image/png;base64,${Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]).toString("base64")}`;
+
 describe("commerce tRPC procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0 });
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: false, paymentProofRetentionDays: 90 });
   });
 
   it("allows administrators to create a catalog product", async () => {
@@ -84,6 +94,19 @@ describe("commerce tRPC procedures", () => {
   it("allows an administrator to update inventory without changing other fields", async () => {
     await appRouter.createCaller(context("admin")).products.update({ id: 17, stock: 4 });
     expect(dbMocks.updateProduct).toHaveBeenCalledWith(17, { stock: 4, isActive: true, isFeatured: false });
+  });
+
+  it("uses the protected update path to archive a product instead of deleting its order history", async () => {
+    await appRouter.createCaller(context("admin")).products.update({ id: 17, isActive: false });
+    expect(dbMocks.updateProduct).toHaveBeenCalledWith(17, { isActive: false, isFeatured: false });
+  });
+
+  it("returns archive guidance when a historical product deletion is rejected", async () => {
+    dbMocks.deleteProduct.mockRejectedValue(new Error("Products referenced by order history cannot be deleted. Archive the product by hiding it instead."));
+    await expect(appRouter.createCaller(context("admin")).products.delete({ id: 17 })).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: expect.stringContaining("Archive the product"),
+    });
   });
 
   it("passes customer category filters and Arabic catalog sort selections to the database layer", async () => {
@@ -124,7 +147,7 @@ describe("commerce tRPC procedures", () => {
   });
 
   it("creates an InstaPay order attached to the authenticated customer and returns WhatsApp handoff", async () => {
-    dbMocks.createCheckoutOrder.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", totalAmount: 26000 });
+    dbMocks.createCheckoutOrder.mockResolvedValue({ orderId: 22, orderNumber: "MG-ORDER-22", totalAmount: 26000 });
     const result = await appRouter.createCaller(context("user")).orders.create({
       customerName: "Customer Name",
       customerPhone: "201020000000",
@@ -133,16 +156,19 @@ describe("commerce tRPC procedures", () => {
       notes: null,
       paymentMethod: "instapay",
       items: [{ productId: 5, quantity: 2 }],
+      idempotencyKey: "0d5d3d1d-1e7d-49ae-8668-c566dce7e596",
     });
     expect(dbMocks.createCheckoutOrder).toHaveBeenCalledWith(expect.objectContaining({ userId: 2, paymentMethod: "instapay", items: [{ productId: 5, quantity: 2 }] }));
     expect(result).toMatchObject({ orderNumber: "MG-ORDER-22", instaPayHandle: "01060223037" });
     expect(result.whatsappUrl).toContain("201020848619");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-ORDER-22");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("I placed order");
+    expect(operationsMocks.orderAlertPayload).toHaveBeenCalledWith(expect.objectContaining({ orderId: 22, orderNumber: "MG-ORDER-22", paymentMethod: "instapay" }));
+    expect(operationsMocks.notifyOwnerNonBlocking).toHaveBeenCalledWith({ title: "order", content: "MG-ORDER-22" });
   });
 
   it("creates a Cash on Delivery order with the configured WhatsApp confirmation handoff", async () => {
-    dbMocks.createCheckoutOrder.mockResolvedValue({ id: 23, orderNumber: "MG-COD-23", totalAmount: 12500 });
+    dbMocks.createCheckoutOrder.mockResolvedValue({ orderId: 23, orderNumber: "MG-COD-23", totalAmount: 12500 });
     const result = await appRouter.createCaller(context("user")).orders.create({
       customerName: "Cash Customer",
       customerPhone: "2010602223037",
@@ -151,6 +177,7 @@ describe("commerce tRPC procedures", () => {
       notes: "Cash on delivery",
       paymentMethod: "cash_on_delivery",
       items: [{ productId: 6, quantity: 1 }],
+      idempotencyKey: "bcbbc52c-ecaa-4454-9160-a2ab6da76a36",
     });
     expect(dbMocks.createCheckoutOrder).toHaveBeenCalledWith(expect.objectContaining({ userId: 2, paymentMethod: "cash_on_delivery" }));
     expect(result).toMatchObject({ orderNumber: "MG-COD-23", instaPayHandle: "01060223037" });
@@ -158,24 +185,74 @@ describe("commerce tRPC procedures", () => {
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-COD-23");
   });
 
+  it("rejects order creation while the generated staging catalog is enabled", async () => {
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: true });
+    await expect(appRouter.createCaller(context("user")).orders.create({
+      customerName: "Staging Customer",
+      customerPhone: "2010602223037",
+      customerEmail: null,
+      shippingAddress: "Hurghada, Red Sea",
+      notes: null,
+      paymentMethod: "cash_on_delivery",
+      items: [{ productId: 6, quantity: 1 }],
+      idempotencyKey: "6bb53a5d-fd7b-458e-92b7-7dd1130c3f2f",
+    })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
+  });
+
+  it("requires a configured retention period before accepting a non-staging InstaPay order", async () => {
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: false, paymentProofRetentionDays: null });
+    await expect(appRouter.createCaller(context("user")).orders.create({
+      customerName: "InstaPay Customer", customerPhone: "2010602223037", customerEmail: null, shippingAddress: "Hurghada, Red Sea", notes: null, paymentMethod: "instapay", items: [{ productId: 6, quantity: 1 }], idempotencyKey: "a85989c9-3403-48e3-ae31-75c6f15f0e59",
+    })).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
+    expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
+  });
+
+  it("requires a UUID idempotency key for each checkout request", async () => {
+    await expect(appRouter.createCaller(context("user")).orders.create({
+      customerName: "Customer Name",
+      customerPhone: "201020000000",
+      customerEmail: null,
+      shippingAddress: "24 Example Street, Cairo",
+      notes: null,
+      paymentMethod: "cash_on_delivery",
+      items: [{ productId: 5, quantity: 1 }],
+      idempotencyKey: "repeat-submit",
+    })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
+  });
+
   it("stores an InstaPay proof only for the customer who owns the order", async () => {
     dbMocks.getOrderForUser.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", paymentMethod: "instapay", status: "pending" });
     storageMocks.storagePut.mockResolvedValue({ key: "payment-proofs/MG-ORDER-22/proof.png", url: "https://storage.example/proof.png" });
-    const imageData = `data:image/png;base64,${Buffer.from("valid-image").toString("base64")}`;
-    const result = await appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData });
+    const result = await appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData: pngImageData });
     expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringContaining("payment-proofs/MG-ORDER-22"), expect.any(Buffer), "image/png");
     expect(dbMocks.addPaymentProof).toHaveBeenCalledWith(expect.objectContaining({ orderId: 22, originalFilename: "proof.png" }));
     expect(result.success).toBe(true);
     expect(result.whatsappUrl).toContain("https://wa.me/201020848619");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-ORDER-22");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("proof for order");
+    expect(operationsMocks.paymentProofAlertPayload).toHaveBeenCalledWith({ orderId: 22, orderNumber: "MG-ORDER-22" });
+    expect(operationsMocks.notifyOwnerNonBlocking).toHaveBeenCalledWith({ title: "proof", content: "MG-ORDER-22" });
   });
 
   it("rejects a payment proof upload when the customer does not own the order", async () => {
     dbMocks.getOrderForUser.mockResolvedValue(null);
-    const imageData = `data:image/png;base64,${Buffer.from("valid-image").toString("base64")}`;
-    await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 99, fileName: "proof.png", imageData })).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 99, fileName: "proof.png", imageData: pngImageData })).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(storageMocks.storagePut).not.toHaveBeenCalled();
     expect(dbMocks.addPaymentProof).not.toHaveBeenCalled();
+  });
+
+  it("rejects a payment-proof upload whose bytes do not match its declared image type", async () => {
+    dbMocks.getOrderForUser.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", paymentMethod: "instapay", status: "pending" });
+    const invalidImageData = `data:image/png;base64,${Buffer.from("not-an-image").toString("base64")}`;
+    await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData: invalidImageData })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(storageMocks.storagePut).not.toHaveBeenCalled();
+  });
+
+  it("allows only administrators to remove a payment-proof reference", async () => {
+    await expect(appRouter.createCaller(context("user")).admin.deletePaymentProof({ id: 12 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(context("admin")).admin.deletePaymentProof({ id: 12 })).resolves.toEqual({ success: true });
+    expect(dbMocks.deletePaymentProof).toHaveBeenCalledWith(12);
   });
 });

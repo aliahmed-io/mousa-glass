@@ -3,7 +3,7 @@
 **Audit date:** 23 August 2026  
 **System assessed:** Mousa Glass — Arabic RTL e-commerce storefront for Hurghada, Egypt  
 **Scope:** React 19/Tailwind customer storefront; Express/tRPC backend; Drizzle/MySQL-compatible database; Manus OAuth; managed object storage; admin workspace; current published Manus deployment; operational documentation.  
-**Overall decision:** **NOT READY FOR UNRESTRICTED CUSTOMER LAUNCH.** The application is a sound **pre-production commerce foundation** with secure server-side RBAC, a functional admin workflow, responsive Arabic storefront, managed payment-proof protection, and passing automated tests. However, it has no live catalog, lacks several production safeguards and business/legal inputs, and has not been proven end-to-end with real customer data or payments.
+**Overall decision:** **NOT READY FOR UNRESTRICTED CUSTOMER LAUNCH.** The application is a sound **pre-production commerce foundation** with secure server-side RBAC, a functional admin workflow, responsive Arabic storefront, managed payment-proof protection, and passing automated tests. It has a clearly disclosed non-orderable seed catalog rather than merchant-approved commercial data, lacks several production safeguards and business/legal inputs, and has not been proven end-to-end with real customer data or payments.
 
 > **Assessment convention:** **PASS** means directly verified during this audit. **PARTIAL** means implemented but not fully proven in the required conditions. **UNVERIFIED** means no safe or reliable evidence was available. **NOT APPLICABLE** means the requirement does not apply to the selected manual COD/InstaPay model.
 
@@ -13,17 +13,21 @@
 
 The current application is correctly positioned as an **Arabic-first, RTL, catalog-led local commerce site**. It provides customer routes for the landing page, shop, product detail, cart, checkout, orders, Contact, About, Delivery & Returns, and FAQ. Administrator routes cover dashboard metrics, products, categories, media, orders, payment status, and store settings. The backend uses tRPC contracts, Zod input validation, Manus OAuth sessions, server-side `adminProcedure` enforcement, transactional order creation, atomic stock decrement, and managed object storage.
 
-The core engineering is credible, but the business is not yet sale-ready because the catalog is intentionally empty. There are no categories, products, images, orders, payment proofs, or real-world validation records. The mandatory first launch gate is therefore **merchant-approved catalog content and a controlled real workflow rehearsal**. The next technical gate is abuse/risk hardening: rate limits, order idempotency, legal pages, monitoring, backup/restore evidence, and a state-transition policy.
+The core engineering is credible, but the business is not yet sale-ready. A clearly disclosed, non-orderable generated staging catalog now exists to validate product discovery and administration; it is **not** merchant-approved commercial content. The mandatory first launch gate is therefore **merchant-approved catalog content and a controlled real workflow rehearsal**. The remaining technical gate is distributed abuse protection, legal pages, monitoring, and backup/restore evidence.
+
+### Post-audit remediation update
+
+Since the baseline audit, the application has added a generated Arabic staging catalog with source-recorded generated imagery, an order-disable switch, global staging disclosures, and administrator-sourced public contact data. `STAGING_ASSET_PROVENANCE.md` records the generation date, constrained source prompts, asset URLs, replacement history, and limited intended-use boundary for all five staging images; it is not merchant approval or a legal licence opinion. The checkout now sends a client UUID idempotency key; the database stores a request fingerprint and unique user/key pair, replays an identical retry safely, and rejects key reuse with different order details. The server also now applies a tested same-origin mutation guard, explicit trusted-origin CORS/preflight handling, restrictive browser-security headers, reduced parser limits, request/upload throttles, and image-signature checks. Commerce data now has reviewed foreign keys and indexes, a transactionally enforced order/payment transition matrix, and exactly-once cancellation stock restoration. A non-sensitive health endpoint, post-write best-effort owner alerts for orders/proofs, and a GitHub Actions release workflow are now present. The local release suite validates the health contract, alert triggers and failure containment, workflow formatting, `pnpm audit --prod --json`, type checking, 48 regression tests, and the production build. These are meaningful **P1 risk reductions**, not approval for unrestricted launch: rate limiting remains per-process on autoscaling infrastructure, the workflow has not yet been observed in a GitHub run, and genuine merchant data, policy approval, external monitoring, recovery evidence, and real E2E validation remain mandatory.
 
 | Decision area | Audit result | Launch implication |
 |---|---|---|
 | Arabic RTL customer storefront | **PASS** | Suitable visual and navigational foundation for Egypt-local commerce. |
 | Admin product/category/order operations | **PASS** | Capable of day-to-day catalog and order administration. |
 | Authentication and role enforcement | **PASS** | OAuth session plus server-side owner/admin controls were inspected. |
-| Catalog readiness | **FAIL — P0** | No real products, prices, stock, images, or categories exist. |
+| Catalog readiness | **FAIL — P0** | A non-orderable generated staging catalog exists; real approved products, prices, stock, and images do not. |
 | Payment-proof confidentiality | **PASS after remediation** | Storage proxy now requires order owner or administrator for proof files. |
 | COD/InstaPay business flow | **PARTIAL — P1** | Code exists, but real end-to-end validation was intentionally not completed. |
-| Abuse, fraud, and operational controls | **PARTIAL — P1/P2** | Rate limits, idempotency, monitoring, and backup evidence are missing. |
+| Abuse, fraud, and operational controls | **PARTIAL — P1/P2** | Same-origin guard, headers, local throttles, idempotency, health checks, best-effort owner notifications, CI, and a clean production dependency audit exist; distributed limiting, external error monitoring, and backup evidence remain missing. |
 | Mobile, accessibility, and local-build performance | **PASS / PARTIAL** | Strong local Lighthouse accessibility/SEO; published-host performance remains variable. |
 
 ---
@@ -35,18 +39,40 @@ The core engineering is credible, but the business is not yet sale-ready because
 | Evidence source | Result | Used for |
 |---|---|---|
 | Published storefront `https://mousaglass-393f3nnk.manus.space/` | Loaded successfully in an interactive browser. Arabic RTL header, public routes, cart state, WhatsApp CTA, and empty catalog state rendered. | Live reachability and customer-facing rendering. |
-| Reproducible validation | `pnpm check`, `pnpm test`, and `pnpm build` completed successfully. Latest suite: **4 test files, 20 tests passed**. | Build integrity and automated regression coverage. |
-| Current production bundle | Shared initial bundle: **709.05 kB minified / 201.34 kB gzip**; build emits a chunk-size warning. | Performance finding. |
-| Published-deployment Lighthouse | Mobile Home and Shop: **40 Performance, 100 Accessibility, 82 Best Practices, 100 SEO**. | Live performance baseline. |
+| Reproducible validation | Local release suite completed: CI workflow formatting check, `pnpm audit --prod --json`, `pnpm check`, `pnpm test`, and `pnpm build`. Latest suite: **11 test files, 48 tests passed**. It includes lifecycle/restock, protected-storage, request-security, historical-product deletion, administrator archive-path, retention-gate, proof-reference-deletion, crawler/structured-data, health-contract, and owner-alert regressions. | Build integrity and automated regression coverage. |
+| Latest local production build | Deferring the eager Home and Shop modules reduced the shared entry from **712.62 kB / 202.52 kB gzip** to **626.00 kB / 188.95 kB gzip**. Dedicated `Home` and `Shop` chunks are **40.04 kB / 6.03 kB gzip** and **16.46 kB / 3.58 kB gzip** respectively; the shared entry still emits a chunk-size warning. | Verified code-splitting reduction; re-measure the published deployment before treating it as a live Core Web Vitals improvement. |
+| Published-deployment Lighthouse | Fresh mobile Home audit after deployment: **63 Performance, 95 Accessibility, 93 Best Practices, 100 SEO**. Measured FCP **3.5 s**, LCP **4.5 s**, TBT **50 ms**, CLS **0.134**, and Speed Index **10.6 s**. The code-split build improved the earlier published performance score of 40 but does not yet meet a strong launch target. | Live performance baseline after route splitting. Primary measured opportunities are 2.16 s initial-server-response savings, 3.78 MiB image-delivery savings, 300 ms unused-JavaScript savings, and 250 ms render-blocking insight. |
+
+After that audit, the Home page was updated to reserve category/product-card space while catalog queries resolve, and all five assigned staging images were replaced with documented 960-pixel WebP delivery derivatives. The Home category banner was also converted from a **3.7 MiB** 2560×1440 PNG payload to a visually reviewed **22 KiB** 960×540 WebP derivative. The five catalog-image delivery files total approximately **280 KiB** (down from approximately **20 MiB** source JPEGs). Local type checks, 48 regression tests, production build, visual rendering, database assignment verification, and the repeatable assigned-asset verifier passed. A new published Lighthouse run is still required before quantifying any real change to LCP, CLS, or total image transfer.
+
+> **Deployment-measurement boundary — 2026-08-23:** Immediately after checkpoint `0f55a418`, cache-busted published Home requests showed the compressed staging-product WebP files but still requested the prior `category-banner_dbe4fbaa_df28b4b8.jpg` URL. This indicates deployment or asset-manifest propagation was not yet complete for the category-banner code change. Do not use a Lighthouse run from that interim state to assess the banner optimization; first verify the `/manus-storage/mousa-glass-category-banner-960_fce01c36.webp` resource in the published graph.
+
+After propagation completed, a cache-busted published Home page confirmed the new category-banner WebP path and all five assigned 960-pixel product WebP paths. A fresh mobile Lighthouse audit then returned **62 Performance, 96 Accessibility, 92 Best Practices, and 100 SEO**, with FCP **3.6 s**, LCP **4.5 s**, TBT **80 ms**, CLS **0.134**, and Speed Index **12.1 s**. The image-delivery estimate fell from **3.78 MiB** to **105 KiB**, which confirms that the media-delivery intervention materially reduced the audit’s image-payload finding. Variance in the overall score and unchanged LCP mean this is not a Core Web Vitals pass: the current audit still identifies a **2.77 s** initial-server-response opportunity, **53 KiB** unused JavaScript, **230 ms** render-blocking insight, one layout shift, console errors, contrast, bfcache, and residual image-delivery findings. These must remain in the launch-gate register until ownership and remediation evidence are clear.
+
+Focused report inspection attributes the measured layout shift to the Home hero moving after the catalog-mode query inserts the staging disclosure. The local follow-up now fails closed for the first paint (`isCatalogStaging !== false`), reserving the disclosure before the query settles; type checking, 48 tests, build, and mobile visual review passed. The remaining bfcache failures are explicitly marked **not actionable** by Lighthouse because the managed response and a managed JavaScript request use `Cache-Control: no-store`. The console errors are CSP blocks for managed analytics scripts at `manus-analytics.com` and `plausible.io`; no application script or customer data is implicated. Published re-audit evidence remains required for the new layout reservation and narrowed contrast rule.
+
+The cache-busted published re-audit after checkpoint `cbe33973` confirms the compact-logo, narrowed contrast, and first-paint staging-banner build is live. It reports **62 Performance, 100 Accessibility, 92 Best Practices, and 100 SEO**; the prior product-category contrast finding is absent and CLS is **0**, so the specific contrast and staging-banner layout-shift remediations are now supported by published evidence. The audit is not a Core Web Vitals pass: FCP is **3.7 s**, LCP is **5.6 s**, TBT is **100 ms**, and Speed Index is **12.2 s**. It retains a **2.45 s** initial-server-response opportunity, **53 KiB** unused JavaScript, **250 ms** render-blocking insight, and **8 KiB** residual image-delivery opportunity. The console and bfcache findings remain CSP/cache-control reports attributable to managed injected scripts and managed `no-store` headers, not application execution defects. Further performance work must distinguish those platform-controlled limits from application-owned changes.
+
+The matching published Shop re-audit reports **68 Performance, 100 Accessibility, 92 Best Practices, and 61 SEO**. Its `colorContrast` finding is empty, corroborating the shared scoped product-card selector in both Home and Shop. The intentionally low Shop SEO score results from the staging crawler policy blocking generated catalog indexing; it is expected and must not be “fixed” until merchant-approved catalog data replaces the staged records. Shop remains outside Core Web Vitals targets (FCP **3.3 s**, LCP **4.5 s**, TBT **100 ms**, CLS **0.002**, Speed Index **10.5 s**) and retains a managed **2.58 s** server-response opportunity plus app bundle/image follow-up work.
+
+Local bundle follow-up found no production use of the root `Toaster` or global `TooltipProvider`; tooltip usage is limited to an un-routed component showcase. Removing those providers from `App` reduced the shared entry from **626.00 kB / 188.95 kB gzip** to **547.63 kB / 163.79 kB gzip** in a full local production build. Type checks, 48 regression tests, build, and mobile Home/Shop visual checks passed. The reduction is promising local evidence only; it requires a subsequent published re-audit before it can be credited to live Core Web Vitals.
+
+The locally validated follow-up raises the Home and Shop product-category labels from 65% to 80% gold opacity over the dark card surface, preserving the noir-and-gold hierarchy while clearing the identified 4.4:1 category-label contrast condition by design. Type checking, all 48 regression tests, the production build, and mobile visual checks passed. A published re-audit is still required before recording this as a live accessibility result.
+
+The same local validation pass replaces the prior **99,657-byte** 1254px JPEG logo with a visually verified **3,134-byte** 128px WebP derivative in the 40–44px public and admin logo placements. This preserves the existing full square composition and eliminates an unnecessary small-placement image transfer. Its effect on the published audit has not yet been measured.
+
+> **Deployment-measurement boundary — 2026-08-23:** The first cache-busted published request after checkpoint `6a5f5e2a` still referenced the prior `pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d193407d_32f06135.jpeg` logo path. Do not treat the compact-logo or scoped-contrast changes as live until a propagated published resource graph confirms the `mousa-logo-128_bf907234.webp` path.
+| Published browser timing snapshot | An earlier interactive-browser home navigation observed approximately **2.75 s response start**, **4.45 s DOM content loaded**, and **4.46 s load completion**. The first post-checkpoint visit reported **1.69 s response start**, **2.78 s DOM content loaded**, and **3.55 s load completion** while an older entry was cached. Direct cache-busted HTML inspection later confirmed a newly deployed entry asset (`index-D_Mcvf7A.js`), and a cache-busted interactive-browser visit completed the Arabic home-page render after the expected short route-loading state. Its resource graph separately loaded `Home-DVvHxl9H.js` (**4.8 kB transferred**) and `StoreLayout-B9YoD_N3.js` (**4.4 kB transferred**) beside the shared entry (**128.0 kB transferred**), confirming live route splitting. | Deployment propagation and live code splitting are confirmed. These are still supplemental lab signals, not a Lighthouse run, field Core Web Vitals, or an availability SLA. A fresh published audit is still required before closing the live-performance gate. |
 | Current local production Lighthouse | Expanded Home: **85 Performance, 100 Accessibility, 82 Best Practices, 100 SEO**; FCP 3.3 s, LCP 3.3 s, CLS 0.012, TBT 110 ms. | Regression and responsive-page validation. |
-| Database inspection | 1 user and 1 store-settings row; **0 categories, products, images, orders, order items, and payment proofs**. | Catalog readiness and safe data assessment. |
-| Code inspection | Schema, DB helpers, router, tRPC middleware, OAuth, cookie policy, storage proxy, admin pages, public layout, metadata, crawler policy, and operations guide reviewed. | Architecture, security, data, and operations conclusions. |
+| Database inspection | 1 user, 1 store-settings row, **4 generated staging categories, 5 generated staging products, 5 product-image records, and 0 orders, order items, or payment proofs**. `isCatalogStaging` is enabled, so customer order creation is disabled. | Catalog readiness and safe data assessment. |
+| Development runtime probes | `GET /healthz` returned HTTP 200 and only `{ status, service, timestamp }`; staging `robots.txt` disallowed shop/product discovery and `sitemap.xml` omitted staging catalog URLs. | Health contract and staging-safe crawler behavior. |
+| Code inspection | Schema, DB helpers, router, tRPC middleware, OAuth, cookie policy, storage proxy, admin pages, public layout, metadata, crawler policy, operations guide, and CI workflow reviewed. | Architecture, security, data, and operations conclusions. |
 
 ### 2.2 Limitations
 
 The application was not tested with a real customer, real product data, a real order, an actual InstaPay transfer, or a completed WhatsApp confirmation. The owner requested that the remaining authentication/payment validation be removed from the earlier scope, so this report does not claim that those business workflows are end-to-end proven. No destructive data test, load test, penetration test, external DNS test, or financial reconciliation test was performed.
 
-Command-line probes to the published hostname intermittently timed out while the same public storefront loaded in the interactive browser. This is recorded as a **reliability/observability limitation**, not proof that the website is unavailable. `pnpm audit` did not return before the audit timeout; dependency vulnerability status is therefore **UNVERIFIED**, not clean.
+Command-line probes to the published hostname intermittently timed out while the same public storefront loaded in the interactive browser. This is recorded as a **reliability/observability limitation**, not proof that the website is unavailable. A later bounded `pnpm audit --prod --json` completed after dependency updates with **0 low, 0 moderate, 0 high, and 0 critical** reported vulnerabilities across 469 production dependencies.
 
 ---
 
@@ -57,7 +83,7 @@ Command-line probes to the published hostname intermittently timed out while the
 ```text
 Arabic React 19 + Tailwind 4 client (Wouter, React Query, client-side cart)
         ↓ tRPC under /api/trpc
-Express 4 application (compression, OAuth callback, storage proxy, static serving)
+Express 5 application (compression, OAuth callback, storage proxy, static serving)
         ↓
 Drizzle ORM → MySQL/TiDB-compatible database
         ├─ users, categories, products, productImages
@@ -76,8 +102,8 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Maintainable route and module organization | **PARTIAL** | Core files are discoverable, but `server/routers.ts` and `server/db.ts` are large central modules and should be split by feature before significant growth. |
 | Shared e-commerce vocabulary | **PASS** | Categories, products, images, orders, items, payment proofs, and settings have dedicated schema and procedure names. |
 | Vendor lock-in awareness | **PARTIAL** | The app intentionally uses Manus OAuth, hosting, storage, and database platform services. Low maintenance cost is strong; exit/recovery runbook and export process need more proof. |
-| Environment/secrets handling | **PASS** | System secrets are injected rather than stored in source. Static scan did not find committed `.env`/key material. |
-| CI/CD pipeline | **FAIL — P2** | No repository CI workflow was identified. Builds/tests are run manually in the managed environment. |
+| Environment/secrets handling | **PASS** | System secrets are injected rather than stored in source. Static scan did not find committed `.env`/key material. The optional `TRUSTED_WEB_ORIGINS` setting accepts only explicit additional browser origins for CORS and mutation checks; its value is not stored in source. |
+| CI/CD pipeline | **PASS / PARTIAL** | `.github/workflows/ci.yml` runs frozen install, production dependency audit, type check, tests, and build on push to `main`/`production-readiness-audit-plan` and pull requests. Local workflow formatting and equivalent commands passed; no GitHub-hosted execution has yet been observed. |
 
 ---
 
@@ -108,7 +134,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Keyboard and semantic accessibility | **PASS / PARTIAL** | Lighthouse is 100 Accessibility locally after fixes; labels, decorative logo alt handling, contrast, focusable controls, and Arabic accessible names were addressed. A full screen-reader manual audit remains unperformed. |
 | Layout stability | **PASS** | Current expanded landing page CLS measured 0.012. Shop empty-state layout was stabilized. |
 | Localization and local context | **PASS** | Arabic copy, Hurghada/Red Sea address, Egyptian phone format, EGP settings, and local WhatsApp contact are in the public shell. |
-| Content readiness | **FAIL — P0** | The product catalog is empty. Public navigation and landing copy are ready, but real commercial content is not. |
+| Content readiness | **FAIL — P0** | A five-product generated staging catalog supports flow validation, but it is explicitly non-orderable and is not real commercial content. Merchant-approved catalog data remains required. |
 | Internationalization scalability | **PARTIAL** | RTL and Arabic are first-class; there is no multi-locale framework, translation catalog, or language selector. This is acceptable for an Arabic-only local store. |
 
 ### 4.3 SEO and discoverability
@@ -116,12 +142,12 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Checklist point | Status | Evidence and remediation |
 |---|---|---|
 | Arabic title, description, language, viewport | **PASS** | Present in `client/index.html`. |
-| Robots policy | **PASS** | `robots.txt` allows public paths and disallows admin, orders, cart, and checkout. |
+| Robots policy | **PASS** | Dynamic `robots.txt` disallows private paths and additionally disallows `/shop` and `/products/` while catalog staging is on. Staging product pages also emit `X-Robots-Tag: noindex, nofollow, noarchive`. |
 | Crawlable information pages | **PASS** | About, Contact, Delivery & Returns, and FAQ are routable public pages. |
-| Canonical URLs | **FAIL — P2** | No canonical tags were verified. Add canonical URLs when the final domain is connected. |
-| Sitemap | **FAIL — P2** | No `sitemap.xml` verified. Generate static pages plus product/category sitemap after live catalog entry. |
-| Open Graph / social cards | **FAIL — P2** | No Open Graph or Twitter/X metadata verified. Add Arabic social title, description, and branded share image. |
-| Product/category structured data | **FAIL — P2** | No JSON-LD Product, BreadcrumbList, Organization, LocalBusiness, or FAQPage data was verified. |
+| Canonical URLs | **PARTIAL — P2** | Site canonical and social URL are present for the current Manus domain. Set `PUBLIC_SITE_URL` and update static metadata when a final custom domain is approved. |
+| Sitemap | **PASS / PARTIAL** | Dynamic `sitemap.xml` includes approved information pages and omits generated staging catalog URLs. It will add active product URLs only when staging is intentionally disabled. |
+| Open Graph / social cards | **PASS / PARTIAL** | Arabic Open Graph and Twitter metadata and a branded share image are present for the current Manus domain; update them when the final domain and approved campaign image are available. |
+| Product/category structured data | **PARTIAL — P2** | WebSite JSON-LD exists; conditional Organization and Product JSON-LD are emitted only in non-staging mode, preventing generated catalog data from becoming rich-result content. Breadcrumb and FAQ schema remain absent. |
 | SSR/prerendering for product SEO | **PARTIAL — P2** | The app is SPA-based; crawlers may see the shell before dynamic product content. Consider SSR/prerendering after catalog launch if organic product discovery is a target. |
 
 ---
@@ -131,11 +157,11 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Requirement | Status | Evidence and conclusion |
 |---|---|---|
 | Admin route protection | **PASS** | Admin procedures use server-side `adminProcedure`, not only client checks. Admin pages redirect/display access restriction UI for non-admin users. |
-| Product create/edit/delete | **PASS** | Administrator product procedures validate names, slugs, price, stock, activity, feature state, and category assignment. |
+| Product create/edit/archive | **PASS** | Administrator product procedures validate names, slugs, price, stock, activity, feature state, and category assignment. The dashboard archives products; server deletion is transactionally refused where immutable order history references the product. |
 | Category create/edit/delete | **PASS** | Admin category screen supports search, editor validation, unique-slug backend enforcement, visibility, sort order, delete error feedback, desktop table, and mobile cards. |
 | Category filtering and sort | **PASS** | Public server-side sort enum and category slug filter are validated; controls retain URL state. |
 | Product image management | **PASS / PARTIAL** | Admin-only upload/delete is implemented; type, base64, MIME, and 5 MB decoded-size checks exist. Malware/antivirus scanning is not present. |
-| Order operations | **PARTIAL** | Admin can list/filter/view orders and update status/payment state. Transition rules, cancellation restock, export/reporting, and real operating volume are not proven. |
+| Order operations | **PASS / PARTIAL** | Admin permits only valid next order/payment states; invalid transitions are rejected server-side, eligible cancellations restore stock exactly once, and historical products are archived rather than deleted. Real operating volume and authenticated business E2E remain unproven. |
 | Settings management | **PASS** | Store name, WhatsApp, InstaPay handle, and shipping fee are admin-editable and query-backed. |
 | Operational documentation | **PASS / PARTIAL** | `PRODUCTION_OPERATIONS.md` documents launch, routine checks, daily processing, and recovery at a practical level. Formal incident, retention, backup, and privacy procedures remain absent. |
 
@@ -151,7 +177,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Store | `store.settings` | — | `admin.storeSettings`, `admin.updateStoreSettings` | **PASS** — public data is limited to safe customer settings. |
 | Categories | `categories.list` | — | list/create/update/delete | **PASS** — admin writes are guarded and Zod validated. |
 | Products | list/bySlug | — | list/create/update/delete/uploadImage/deleteImage | **PASS** — pagination/sort bounds and payload rules exist. |
-| Orders | — | create/mine/get/uploadPaymentProof | list/detail/update/dashboard | **PARTIAL** — ownership is enforced, but idempotency and transition policy are missing. |
+| Orders | — | create/mine/get/uploadPaymentProof | list/detail/update/dashboard | **PARTIAL** — ownership, checkout idempotency, and forward order/payment transition policy are enforced; authenticated real-business E2E remains pending. |
 
 ### 6.2 Validation and error handling
 
@@ -162,9 +188,9 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Query pagination limits | **PASS** | Catalog max is 48; admin order list maximum is 200. |
 | Error handling | **PARTIAL** | User-visible tRPC errors and UI loading/error states exist. There is no structured error taxonomy, correlation ID, or external error tracking. |
 | API documentation | **PARTIAL** | tRPC contracts are self-describing in code; there is no external OpenAPI/public API documentation. Appropriate for an internal storefront but insufficient for third-party integrations. |
-| Rate limiting / bot mitigation | **FAIL — P1** | No application-level limit was found for catalog search, OAuth-adjacent flows, checkout creation, image upload, or proof upload. |
-| Idempotency | **FAIL — P1** | Checkout has no idempotency key. Browser retries or repeated submits can create duplicate orders. |
-| CSRF hardening | **PARTIAL — P1** | OAuth callback validates a state nonce. Session cookies are `httpOnly` and secure over HTTPS, but application mutations use a long-lived `SameSite=None` session cookie without an explicit CSRF token/origin middleware. Review with platform gateway/CORS behavior and add CSRF protection if cross-site requests can reach `/api/trpc`. |
+| Rate limiting / bot mitigation | **PARTIAL — P1** | Per-process limits now protect tRPC, checkout, proof upload, and storage requests. Add an edge/distributed control or documented compensating measure before high-traffic autoscaling launch. |
+| Idempotency | **PASS after remediation** | Checkout requires a UUID key and persists a request fingerprint plus unique user/key constraint; identical retries safely reuse the existing order outcome. |
+| CSRF hardening | **PASS / PARTIAL** | OAuth callback validates a state nonce and non-safe tRPC requests now require the same trusted browser origin. Cookies remain `httpOnly` and HTTPS-secure. Maintain the trusted-origin allowlist if cross-origin deployments are introduced. |
 
 ---
 
@@ -199,12 +225,12 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Control | Status | Evidence and recommended action |
 |---|---|---|
 | Compression | **PASS** | Express `compression()` is enabled before API/static routes. |
-| Request-body limit | **PARTIAL** | 50 MB global JSON/urlencoded limit supports uploads but is much larger than the 5 MB image business rule. Lower global parser limit or isolate upload parsing. |
+| Request-body limit | **PASS / PARTIAL** | Global JSON parsing is limited to 8 MB, URL-encoded parsing to 1 MB, and image payloads to 5 MB with type and byte-signature checks. Consider a streaming upload design if future media requirements exceed this model. |
 | TLS | **PARTIAL** | Published Manus URL uses HTTPS in browser. Custom-domain TLS and HSTS are not yet verifiable. |
-| Security headers | **FAIL — P1** | No Helmet/CSP, `X-Content-Type-Options`, `Referrer-Policy`, clickjacking protection, or Permissions-Policy middleware was found. Add a tested baseline security-header policy. |
-| CORS policy | **UNVERIFIED — P1** | No explicit CORS middleware is present. Same-origin behavior is expected, but gateway behavior was not proven. Establish and document an allowlist. |
+| Security headers | **PASS after remediation** | Tested CSP, nosniff, referrer, framing, permissions, COOP, HSTS-on-HTTPS, and Vary headers are emitted. Review CSP whenever third-party assets are added. |
+| CORS policy | **PASS / PARTIAL** | The application intentionally exposes no permissive CORS middleware; mutation traffic is same-origin by default with a configurable trusted-origin list. Confirm any future custom-domain or cross-origin architecture before changing this policy. |
 | Secrets in source | **PASS** | No committed secrets were found in targeted static scan. |
-| Dependency vulnerabilities | **UNVERIFIED — P2** | Audit command stalled/timed out; rerun in CI or a network-stable environment. |
+| Dependency vulnerabilities | **PASS after remediation** | Bounded production audit completed after updating tRPC, Drizzle, storage SDK, Axios, NanoID, Streamdown, Express, and Recharts: **0 known low/moderate/high/critical advisories** across 469 production dependencies. The release workflow now includes `pnpm audit --prod --json`; its first GitHub-hosted execution remains to be observed. |
 
 ---
 
@@ -220,8 +246,8 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Monetary precision | **PASS** | Prices and totals use integer minor units (piastres), avoiding floating-point money errors. |
 | Order item price snapshot | **PASS** | Item name, image, unit price, and quantity are copied onto `orderItems`. |
 | Order number uniqueness | **PASS** | Unique order-number index exists. |
-| Foreign-key enforcement | **FAIL — P1** | Schema uses ID columns and application joins but no database foreign-key constraints. Orphans can result from direct database changes or incomplete manual cleanup. Add FK constraints/cascade rules after migration planning. |
-| Soft delete / audit history | **PARTIAL** | Product/category visibility exists; hard deletes remain available. There is no immutable change log for price, stock, settings, or order state. |
+| Foreign-key enforcement | **PASS after remediation** | Reviewed migration added commerce foreign keys and an order-item index after an orphan scan returned no records. Product/image deletion is transactionally protected from partial cleanup. A formal schema/data recovery drill remains required. |
+| Soft delete / audit history | **PARTIAL** | Product visibility now supports safe archival, and products referenced by order history cannot be deleted. There is still no immutable change log for price, stock, settings, or order state. |
 
 ### 8.2 Checkout, stock, payment, and order lifecycle
 
@@ -232,9 +258,9 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Atomic inventory decrement | **PASS** | Transaction uses conditional `stock >= quantity` SQL decrement; it throws if affected rows are not exactly one. |
 | Transaction boundary | **PASS** | Order creation, stock updates, and item creation run under a database transaction. |
 | Over-selling resistance | **PASS / PARTIAL** | Conditional decrement is materially correct. It should be load-tested with real concurrent checkout volume before claiming high-confidence capacity. |
-| Idempotent order submission | **FAIL — P1** | No checkout idempotency key/unique client submission token. |
-| Order state-machine validation | **FAIL — P1** | Admin may submit allowed enum values, but invalid business transitions (for example delivered → pending) are not blocked. |
-| Cancellation restock | **FAIL — P1** | `updateOrder` changes status only; cancelled paid/reserved quantities are not returned to stock. |
+| Idempotent order submission | **PASS after remediation** | Client UUID, server fingerprint, unique user/key constraint, and replay-safe transaction handling protect duplicate checkout retries. |
+| Order state-machine validation | **PASS after remediation** | Server permits only documented forward transitions, selected cancellation points, and controlled InstaPay review transitions; the Arabic admin UI exposes only valid next actions. Six focused lifecycle tests pass. |
+| Cancellation restock | **PASS after remediation** | Eligible pending/confirmed cancellations restore each order item’s stock in the same transaction and set `stockRestoredAt`; the row guard prevents duplicate restoration. |
 | Payment proof duplicates | **PARTIAL** | Multiple proof rows can be added. This may be a valid resubmission model, but needs a defined business rule and admin UI explanation. |
 | Payment gateway/webhook signature verification | **NOT APPLICABLE** | The selected workflow is manual COD/InstaPay proof review; no online card gateway or external payment webhook exists. |
 | Refunds/reconciliation | **NOT APPLICABLE / PARTIAL** | No automated payments mean no automated refunds. Document manual refund/refusal/reconciliation policy before launch. |
@@ -250,7 +276,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | HTTP compression | **PASS** | Enabled in Express. |
 | CSS/font loading | **PASS / PARTIAL** | Cairo uses preconnect and asynchronous stylesheet preload. Consider self-hosting/subsetting after brand finalization to remove third-party font variability. |
 | Local Lighthouse accessibility | **PASS** | Current landing page reached 100 Accessibility. Previously found contrast/label issues were remediated. |
-| SEO score | **PASS / PARTIAL** | Lighthouse SEO was 100; structural SEO gaps remain (sitemap, canonical, schema, social metadata). |
+| SEO score | **PASS / PARTIAL** | Lighthouse SEO was 100. Canonical/social metadata, sitemap, and staging-aware WebSite/Organization/Product JSON-LD are implemented; final-domain configuration, live product discovery, breadcrumbs, and optional SSR/prerendering remain future launch/marketing decisions. |
 | Live mobile performance | **PARTIAL — P2** | Live score 40 conflicts with local production score 85. Validate on warm cache and actual production network after catalog/image content is live. |
 | Client bundle size | **PARTIAL — P2** | 709 kB minified main chunk warning remains. Analyze dependencies and remove/admin-isolate shared code before major traffic campaigns. |
 | Core Web Vitals production monitoring | **FAIL — P2** | No real-user monitoring or alert thresholds were verified. |
@@ -264,10 +290,10 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Managed autoscaling deployment | **PASS** | Project is on managed Manus autoscale hosting with checkpoint-based releases. |
 | Production build reproducibility | **PASS** | `pnpm build` completed. |
 | Static type safety | **PASS** | `pnpm check` completed. |
-| Automated test suite | **PASS / PARTIAL** | 20 tests pass across auth/logout, commerce, storefront route, and storage-proxy coverage. UI E2E, migration, load, and true production smoke coverage are missing. |
-| Runtime logs | **PARTIAL** | Managed dev/production logs exist, but no structured application log format, request IDs, or alert workflow was identified. |
-| Health/readiness endpoint | **UNVERIFIED / PARTIAL** | A system health route may exist through platform tooling, but command-line validation of the published host timed out. Do not claim a verified health SLA. |
-| Error reporting/alerting | **FAIL — P2** | No Sentry-like error capture, uptime monitor, order-failure alert, or threshold alert was verified. |
+| Automated test suite | **PASS / PARTIAL** | 48 tests across 11 files pass, including commerce, lifecycle, security, crawler/SEO, storage proxy, health contract, and owner-alert coverage. UI E2E, migration, load, and true production smoke coverage are missing. |
+| Runtime logs | **PARTIAL** | Managed dev/production logs exist, and minimal owner alerts are available for successful order/proof writes; no structured application log format or request IDs exist. |
+| Health/readiness endpoint | **PASS / PARTIAL** | `GET /healthz` returns HTTP 200 with only stable non-sensitive `{ status, service, timestamp }`; the payload has focused regression coverage. Published-host uptime behavior remains unproven because command-line probes intermittently timed out. |
+| Error reporting/alerting | **PARTIAL — P2** | Successful order creation and proof submission call a post-write, fire-and-forget owner alert with only an order reference and admin route. Router-trigger and failed-delivery containment regressions pass. There is still no external error aggregation, independent uptime monitor, failed-alert escalation, or threshold alert. |
 | Backup and restore evidence | **FAIL — P1** | No database backup-retention proof, restoration drill, or storage recovery test is documented. |
 | Incident runbook | **PARTIAL** | Operational guide gives daily and recovery guidance but lacks severity levels, communication templates, escalation, RTO/RPO, and tested restore steps. |
 | Deployment rollback | **PASS / PARTIAL** | Managed checkpoints support rollback. A formal rollback rehearsal and post-deploy verification checklist should be added. |
@@ -286,7 +312,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Account deletion/data requests | **FAIL — P2** | No public process or admin tool for access/export/deletion requests was identified. |
 | Merchant identity and contact | **PARTIAL** | Public address, phone, and WhatsApp exist. Add formal business/merchant identity, tax/registration details if applicable, and a verified final domain. |
 | Inventory, pricing, and delivery promises | **FAIL — P0** | No live products or approved content exists; commercial commitments cannot yet be verified. |
-| Payment policy | **PARTIAL** | COD/InstaPay process is defined technically, but refund, rejection, fraud, proof-retention, and reconciliation SOPs are not finalized. |
+| Payment policy | **PARTIAL** | COD/InstaPay process is defined technically. The admin settings screen requires an approved proof-retention duration before non-staging InstaPay checkout, and admins can remove a proof reference after review. Refund, rejection, fraud, reconciliation, policy approval, and verified physical deletion of managed-storage objects are still unresolved. |
 
 ---
 
@@ -296,20 +322,20 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 
 | ID | Severity | Finding | Risk | Required remediation | Owner |
 |---|---|---|---|---|---|
-| AUD-01 | **P0** | Empty live catalog | Store cannot sell; incomplete landing/category/product paths in real conditions | Add approved categories, product names/slugs, EGP prices, stock, Arabic descriptions, compliant images/alt text; QA each product | Merchant/admin |
-| AUD-02 | **P1** | No order idempotency | Repeated submissions can create duplicate orders/stock decrements | Add client submission key with server-side unique constraint and replay-safe response | Engineering |
-| AUD-03 | **P1** | No rate limiting | Catalog, checkout, and uploads are exposed to abuse/cost pressure | Add per-IP/user limits, upload throttles, and alert thresholds at gateway/application level | Engineering |
-| AUD-04 | **P1** | No order transition matrix or cancellation restock | Invalid status history and lost stock | Define transition rules; transact cancellation restock once; test all transitions | Engineering + operations |
-| AUD-05 | **P1** | No FK constraints / lifecycle policy | Potential orphans and inconsistent direct-admin data changes | Add database FKs, deletion behavior, and migration/restore test plan | Engineering |
-| AUD-06 | **P1** | Security header/CORS/CSRF posture incomplete | Browser-integrity and cross-site request risk not fully controlled | Add Helmet/CSP/frame/referrer/content-type policies; document strict CORS and explicit CSRF/origin strategy | Engineering |
+| AUD-01 | **P0** | No merchant-approved live catalog | Generated seed entries are non-orderable and cannot support customer sales | Replace seed content through admin with approved categories, products, EGP prices, stock, Arabic descriptions, compliant images, and QA evidence | Merchant/admin |
+| AUD-02 | **Resolved P1** | Duplicate checkout retry risk | Client UUID, database fingerprint, unique user/key constraint, and replay-safe response now exist | Retain regression tests and include in CI | Engineering |
+| AUD-03 | **P1** | Distributed rate limiting remains absent | Per-process limits protect key routes but cannot coordinate across autoscaled instances | Add gateway/distributed limit or record an accepted compensating operational control | Engineering |
+| AUD-04 | **Resolved P1** | Lifecycle transition and cancellation-restock risk | Transition matrix, transactional stock restoration, and focused regression tests now exist | Retain tests in CI; validate the full workflow with a real business order before launch | Engineering + operations |
+| AUD-05 | **Partial P1** | Data recovery evidence remains incomplete | Foreign keys, indexes, migration safeguards, and archival behavior now protect live consistency; no restore drill has been recorded | Run and document database/schema/storage recovery exercise with RPO/RTO | Engineering + owner |
+| AUD-06 | **Resolved P1** | Security header/CORS/CSRF posture incomplete | Browser-integrity and cross-site request risk not fully controlled | Same-origin mutation protection, trusted-origin CORS/preflight, CSP and related security headers are implemented and regression-tested; retain configuration review for any cross-origin expansion. | Engineering |
 | AUD-07 | **P1** | Backup/restore evidence absent | Inability to recover commerce data reliably | Document backup retention; perform database and storage restoration drill; record RPO/RTO | Owner + platform |
-| AUD-08 | **P1** | Privacy/terms/business policy missing | Legal and customer-trust exposure | Publish approved Arabic privacy, terms, returns, payment-proof retention, and contact/merchant disclosures | Merchant/legal |
+| AUD-08 | **P1** | Privacy/terms/business policy missing | Legal and customer-trust exposure | Publish approved Arabic privacy, terms, returns, payment-proof retention, and contact/merchant disclosures; verify physical managed-storage object deletion before representing proof erasure as complete | Merchant/legal |
 | AUD-09 | **P1** | E2E payment/order validation incomplete | Manual COD/InstaPay operating flow is unproven | Use controlled real product/customer test after catalog approval; validate WhatsApp, proof review, status, cancellation/restock | Merchant + QA |
 | AUD-10 | **P2** | Published performance inconsistent / large bundle | Slow first load under some production conditions | Warm-cache audit, inspect RUM, trim shared dependencies, reduce third-party scripts, re-audit with real images | Engineering |
-| AUD-11 | **P2** | SEO content/metadata gaps | Reduced discoverability/sharing | Final domain, canonical, sitemap, OG/social images, JSON-LD, breadcrumbs, product schema | Marketing + engineering |
-| AUD-12 | **P2** | No observability/CI/error alerting | Slower detection and recovery | CI tests/build, error tracking, uptime monitoring, order failure alert, structured logs | Engineering |
-| AUD-13 | **P2** | File malware/retention controls absent | Payment-proof data and upload risk | Re-encode/scan images; set retention/deletion schedule for proofs; document access policy | Engineering + owner |
-| AUD-14 | **P2** | Dependency security status unverified | Unknown package vulnerability posture | Rerun dependency audit in CI/network-stable environment; triage findings | Engineering |
+| AUD-11 | **Partial P2** | SEO/live-discovery handoff remains incomplete | Staging catalog is intentionally not discoverable, and final-domain/live catalog changes remain pending | Update final domain, canonical/social URLs and approved product discovery only after merchant catalog approval; consider breadcrumbs and SSR/prerendering if organic product discovery is a priority. | Marketing + engineering |
+| AUD-12 | **Partial P2** | Error aggregation and uptime/escalation monitoring absent | Health contract, post-write minimal owner alerts, workflow syntax, and local CI-equivalent release checks exist, but failures may go undetected or untriaged | Add error tracking, independent uptime monitoring, GitHub-run evidence, and alert-delivery/retry escalation verification. | Engineering |
+| AUD-13 | **P2** | File malware/retention controls remain partial | Payment-proof data and upload risk | Image signature checks, admin-configured retention gating, and application-reference removal exist; add re-encoding/scanning, approved policy, physical deletion workflow, and documented access review | Engineering + owner |
+| AUD-14 | **Resolved P2** | Dependency security posture was unverified | Controlled dependency updates and bounded production audit now report zero known vulnerabilities; `pnpm audit --prod --json` is part of the release workflow | Observe the first GitHub-run execution and review newly introduced advisories on every release. | Engineering |
 | AUD-15 | **P3** | Central modules and `any` casts | Maintainability and type quality degrade as features grow | Split routers/db by bounded context; replace application `any` casts | Engineering |
 
 ### 12.2 Resolved during this audit
@@ -317,6 +343,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | ID | Severity | Resolution evidence |
 |---|---|---|
 | AUD-R1 | **P1** | Payment-proof download bypass corrected. `/manus-storage/payment-proofs/*` now authorizes order owner/admin; focused unauthenticated/unrelated-user regression tests pass. Public product images remain public. |
+| AUD-R2 | **P1** | Checkout idempotency, same-origin mutation guard, explicit trusted-origin CORS/preflight handling, browser security headers, smaller request limits, route throttles, and image-signature checks implemented; 27 automated tests pass. Distributed rate limiting remains a launch gate. |
 
 ---
 
@@ -328,7 +355,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 2. Publish final Arabic privacy policy, terms of sale, delivery/return/exchange policy, payment-proof data-retention policy, and merchant identity/contact information.
 3. Configure and verify the final WhatsApp number, InstaPay handle, shipping fee, hours, and local delivery scope in Admin Settings.
 4. Connect the final custom domain; add canonical URL, sitemap, social metadata, and merchant/product structured data.
-5. Add rate limiting, checkout idempotency, explicit state transition/restock handling, security headers/CORS/CSRF policy, and database referential constraints.
+5. Add distributed rate limiting or formally accept a compensating control. Keep the already implemented state-transition/restock, foreign-key, idempotency, and same-origin/header controls covered by CI.
 6. Perform a controlled real-world order: catalog → cart → login → checkout → WhatsApp → COD or InstaPay proof → admin review → status change → cancellation/restock test.
 7. Establish documented backups, retention, restore test, error tracking/uptime alert, and a minimum incident/rollback procedure.
 
@@ -337,7 +364,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 1. Monitor actual production performance and errors; re-run Lighthouse on warm cache and real catalog assets.
 2. Reconcile every order/payment proof against WhatsApp and payment records daily.
 3. Create an order-state and refund/cancellation SOP for the owner/admin team.
-4. Add CI on every repository change: type check, tests, build, dependency audit, and a production smoke test.
+4. Observe CI on every repository change: frozen install, type check, tests, build, and dependency audit are configured; add a production smoke test and retain GitHub-run evidence.
 5. Conduct a second security review after rate limiting, headers, CORS/CSRF, and database constraints are implemented.
 
 ---
@@ -346,4 +373,4 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 
 Mousa Glass is **well beyond a static prototype**: it has an Arabic RTL e-commerce storefront, meaningful admin operations, validated typed API boundaries, OAuth/RBAC enforcement, transaction-aware stock reduction, manageable catalog controls, storage-backed media, and a newly secured private payment-proof route. It is appropriate for **owner content entry and controlled launch preparation**.
 
-It is **not yet ready for unrestricted customer sales**. The blockers are concrete and addressable: a real catalog; legal/business policies; abuse/idempotency/order-lifecycle safeguards; data recovery/monitoring proof; and a controlled live business-flow rehearsal. Once the P0/P1 gates are closed and documented, the application can progress to a managed production launch with substantially lower operational risk.
+It is **not yet ready for unrestricted customer sales**. The blockers are concrete and addressable: merchant-approved catalog data; legal/business policies; distributed abuse protection; data recovery and external monitoring proof; GitHub-hosted CI evidence; and a controlled live business-flow rehearsal. Once the P0/P1 gates are closed and documented, the application can progress to a managed production launch with substantially lower operational risk.

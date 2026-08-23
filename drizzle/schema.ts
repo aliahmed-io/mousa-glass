@@ -44,7 +44,7 @@ export const products = mysqlTable(
   "products",
   {
     id: int("id").autoincrement().primaryKey(),
-    categoryId: int("categoryId"),
+    categoryId: int("categoryId").references(() => categories.id, { onDelete: "set null" }),
     name: varchar("name", { length: 200 }).notNull(),
     slug: varchar("slug", { length: 220 }).notNull(),
     description: text("description"),
@@ -67,7 +67,7 @@ export const productImages = mysqlTable(
   "productImages",
   {
     id: int("id").autoincrement().primaryKey(),
-    productId: int("productId").notNull(),
+    productId: int("productId").notNull().references(() => products.id, { onDelete: "cascade" }),
     storageKey: varchar("storageKey", { length: 500 }).notNull(),
     url: varchar("url", { length: 1000 }).notNull(),
     altText: varchar("altText", { length: 255 }),
@@ -87,15 +87,18 @@ export const orders = mysqlTable(
   {
     id: int("id").autoincrement().primaryKey(),
     orderNumber: varchar("orderNumber", { length: 32 }).notNull(),
-    userId: int("userId"),
+    userId: int("userId").references(() => users.id, { onDelete: "set null" }),
     customerName: varchar("customerName", { length: 160 }).notNull(),
     customerPhone: varchar("customerPhone", { length: 40 }).notNull(),
     customerEmail: varchar("customerEmail", { length: 320 }),
     shippingAddress: text("shippingAddress").notNull(),
     notes: text("notes"),
+    idempotencyKey: varchar("idempotencyKey", { length: 64 }).notNull(),
+    checkoutFingerprint: varchar("checkoutFingerprint", { length: 64 }).notNull(),
     paymentMethod: mysqlEnum("paymentMethod", paymentMethods).notNull(),
     paymentStatus: mysqlEnum("paymentStatus", paymentStatuses).default("not_required").notNull(),
     status: mysqlEnum("status", orderStatuses).default("pending").notNull(),
+    stockRestoredAt: timestamp("stockRestoredAt"),
     subtotalAmount: int("subtotalAmount").notNull(),
     shippingAmount: int("shippingAmount").default(0).notNull(),
     totalAmount: int("totalAmount").notNull(),
@@ -104,6 +107,7 @@ export const orders = mysqlTable(
   },
   table => [
     uniqueIndex("orders_number_unique").on(table.orderNumber),
+    uniqueIndex("orders_user_idempotency_unique").on(table.userId, table.idempotencyKey),
     index("orders_customer_idx").on(table.userId, table.createdAt),
     index("orders_status_idx").on(table.status, table.createdAt),
   ],
@@ -114,15 +118,15 @@ export const orderItems = mysqlTable(
   "orderItems",
   {
     id: int("id").autoincrement().primaryKey(),
-    orderId: int("orderId").notNull(),
-    productId: int("productId").notNull(),
+    orderId: int("orderId").notNull().references(() => orders.id, { onDelete: "cascade" }),
+    productId: int("productId").notNull().references(() => products.id, { onDelete: "restrict" }),
     productName: varchar("productName", { length: 200 }).notNull(),
     imageUrl: varchar("imageUrl", { length: 1000 }),
     unitPriceAmount: int("unitPriceAmount").notNull(),
     quantity: int("quantity").notNull(),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
-  table => [index("order_items_order_idx").on(table.orderId)],
+  table => [index("order_items_order_idx").on(table.orderId), index("order_items_product_idx").on(table.productId)],
 );
 
 /** InstaPay evidence is intentionally isolated from orders for stricter access control and auditing. */
@@ -130,7 +134,7 @@ export const paymentProofs = mysqlTable(
   "paymentProofs",
   {
     id: int("id").autoincrement().primaryKey(),
-    orderId: int("orderId").notNull(),
+    orderId: int("orderId").notNull().references(() => orders.id, { onDelete: "cascade" }),
     storageKey: varchar("storageKey", { length: 500 }).notNull(),
     url: varchar("url", { length: 1000 }).notNull(),
     originalFilename: varchar("originalFilename", { length: 255 }).notNull(),
@@ -148,6 +152,8 @@ export const storeSettings = mysqlTable("storeSettings", {
   instaPayHandle: varchar("instaPayHandle", { length: 160 }),
   currency: varchar("currency", { length: 8 }).default("EGP").notNull(),
   shippingFeeAmount: int("shippingFeeAmount").default(0).notNull(),
+  isCatalogStaging: boolean("isCatalogStaging").default(true).notNull(),
+  paymentProofRetentionDays: int("paymentProofRetentionDays"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 

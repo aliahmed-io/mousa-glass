@@ -10,6 +10,7 @@ import {
   createCategory,
   createCheckoutOrder,
   createProduct,
+  deletePaymentProof,
   deleteCategory,
   deleteProduct,
   deleteProductImage,
@@ -30,6 +31,7 @@ import {
   updateStoreSettings,
 } from "./db";
 import { storagePut } from "./storage";
+import { notifyOwnerNonBlocking, orderAlertPayload, paymentProofAlertPayload } from "./_core/operations";
 
 const catalogQuery = z.object({
   search: z.string().trim().max(100).optional(),
@@ -72,6 +74,12 @@ function decodeImage(dataUrl: string) {
   const data = Buffer.from(encoded, "base64");
   if (data.length === 0 || data.length > 5 * 1024 * 1024) {
     throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Images must be 5 MB or smaller." });
+  }
+  const isPng = data.length >= 8 && data.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  const isJpeg = data.length >= 3 && data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff;
+  const isWebp = data.length >= 12 && data.subarray(0, 4).equals(Buffer.from("RIFF")) && data.subarray(8, 12).equals(Buffer.from("WEBP"));
+  if ((mimeType === "image/png" && !isPng) || (mimeType === "image/jpeg" && !isJpeg) || (mimeType === "image/webp" && !isWebp)) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "The uploaded bytes do not match the declared image format." });
   }
   const extension = mimeType === "image/png" ? "png" : mimeType === "image/webp" ? "webp" : "jpg";
   return { data, mimeType, extension };
@@ -126,7 +134,11 @@ export const appRouter = router({
       return { success: true };
     }),
     delete: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
-      await deleteProduct(input.id);
+      try {
+        await deleteProduct(input.id);
+      } catch (error) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Product deletion was rejected." });
+      }
       return { success: true };
     }),
     uploadImage: adminProcedure
@@ -155,11 +167,19 @@ export const appRouter = router({
         notes: z.string().trim().max(1500).nullable().optional(),
         paymentMethod: z.enum(["cash_on_delivery", "instapay"]),
         items: z.array(z.object({ productId: z.number().int().positive(), quantity: z.number().int().min(1).max(99) })).min(1).max(50),
+        idempotencyKey: z.string().uuid(),
       }))
       .mutation(async ({ ctx, input }) => {
+        const settings = await getStoreSettings();
+        if (settings.isCatalogStaging) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "The generated staging catalog does not accept customer orders." });
+        }
+        if (input.paymentMethod === "instapay" && settings.paymentProofRetentionDays === null) {
+          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "InstaPay orders are unavailable until the payment-proof retention policy is configured by an administrator." });
+        }
         try {
           const order = await createCheckoutOrder({ ...input, userId: ctx.user.id });
-          const settings = await getStoreSettings();
+          notifyOwnerNonBlocking(orderAlertPayload({ orderId: order.orderId, orderNumber: order.orderNumber, paymentMethod: input.paymentMethod }));
           return { ...order, whatsappUrl: paymentWhatsappUrl(settings.whatsappNumber, order.orderNumber, "created"), instaPayHandle: settings.instaPayHandle };
         } catch (error) {
           throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Unable to create the order." });
@@ -181,6 +201,7 @@ export const appRouter = router({
         const image = decodeImage(input.imageData);
         const stored = await storagePut(`payment-proofs/${order.orderNumber}/${fileStem(input.fileName)}.${image.extension}`, image.data, image.mimeType);
         await addPaymentProof({ orderId: order.id, storageKey: stored.key, url: stored.url, originalFilename: input.fileName, mimeType: image.mimeType });
+        notifyOwnerNonBlocking(paymentProofAlertPayload({ orderId: order.id, orderNumber: order.orderNumber }));
         const settings = await getStoreSettings();
         return { success: true, whatsappUrl: paymentWhatsappUrl(settings.whatsappNumber, order.orderNumber, "proof_submitted") };
       }),
@@ -200,13 +221,21 @@ export const appRouter = router({
       .input(z.object({ id: z.number().int().positive(), status: orderStatus.optional(), paymentStatus: paymentStatus.optional() }))
       .mutation(async ({ input }) => {
         if (!input.status && !input.paymentStatus) throw new TRPCError({ code: "BAD_REQUEST", message: "No order changes were supplied." });
-        await updateOrder(input);
+        try {
+          await updateOrder(input);
+        } catch (error) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Order update was rejected." });
+        }
         return { success: true };
       }),
     storeSettings: adminProcedure.query(() => getStoreSettings()),
     updateStoreSettings: adminProcedure
-      .input(z.object({ storeName: z.string().trim().min(2).max(120).optional(), whatsappNumber: z.string().trim().min(7).max(30).optional(), instaPayHandle: z.string().trim().max(160).nullable().optional(), shippingFeeAmount: z.number().int().min(0).max(10000000).optional() }))
+      .input(z.object({ storeName: z.string().trim().min(2).max(120).optional(), whatsappNumber: z.string().trim().min(7).max(30).optional(), instaPayHandle: z.string().trim().max(160).nullable().optional(), shippingFeeAmount: z.number().int().min(0).max(10000000).optional(), isCatalogStaging: z.boolean().optional(), paymentProofRetentionDays: z.number().int().min(1).max(3650).nullable().optional() }))
       .mutation(({ input }) => updateStoreSettings(input)),
+    deletePaymentProof: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+      await deletePaymentProof(input.id);
+      return { success: true };
+    }),
   }),
 });
 

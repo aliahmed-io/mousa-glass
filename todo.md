@@ -99,17 +99,62 @@
 - [x] Restrict payment-proof file downloads to the owning customer or an administrator and validate the access control.
 
 - [ ] Obtain merchant-approved category, product, price, stock, tax, delivery, and image data; enter it through the administrator workspace without placeholder merchandise.
-- [ ] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
+- [x] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
 - [ ] Publish Arabic legal pages covering privacy, terms of sale, delivery, returns, COD, InstaPay proof handling, and customer contact routes.
-- [ ] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
-- [ ] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
-- [ ] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
+- [x] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
+- [x] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
+- [x] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
 - [ ] Add database foreign-key constraints, referential indexes, migration safeguards, and a verified schema/data rollback procedure.
+- [x] Prevent deletion of products referenced by order history and guide administrators to archive products instead.
 - [ ] Define payment-proof retention, access-review, and deletion procedures consistent with the published privacy policy.
+- [ ] Obtain merchant and qualified local legal approval for the payment-proof retention, access-review, physical deletion, and customer-policy decisions recorded in the launch approval packet.
+- [x] Add a merchant-configured payment-proof retention setting, prevent customer ordering until it is set outside staging mode, and provide an administrator proof-reference deletion control.
 - [ ] Perform and record a production backup-and-restore drill for database, settings, order records, and storage references.
-- [ ] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
+- [x] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
+- [x] Prevent search engines from indexing generated staging catalog content while retaining a documented path to enable merchant-approved product discovery.
+- [x] Add structured LocalBusiness/Organization schema and product JSON-LD that activates only for merchant-approved non-staging catalog data.
+- [x] Document and validate the staging-to-live search-discovery workflow, including final canonical/social domain updates and product indexing activation.
 - [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
+- [x] Defer the currently eager Home and Shop route modules so the shared application entry can be split more effectively without changing staging controls or public behavior.
+- [x] Reduce the published LCP image payload and reserve media layout space based on the fresh Lighthouse image-delivery and CLS findings.
+- [ ] Investigate the fresh Lighthouse console, ARIA-role, contrast, bfcache, and server-response findings; resolve only issues controllable in the application and document managed-platform constraints.
+- [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
+- [ ] Address the remaining published Lighthouse findings: 2.77 s initial-server-response opportunity, 53 KiB unused JavaScript, 105 KiB image-delivery opportunity, 230 ms render-blocking insight, console errors, contrast, bfcache, and one measured layout shift.
+- [ ] Scope global tooltip and toast dependencies away from the public application entry where they are not needed, then validate public and administrator interaction paths.
+- [ ] Verify an authenticated administrator route and inspect administrator source usage after removing root tooltip/toast providers, then record whether any admin dependency must be restored or scoped locally.
+- [x] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.
+- [x] Re-run a published Lighthouse accessibility audit after deployment to verify that the Home and Shop category-label contrast finding is resolved.
+- [x] Replace the broad global `!important` contrast override with a narrowly scoped Home/Shop product-card rule, then revalidate local and published accessibility evidence.
+- [x] Create, validate, and adopt a compact deterministic logo derivative for the 56–98px logo placements identified by the published image-delivery audit.
+- [x] Render the required staging disclosure from the first client paint while catalog mode is loading to prevent the measured Home hero layout shift in safe staging mode.
+- [x] Re-run a published Lighthouse audit after deployment to verify the Home hero layout-shift finding is resolved by the first-paint staging disclosure behavior.
+- [x] Run a published Lighthouse accessibility audit against the Shop route and record that its shared product-category label selector has no contrast finding.
+- [ ] Before leaving staging mode, verify that the fail-closed disclosure logic does not create a reverse layout shift when `isCatalogStaging` resolves false, or replace it with a reserved-height alternative.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
-- [ ] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
+- [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
+- [x] Add a public non-sensitive health endpoint and best-effort owner alerts for new orders and submitted payment proofs without blocking customer workflows.
+- [x] Add a GitHub Actions release gate for dependency installation, type checking, regression tests, and production builds.
+- [x] Verify the `/healthz` payload and status contract, including its non-sensitive response body.
+- [x] Verify order/proof owner-alert triggers, non-blocking failure behavior, and focused regression coverage.
+- [x] Inspect and validate the GitHub Actions workflow syntax, triggers, and install/typecheck/test/build job sequence.
+- [x] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
 - [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
 - [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.
+- [ ] Generate original, rights-clear product imagery for a clearly labelled staging catalog that matches the Arabic Mousa Glass visual identity.
+- [x] Seed realistic Arabic glass-accessory categories, product descriptions, prices, stock, and product-media records for browsing and workflow validation.
+- [x] Clearly disclose generated/seed catalog status in the administration workflow and storefront until merchant-approved commercial data replaces it.
+- [x] Keep business-specific contact, payment, delivery, tax, and legal terms visibly pending where merchant approval is required.
+- [x] Standardize the public delivery-and-returns route and retain a backward-compatible alias so every navigation link resolves.
+- [x] Verify and record the seeded Arabic staging-catalog records, including categories, descriptions, prices, stock, and product-image assignments.
+- [x] Extend and verify the staging-mode disclosure so contact, payment, delivery, tax, and legal/business-specific terms are explicitly pending wherever relevant.
+- [x] Document verifiable provenance for every generated staging image, including its generation source, prompt or source record, creation date, and ownership/use note.
+- [x] Record review evidence that each staged product image is the intended generated asset and visually aligns with the Arabic Mousa Glass design direction.
+- [x] Replace the existing staging product-media URLs with the documented 2026-08-23 generated assets and validate every catalog assignment.
+- [x] Confirm every documented staging-media URL resolves to a completed image rather than a generation placeholder or failure, then add a repo-tracked per-asset visual acceptance record.
+- [x] Add and run an inspectable local asset-completion check for all five documented staging-image URLs before closing visual-render verification.
+- [x] Add and apply reviewed foreign keys, commerce indexes, and non-destructive migrations after confirming the database has no orphaned commerce records.
+- [x] Add focused regression evidence that products referenced by order history cannot be deleted and that administrators archive them instead.
+- [x] Add router-level regression coverage for the administrator archive mutation and archive guidance on historical-order deletion attempts.
+- [x] Apply same-origin protection for cookie-authenticated mutations, restrictive browser security headers, and bounded request/upload limits with automated coverage.
+- [ ] Configure or accept an explicit compensating control for globally distributed edge rate limiting before opening orders on autoscaling production infrastructure.
+- [x] Add and verify an explicit same-origin CORS policy for the Express/tRPC surface, including rejected cross-origin and preflight behavior.
