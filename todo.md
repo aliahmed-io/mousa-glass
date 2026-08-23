@@ -125,7 +125,7 @@
 - [x] Add an evidence table mapping console, ARIA-role, contrast, bfcache, and server-response findings to a verified application fix, a managed-platform constraint, or a separately tracked deferred action.
 - [x] Replace the invalid `role="status"` on the staging `<aside>` with an equivalent valid live-region treatment, then verify it in a published Lighthouse audit.
 - [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
-- [ ] Address the remaining published Lighthouse findings: 2.77 s initial-server-response opportunity, 53 KiB unused JavaScript, 105 KiB image-delivery opportunity, 230 ms render-blocking insight, console errors, contrast, bfcache, and one measured layout shift.
+- [ ] Address the remaining application-controlled published Lighthouse opportunities: variable 1.34–2.86 s initial-server response, approximately 36 KiB unused JavaScript, and 110–150 ms render-blocking insight. Keep managed CSP/no-store reports and intentional staging crawl blocking documented rather than weakening safeguards; the latest measured Shop image-delivery overfetch is resolved.
 - [x] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
 - [x] Verify the 480px staged-product derivatives and `srcSet` delivery in a published mobile Shop check before closing the responsive product-media task; catalog records and merchant data remain unchanged.
 - [x] Scope global tooltip and toast dependencies away from the public application entry and verify all routed public and administrator source modules remain independent of them.
