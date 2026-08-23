@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
-import { corsPolicy, createRateLimiter, isAllowedBrowserOrigin, requestCorrelation, requireTrustedMutationOrigin } from "./_core/security";
+import { corsPolicy, createRateLimiter, createSharedRateLimiter, hashRateLimitClientKey, isAllowedBrowserOrigin, requestCorrelation, requireTrustedMutationOrigin } from "./_core/security";
 
 function request(overrides: Partial<Request> = {}) {
   return {
@@ -80,5 +80,44 @@ describe("request security controls", () => {
     middleware(request(), third, next);
     expect(next).toHaveBeenCalledTimes(2);
     expect(third.status).toHaveBeenCalledWith(429);
+  });
+
+  it("uses a shared hashed bucket for high-risk mutations across instances", async () => {
+    const consume = vi.fn()
+      .mockResolvedValueOnce({ count: 1 })
+      .mockResolvedValueOnce({ count: 9 });
+    const middleware = createSharedRateLimiter({ name: "checkout", windowMs: 60_000, max: 8, keySecret: "test-secret", consume });
+    const allowed = response();
+    const blocked = response();
+    const next = vi.fn();
+
+    await middleware(request(), allowed, next);
+    await middleware(request(), blocked, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(consume).toHaveBeenCalledTimes(2);
+    expect(consume).toHaveBeenCalledWith(expect.objectContaining({
+      scope: "checkout",
+      keyHash: hashRateLimitClientKey("203.0.113.10", "test-secret"),
+    }));
+    expect(JSON.stringify(consume.mock.calls)).not.toContain("203.0.113.10");
+    expect(blocked.status).toHaveBeenCalledWith(429);
+  });
+
+  it("fails closed for high-risk mutations when shared limiter storage is unavailable", async () => {
+    const middleware = createSharedRateLimiter({
+      name: "proof-upload",
+      windowMs: 60_000,
+      max: 12,
+      keySecret: "test-secret",
+      consume: vi.fn().mockRejectedValue(new Error("database unavailable")),
+    });
+    const res = response();
+    const next = vi.fn();
+
+    await middleware(request(), res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(503);
   });
 });

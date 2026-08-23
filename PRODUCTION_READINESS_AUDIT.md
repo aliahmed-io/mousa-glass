@@ -309,7 +309,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Managed autoscaling deployment | **PASS** | Project is on managed Manus autoscale hosting with checkpoint-based releases. |
 | Production build reproducibility | **PASS** | `pnpm build` completed. |
 | Static type safety | **PASS** | `pnpm check` completed. |
-| Automated test suite | **PASS / PARTIAL** | 59 tests across 11 files pass, including commerce, lifecycle, security, request-correlation and diagnostic-log safety, crawler/SEO, storage proxy, health contract, owner-alert, reverse-layout-shift, responsive staging media, explicit Shop landmark, and Express 5-compatible SPA fallback coverage. UI E2E, migration, load, and true production smoke coverage are missing. |
+| Automated test suite | **PASS / PARTIAL** | 61 tests across 11 files pass, including commerce, lifecycle, security, request-correlation and diagnostic-log safety, crawler/SEO, storage proxy, health contract, owner-alert, reverse-layout-shift, responsive staging media, explicit Shop landmark, Express 5-compatible SPA fallback, and shared high-risk mutation rate-limit coverage. UI E2E, load, and true production smoke coverage are missing. |
 | Runtime logs | **PARTIAL** | Managed dev/production logs exist, minimal owner alerts are available for successful order/proof writes, every response carries a validated or generated opaque `X-Request-Id`, and tRPC failures emit a non-PII structured diagnostic containing only that ID, procedure path, and error classification. A local unknown-procedure probe produced the expected `NOT_FOUND` diagnostic with a generated ID. External error aggregation and uptime escalation remain absent. |
 | Health/readiness endpoint | **PASS / PARTIAL** | `GET /healthz` returns HTTP 200 with only stable non-sensitive `{ status, service, timestamp }`; the payload has focused regression coverage. Published-host uptime behavior remains unproven because command-line probes intermittently timed out. |
 | Error reporting/alerting | **PARTIAL — P2** | Successful order creation and proof submission call a post-write, fire-and-forget owner alert with only an order reference and admin route. Router-trigger and failed-delivery containment regressions pass. There is still no external error aggregation, independent uptime monitor, failed-alert escalation, or threshold alert. |
@@ -317,6 +317,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Incident runbook | **PARTIAL** | Operational guide gives daily and recovery guidance but lacks severity levels, communication templates, escalation, RTO/RPO, and tested restore steps. |
 | Deployment rollback | **PASS / PARTIAL** | Managed checkpoints support rollback. A formal rollback rehearsal and post-deploy verification checklist should be added. |
 | Development fallback startup | **PASS** | The historic local `originalPath: "*"` startup error was not present after a managed restart. Both development and production SPA fallbacks use Express 5-compatible `/{*splat}` syntax, guarded by a focused source regression test. |
+| Distributed high-risk mutation limiting | **PASS for checkout/proof scope** | Checkout and proof-upload paths use a shared database bucket keyed only by a server-secret HMAC of the forwarded client address, scope, and fixed window. The unique bucket key makes the count cross-instance; bucket cleanup runs at a bounded interval for records older than 24 hours. Storage failure returns 503 before either high-risk mutation executes. Public reads retain their low-cost per-process limiter rather than adding a database operation to every request. |
 | Maintenance-cost model | **PASS / PARTIAL** | Managed services minimize infrastructure work; monitoring, policies, data protection, and business operations still require owner effort. |
 
 ---
@@ -344,7 +345,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 |---|---|---|---|---|---|
 | AUD-01 | **P0** | No merchant-approved live catalog | Generated seed entries are non-orderable and cannot support customer sales | Replace seed content through admin with approved categories, products, EGP prices, stock, Arabic descriptions, compliant images, and QA evidence | Merchant/admin |
 | AUD-02 | **Resolved P1** | Duplicate checkout retry risk | Client UUID, database fingerprint, unique user/key constraint, and replay-safe response now exist | Retain regression tests and include in CI | Engineering |
-| AUD-03 | **P1** | Distributed rate limiting remains absent | Per-process limits protect key routes but cannot coordinate across autoscaled instances | Add gateway/distributed limit or record an accepted compensating operational control | Engineering |
+| AUD-03 | **Resolved P1** | High-risk limits could not coordinate across autoscaled instances | Per-process limits protected key routes but checkout/proof abuse could span instances | A tested shared database limiter now coordinates fixed-window checkout and proof-upload limits using secret-hashed client keys, bounded cleanup, and fail-closed storage behavior. Retain public-read per-process limits for cost/latency and review an edge service if traffic materially grows. | Engineering |
 | AUD-04 | **Resolved P1** | Lifecycle transition and cancellation-restock risk | Transition matrix, transactional stock restoration, and focused regression tests now exist | Retain tests in CI; validate the full workflow with a real business order before launch | Engineering + operations |
 | AUD-05 | **Partial P1** | Data recovery evidence remains incomplete | Foreign keys, indexes, migration safeguards, and archival behavior now protect live consistency; no restore drill has been recorded | Run and document database/schema/storage recovery exercise with RPO/RTO | Engineering + owner |
 | AUD-06 | **Resolved P1** | Security header/CORS/CSRF posture incomplete | Browser-integrity and cross-site request risk not fully controlled | Same-origin mutation protection, trusted-origin CORS/preflight, CSP and related security headers are implemented and regression-tested; retain configuration review for any cross-origin expansion. | Engineering |
@@ -363,7 +364,8 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | ID | Severity | Resolution evidence |
 |---|---|---|
 | AUD-R1 | **P1** | Payment-proof download bypass corrected. `/manus-storage/payment-proofs/*` now authorizes order owner/admin; focused unauthenticated/unrelated-user regression tests pass. Public product images remain public. |
-| AUD-R2 | **P1** | Checkout idempotency, same-origin mutation guard, explicit trusted-origin CORS/preflight handling, browser security headers, smaller request limits, route throttles, and image-signature checks implemented; 27 automated tests pass. Distributed rate limiting remains a launch gate. |
+| AUD-R2 | **P1** | Checkout idempotency, same-origin mutation guard, explicit trusted-origin CORS/preflight handling, browser security headers, smaller request limits, route throttles, and image-signature checks implemented; early audit evidence recorded 27 automated tests. |
+| AUD-R3 | **P1** | The later shared rate-limit hardening adds a tested, database-backed cross-instance control for checkout and payment-proof upload. It stores only scope, window, count, and an HMAC digest—not a raw address or customer input—and fails closed if its storage is unavailable. |
 
 ---
 
@@ -375,7 +377,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 2. Publish final Arabic privacy policy, terms of sale, delivery/return/exchange policy, payment-proof data-retention policy, and merchant identity/contact information.
 3. Configure and verify the final WhatsApp number, InstaPay handle, shipping fee, hours, and local delivery scope in Admin Settings.
 4. Connect the final custom domain; add canonical URL, sitemap, social metadata, and merchant/product structured data.
-5. Add distributed rate limiting or formally accept a compensating control. Keep the already implemented state-transition/restock, foreign-key, idempotency, and same-origin/header controls covered by CI.
+5. Retain and verify the database-backed distributed checkout/proof limiter after every schema deployment. Keep the already implemented state-transition/restock, foreign-key, idempotency, and same-origin/header controls covered by CI; review an edge limiter if public traffic grows materially.
 6. Perform a controlled real-world order: catalog → cart → login → checkout → WhatsApp → COD or InstaPay proof → admin review → status change → cancellation/restock test.
 7. Establish documented backups, retention, restore test, error tracking/uptime alert, and a minimum incident/rollback procedure.
 

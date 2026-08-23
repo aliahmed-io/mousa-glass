@@ -169,8 +169,9 @@
 - [x] Add focused regression evidence that products referenced by order history cannot be deleted and that administrators archive them instead.
 - [x] Add router-level regression coverage for the administrator archive mutation and archive guidance on historical-order deletion attempts.
 - [x] Apply same-origin protection for cookie-authenticated mutations, restrictive browser security headers, and bounded request/upload limits with automated coverage.
-- [ ] Configure or accept an explicit compensating control for globally distributed edge rate limiting before opening orders on autoscaling production infrastructure.
+- [x] Configure a database-backed distributed rate limit for high-risk checkout and proof-upload paths before opening orders on autoscaling; broader public-read throttling remains per-process by design.
 - [x] Add and verify an explicit same-origin CORS policy for the Express/tRPC surface, including rejected cross-origin and preflight behavior.
 - [x] Resolve and regression-test the Express 5 wildcard-route startup error recorded by the development server without weakening public-route fallback behavior.
 - [x] Extend the documented 480px staging-image `srcSet` delivery to Home featured cards without affecting unknown future merchant media or catalog staging.
 - [x] Measure a root error-boundary dependency split and retain the existing boundary after build evidence showed a larger shared lazy-icon first-load dependency; no release regression was introduced.
+- [x] Add and verify a database-backed, secret-hashed shared limiter for checkout and proof-upload paths, including safe database-failure behavior and bounded bucket cleanup.

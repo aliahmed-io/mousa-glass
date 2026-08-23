@@ -1,5 +1,7 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import type { Request, RequestHandler } from "express";
+import { consumeSharedRateLimit, type SharedRateLimitConsumeInput } from "../db";
+import { ENV } from "./env";
 
 type RateLimitOptions = {
   name: string;
@@ -8,6 +10,14 @@ type RateLimitOptions = {
 };
 
 type RateLimitBucket = { count: number; resetAt: number };
+
+type SharedRateLimitOptions = {
+  name: string;
+  windowMs: number;
+  max: number;
+  keySecret?: string;
+  consume?: (input: SharedRateLimitConsumeInput) => Promise<{ count: number }>;
+};
 
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
 const requestIdPattern = /^[A-Za-z0-9_-]{8,128}$/;
@@ -45,6 +55,11 @@ export function isAllowedBrowserOrigin(origin: string, host: string, protocol: s
 
 function requestClientKey(req: Request) {
   return req.ip || req.socket.remoteAddress || "unknown";
+}
+
+export function hashRateLimitClientKey(clientKey: string, secret = ENV.cookieSecret) {
+  if (!secret) throw new Error("Rate-limit key secret is unavailable");
+  return createHmac("sha256", secret).update(clientKey).digest("hex");
 }
 
 export function securityHeaders(): RequestHandler {
@@ -143,6 +158,42 @@ export function createRateLimiter({ name, windowMs, max }: RateLimitOptions): Re
     res.setHeader("RateLimit-Reset", String(Math.ceil(bucket.resetAt / 1000)));
     if (bucket.count > max) {
       res.setHeader("Retry-After", String(Math.max(1, Math.ceil((bucket.resetAt - now) / 1000))));
+      res.status(429).json({ error: "Too many requests. Please try again later." });
+      return;
+    }
+    next();
+  };
+}
+
+/**
+ * Shared, fixed-window control for infrequent high-risk operations. It is
+ * intentionally not applied to all requests, avoiding a database round-trip
+ * on public reads while making checkout and proof-upload limits consistent
+ * across autoscaled instances. Storage errors fail closed for these writes.
+ */
+export function createSharedRateLimiter({ name, windowMs, max, keySecret, consume = consumeSharedRateLimit }: SharedRateLimitOptions): RequestHandler {
+  return async (req, res, next) => {
+    const now = Date.now();
+    const windowStartMs = Math.floor(now / windowMs) * windowMs;
+    let count: number;
+    try {
+      count = (await consume({
+        scope: name,
+        keyHash: hashRateLimitClientKey(requestClientKey(req), keySecret),
+        windowStartMs,
+      })).count;
+    } catch (error) {
+      console.warn("[RateLimit] Shared limiter unavailable", { scope: name, error: error instanceof Error ? error.name : "unknown" });
+      res.status(503).json({ error: "Unable to process this request right now. Please try again shortly." });
+      return;
+    }
+
+    const resetAt = windowStartMs + windowMs;
+    res.setHeader("RateLimit-Limit", String(max));
+    res.setHeader("RateLimit-Remaining", String(Math.max(0, max - count)));
+    res.setHeader("RateLimit-Reset", String(Math.ceil(resetAt / 1000)));
+    if (count > max) {
+      res.setHeader("Retry-After", String(Math.max(1, Math.ceil((resetAt - now) / 1000))));
       res.status(429).json({ error: "Too many requests. Please try again later." });
       return;
     }

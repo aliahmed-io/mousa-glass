@@ -9,7 +9,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { corsPolicy, createRateLimiter, requestCorrelation, requireTrustedMutationOrigin, securityHeaders } from "./security";
+import { corsPolicy, createRateLimiter, createSharedRateLimiter, requestCorrelation, requireTrustedMutationOrigin, securityHeaders } from "./security";
 import { registerCrawlerRoutes } from "./crawler";
 import { registerHealthRoutes } from "./health";
 import { logTrpcFailure } from "./diagnostics";
@@ -50,8 +50,8 @@ async function startServer() {
   // tRPC API
   app.use("/api/trpc", requireTrustedMutationOrigin());
   app.use("/api/trpc", createRateLimiter({ name: "trpc", windowMs: 60_000, max: 180 }));
-  app.use("/api/trpc/orders.create", createRateLimiter({ name: "checkout", windowMs: 15 * 60_000, max: 8 }));
-  app.use("/api/trpc/orders.uploadPaymentProof", createRateLimiter({ name: "proof-upload", windowMs: 15 * 60_000, max: 12 }));
+  app.use("/api/trpc/orders.create", createSharedRateLimiter({ name: "checkout", windowMs: 15 * 60_000, max: 8 }));
+  app.use("/api/trpc/orders.uploadPaymentProof", createSharedRateLimiter({ name: "proof-upload", windowMs: 15 * 60_000, max: 12 }));
   app.use(
     "/api/trpc",
     createExpressMiddleware({

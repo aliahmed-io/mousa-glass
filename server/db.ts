@@ -22,6 +22,7 @@ import {
   paymentProofs,
   productImages,
   products,
+  sharedRateLimitBuckets,
   storeSettings,
   users,
 } from "../drizzle/schema";
@@ -40,6 +41,58 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+export type SharedRateLimitConsumeInput = {
+  scope: string;
+  keyHash: string;
+  windowStartMs: number;
+};
+
+let sharedRateLimitRequestsSinceCleanup = 0;
+const sharedRateLimitRetentionMs = 24 * 60 * 60_000;
+const sharedRateLimitCleanupInterval = 256;
+
+/**
+ * Atomically increments a scope/window bucket in the shared database. The
+ * caller supplies a one-way HMAC digest rather than a raw client address.
+ */
+export async function consumeSharedRateLimit(input: SharedRateLimitConsumeInput): Promise<{ count: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("Shared rate-limit storage is unavailable");
+
+  const now = new Date();
+  await db.insert(sharedRateLimitBuckets).values({
+    ...input,
+    count: 1,
+    createdAt: now,
+    updatedAt: now,
+  }).onDuplicateKeyUpdate({
+    set: {
+      count: sql`${sharedRateLimitBuckets.count} + 1`,
+      updatedAt: now,
+    },
+  });
+
+  const [bucket] = await db.select({ count: sharedRateLimitBuckets.count })
+    .from(sharedRateLimitBuckets)
+    .where(and(
+      eq(sharedRateLimitBuckets.scope, input.scope),
+      eq(sharedRateLimitBuckets.keyHash, input.keyHash),
+      eq(sharedRateLimitBuckets.windowStartMs, input.windowStartMs),
+    ))
+    .limit(1);
+  if (!bucket) throw new Error("Shared rate-limit bucket could not be read");
+
+  sharedRateLimitRequestsSinceCleanup = (sharedRateLimitRequestsSinceCleanup + 1) % sharedRateLimitCleanupInterval;
+  if (sharedRateLimitRequestsSinceCleanup === 0) {
+    const expiresBeforeMs = Date.now() - sharedRateLimitRetentionMs;
+    void db.delete(sharedRateLimitBuckets)
+      .where(sql`${sharedRateLimitBuckets.windowStartMs} < ${expiresBeforeMs}`)
+      .catch(error => console.warn("[RateLimit] Shared bucket cleanup failed", { error: error instanceof Error ? error.name : "unknown" }));
+  }
+
+  return bucket;
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {

@@ -1,5 +1,6 @@
 import {
   boolean,
+  bigint,
   index,
   int,
   mysqlEnum,
@@ -156,6 +157,28 @@ export const storeSettings = mysqlTable("storeSettings", {
   paymentProofRetentionDays: int("paymentProofRetentionDays"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+/**
+ * Cross-instance abuse-control buckets retain only a scoped HMAC digest, never
+ * a raw IP address or customer input. Buckets expire through bounded cleanup in
+ * the middleware's persistence helper.
+ */
+export const sharedRateLimitBuckets = mysqlTable(
+  "sharedRateLimitBuckets",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    scope: varchar("scope", { length: 64 }).notNull(),
+    keyHash: varchar("keyHash", { length: 64 }).notNull(),
+    windowStartMs: bigint("windowStartMs", { mode: "number" }).notNull(),
+    count: int("count").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("shared_rate_limit_scope_key_window_unique").on(table.scope, table.keyHash, table.windowStartMs),
+    index("shared_rate_limit_window_idx").on(table.windowStartMs),
+  ],
+);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
