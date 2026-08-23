@@ -107,7 +107,7 @@
 - [x] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
 - [x] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
 - [x] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
-- [ ] Add database foreign-key constraints, referential indexes, migration safeguards, and a verified schema/data rollback procedure.
+- [x] Add reviewed database foreign-key constraints, referential indexes, and non-destructive migrations; the separate production restore drill remains open below.
 - [x] Prevent deletion of products referenced by order history and guide administrators to archive products instead.
 - [ ] Define payment-proof retention, access-review, and deletion procedures consistent with the published privacy policy.
 - [ ] Obtain merchant and qualified local legal approval for the payment-proof retention, access-review, physical deletion, and customer-policy decisions recorded in the launch approval packet.
@@ -137,7 +137,8 @@
 - [x] Re-run a published Lighthouse audit after deployment to verify the Home hero layout-shift finding is resolved by the first-paint staging disclosure behavior.
 - [x] Run a published Lighthouse accessibility audit against the Shop route and record that its shared product-category label selector has no contrast finding.
 - [x] Before leaving staging mode, ensure the fail-closed disclosure retains its exact footprint when `isCatalogStaging` resolves false, preventing a reverse layout shift without changing the staging setting.
-- [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
+- [x] Add application-controlled owner alerts, health checks, dependency-vulnerability review, CI validation, request correlation, and structured non-PII diagnostics.
+- [ ] Configure independent external error monitoring and uptime escalation before unrestricted launch.
 - [x] Add safe server request-correlation identifiers for incident investigation without logging customer data or relying on an external monitoring vendor.
 - [x] Add privacy-preserving structured server failure logs that include only request correlation, route, and error classification.
 - [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
