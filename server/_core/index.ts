@@ -12,6 +12,7 @@ import { serveStatic, setupVite } from "./vite";
 import { corsPolicy, createRateLimiter, requestCorrelation, requireTrustedMutationOrigin, securityHeaders } from "./security";
 import { registerCrawlerRoutes } from "./crawler";
 import { registerHealthRoutes } from "./health";
+import { logTrpcFailure } from "./diagnostics";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -56,6 +57,13 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError({ error, path, ctx }) {
+        logTrpcFailure({
+          requestId: ctx?.res.locals.requestId,
+          path,
+          code: error.code,
+        });
+      },
     })
   );
   registerCrawlerRoutes(app);
