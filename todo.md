@@ -175,3 +175,4 @@
 - [x] Extend the documented 480px staging-image `srcSet` delivery to Home featured cards without affecting unknown future merchant media or catalog staging.
 - [x] Measure a root error-boundary dependency split and retain the existing boundary after build evidence showed a larger shared lazy-icon first-load dependency; no release regression was introduced.
 - [x] Add and verify a database-backed, secret-hashed shared limiter for checkout and proof-upload paths, including safe database-failure behavior and bounded bucket cleanup.
+- [x] Assess server rendering against the measured Home waterfall and defer conversion because it would add per-request prefetch/hydration work to the slow server path while staging remains intentionally no-indexed.
