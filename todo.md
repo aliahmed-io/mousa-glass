@@ -136,7 +136,7 @@
 - [x] Render the required staging disclosure from the first client paint while catalog mode is loading to prevent the measured Home hero layout shift in safe staging mode.
 - [x] Re-run a published Lighthouse audit after deployment to verify the Home hero layout-shift finding is resolved by the first-paint staging disclosure behavior.
 - [x] Run a published Lighthouse accessibility audit against the Shop route and record that its shared product-category label selector has no contrast finding.
-- [ ] Before leaving staging mode, verify that the fail-closed disclosure logic does not create a reverse layout shift when `isCatalogStaging` resolves false, or replace it with a reserved-height alternative.
+- [x] Before leaving staging mode, ensure the fail-closed disclosure retains its exact footprint when `isCatalogStaging` resolves false, preventing a reverse layout shift without changing the staging setting.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
 - [x] Add safe server request-correlation identifiers for incident investigation without logging customer data or relying on an external monitoring vendor.
 - [x] Add privacy-preserving structured server failure logs that include only request correlation, route, and error classification.

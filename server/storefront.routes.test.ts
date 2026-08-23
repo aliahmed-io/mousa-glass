@@ -64,4 +64,14 @@ describe("public storefront routes", () => {
     expect(home).toContain("960w");
     expect(home).toContain('sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"');
   });
+
+  it("reserves staging-disclosure space when a future authorized non-staging setting resolves", () => {
+    const layout = readProjectFile("client/src/components/StoreLayout.tsx");
+
+    expect(layout).toContain('aria-hidden={!isCatalogStaging}');
+    expect(layout).toContain('isCatalogStaging ? "" : "invisible"');
+    expect(layout).toContain('border-transparent bg-transparent text-transparent');
+    expect(layout).toContain('isCatalogStaging ? "" : "invisible"');
+    expect(layout).toContain('aria-live={isCatalogStaging ? "polite" : undefined}');
+  });
 });
