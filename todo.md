@@ -178,3 +178,4 @@
 - [x] Assess server rendering against the measured Home waterfall and defer conversion because it would add per-request prefetch/hydration work to the slow server path while staging remains intentionally no-indexed.
 - [x] Extend CI push triggers to cover the non-default verified readiness snapshot branch pattern without enabling or changing the default production branch.
 - [x] Upgrade supported GitHub Action pins to Node 24-capable releases and verify the verified snapshot CI run no longer emits the Node 20 runtime deprecation warning.
+- [ ] Add and verify a source-specific 720px full-composition staging derivative for the measured Shop mobile `srcSet` overfetch without modifying catalog records or future merchant media.

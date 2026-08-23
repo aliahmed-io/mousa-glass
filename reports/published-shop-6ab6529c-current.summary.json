@@ -1,0 +1,256 @@
+{
+  "requestedUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+  "finalUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+  "categories": {
+    "performance": 70,
+    "accessibility": 100,
+    "best-practices": 92,
+    "seo": 61
+  },
+  "metrics": [
+    {
+      "id": "first-contentful-paint",
+      "value": "3.2 s"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "value": "4.4 s"
+    },
+    {
+      "id": "total-blocking-time",
+      "value": "60 ms"
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "value": "0.002"
+    },
+    {
+      "id": "speed-index",
+      "value": "12.7 s"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "server-response-time",
+      "title": "Reduce initial server response time",
+      "score": 0,
+      "savingsMs": 1187,
+      "displayValue": "Root document took 1,290 ms"
+    },
+    {
+      "id": "unused-javascript",
+      "title": "Reduce unused JavaScript",
+      "score": 0,
+      "savingsMs": 300,
+      "displayValue": "Est savings of 36 KiB"
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "errors-in-console",
+      "title": "Browser errors were logged to the console",
+      "score": 0
+    },
+    {
+      "id": "inspector-issues",
+      "title": "Issues were logged in the `Issues` panel in Chrome Devtools",
+      "score": 0
+    },
+    {
+      "id": "is-crawlable",
+      "title": "Page is blocked from indexing",
+      "score": 0
+    },
+    {
+      "id": "bf-cache",
+      "title": "Page prevented back/forward cache restoration",
+      "score": 0,
+      "displayValue": "2 failure reasons"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0.5,
+      "displayValue": "Est savings of 14 KiB"
+    },
+    {
+      "id": "render-blocking-insight",
+      "title": "Render-blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 110 ms"
+    }
+  ],
+  "focusedEvidence": {
+    "consoleErrors": [
+      {
+        "source": "security",
+        "description": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 28,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-ApGQL/efXXIFjw7PJ6YmGzxedXyxK09f6IdOJN7vsw0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 119,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kp93lwgzlaYgae4ER/aK95sTlxpldakC71nyLX2kpLw='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 100,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-qOgOCo4Gdx/jjFtkwLJJ3qTQ6lf/Qg0tD99zQlSVeu0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 35,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://files.manuscdn.com/manus-space-dispatcher/spaceEditor-DPV-_I11.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://manus-analytics.com/umami' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      }
+    ],
+    "layoutShifts": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-1-DIV",
+          "path": "1,HTML,1,BODY,1,DIV,0,DIV,2,DIV,1,MAIN,0,DIV,3,DIV",
+          "selector": "div.pt-[72px] > main#main-content > div.container > div.mt-5",
+          "boundingRect": {
+            "top": 758,
+            "bottom": 3346,
+            "left": 16,
+            "right": 396,
+            "width": 380,
+            "height": 2588
+          },
+          "snippet": "<div class=\"mt-5 grid min-h-44 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-co…\">",
+          "nodeLabel": "ديكور زجاجي\n\nمزهرية كهرمانية — نموذج تجريبي\n\nقطعة عرض مولّدة لتجربة بطاقات المنت…"
+        },
+        "score": 0.002350197313442219
+      }
+    ],
+    "backForwardCache": [
+      {
+        "reason": "Pages whose main resource has cache-control:no-store cannot enter back/forward cache.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop"
+            }
+          ]
+        },
+        "protocolReason": "MainResourceHasCacheControlNoStore"
+      },
+      {
+        "reason": "Back/forward cache is disabled because some JavaScript network request received resource with Cache-Control: no-store header.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/shop?release=6ab6529c-current-shop"
+            }
+          ]
+        },
+        "protocolReason": "JsNetworkRequestReceivedCacheControlNoStoreResource"
+      }
+    ],
+    "colorContrast": [],
+    "ariaAllowedRole": [],
+    "ariaRoles": [],
+    "imageDelivery": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-5-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,0,DIV,2,DIV,1,MAIN,0,DIV,3,DIV,2,ARTICLE,0,A,0,IMG",
+          "selector": "div.mt-5 > article.group > a.block > img.h-full",
+          "boundingRect": {
+            "top": 1802,
+            "bottom": 2086,
+            "left": 17,
+            "right": 395,
+            "width": 378,
+            "height": 284
+          },
+          "snippet": "<img sizes=\"(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2.5…\" alt=\"طقم أكواب بحافة كهرمانية — نموذج تجريبي\" loading=\"lazy\" decoding=\"async\" class=\"h-full w-full object-cover transition duration-700 group-hover:scale-105\" srcset=\"/manus-storage/mousa-glass-staging-amber-glassware-480_0fabe6c3.webp 480w,…\" src=\"/manus-storage/mousa-glass-staging-amber-glassware-960_e4bd2db3.webp\">",
+          "nodeLabel": "طقم أكواب بحافة كهرمانية — نموذج تجريبي"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/mousa-glass-staging-amber-glassware-960_e4bd2db3.webp?Expires=1787526489&Signature=q5vw2fNeRnraQvJNCuU2u0kwNjRlL6JwefVICttJ~HL46GEU~jhKPhnjYLcAX9lLhm5tEQkQG9F-cuOfQbEgRHbAJP~oKVGNmPSPHZ4JScHvSxpiDypmfeLq5D6EzzjhFQPsY~hhf25ivuJw~qgR57xp9eXy4Pd-0OqLILD-DypmBMTD69LOon9VhtdDiZ2SelLKRgTKlxPFd69JwlNmA9rgESLBEVam9cTroUX3U--O1XBnoT0ssmvQN-Ocql2SSxFprOAjNln2sTEb-pH7TQoJZrg7eEB~IG~1G8gQdPPDvxXBnmzKP9glJ~GIiHiULYD0cUuvzXepUi4EvrsCaA__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 69456,
+        "wastedBytes": 14647,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (960x722) for its displayed dimensions (662x827). Use responsive images to reduce the image download size.",
+              "wastedBytes": 14647
+            }
+          ]
+        }
+      }
+    ],
+    "unusedJavaScript": [
+      {
+        "url": "https://mousaglass-393f3nnk.manus.space/assets/index-D7F5TyqQ.js",
+        "totalBytes": 103120,
+        "wastedBytes": 36539,
+        "wastedPercent": 35.43308966847052
+      }
+    ]
+  }
+}

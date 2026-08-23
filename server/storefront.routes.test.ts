@@ -65,7 +65,7 @@ describe("public storefront routes", () => {
     expect(home).toContain('sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"');
   });
 
-  it("uses documented 480px derivatives for staged Shop card images without changing catalog data", () => {
+  it("uses documented 480px and measured 720px derivatives for staged card images without changing catalog data", () => {
     const shop = readProjectFile("client/src/pages/Shop.tsx");
     const home = readProjectFile("client/src/pages/Home.tsx");
     const responsiveImages = readProjectFile("client/src/lib/responsiveStagingImages.ts");
@@ -76,7 +76,9 @@ describe("public storefront routes", () => {
     expect(home).toContain("<img {...responsiveStagingProductImage(primaryImage(product.images))}");
     expect(responsiveImages).toContain("mousa-glass-staging-amber-vase-480_2b5a53c5.webp");
     expect(responsiveImages).toContain("mousa-glass-staging-amber-glassware-480_0fabe6c3.webp");
+    expect(responsiveImages).toContain("mousa-glass-staging-amber-glassware-720_441c281f.webp");
     expect(responsiveImages).toContain("480w");
+    expect(responsiveImages).toContain("720w");
     expect(responsiveImages).toContain("960w");
     expect(responsiveImages).toContain("(max-width: 639px)");
   });

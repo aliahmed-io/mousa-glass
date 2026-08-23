@@ -12,6 +12,7 @@ const assets = [
   ["حاملات شموع زجاجية — مصدر بطاقة متجاوب 480px", "/manus-storage/mousa-glass-staging-candleholders-480_bdd88b58.webp"],
   ["صينية تقديم دخانية — مصدر بطاقة متجاوب 480px", "/manus-storage/mousa-glass-staging-serving-tray-480_19cc5b9e.webp"],
   ["طقم أكواب بحافة كهرمانية — مصدر بطاقة متجاوب 480px", "/manus-storage/mousa-glass-staging-amber-glassware-480_0fabe6c3.webp"],
+  ["طقم أكواب بحافة كهرمانية — مصدر بطاقة متجاوب 720px", "/manus-storage/mousa-glass-staging-amber-glassware-720_441c281f.webp"],
 ];
 
 function isJpeg(bytes) {
