@@ -110,9 +110,18 @@
 - [ ] Obtain merchant and qualified local legal approval for the payment-proof retention, access-review, physical deletion, and customer-policy decisions recorded in the launch approval packet.
 - [x] Add a merchant-configured payment-proof retention setting, prevent customer ordering until it is set outside staging mode, and provide an administrator proof-reference deletion control.
 - [ ] Perform and record a production backup-and-restore drill for database, settings, order records, and storage references.
-- [ ] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
+- [x] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
+- [x] Prevent search engines from indexing generated staging catalog content while retaining a documented path to enable merchant-approved product discovery.
+- [x] Add structured LocalBusiness/Organization schema and product JSON-LD that activates only for merchant-approved non-staging catalog data.
+- [x] Document and validate the staging-to-live search-discovery workflow, including final canonical/social domain updates and product indexing activation.
 - [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
+- [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
+- [x] Add a public non-sensitive health endpoint and best-effort owner alerts for new orders and submitted payment proofs without blocking customer workflows.
+- [x] Add a GitHub Actions release gate for dependency installation, type checking, regression tests, and production builds.
+- [x] Verify the `/healthz` payload and status contract, including its non-sensitive response body.
+- [x] Verify order/proof owner-alert triggers, non-blocking failure behavior, and focused regression coverage.
+- [x] Inspect and validate the GitHub Actions workflow syntax, triggers, and install/typecheck/test/build job sequence.
 - [x] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
 - [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
 - [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.

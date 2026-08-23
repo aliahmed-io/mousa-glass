@@ -4,6 +4,8 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Clock, LogIn, MapPin, Menu, MessageCircle, Phone, ShoppingCart, UserRound, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { organizationJsonLd } from "@/lib/seo";
+import { SeoJsonLd } from "@/components/SeoJsonLd";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 
@@ -28,7 +30,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div dir="rtl" className="min-h-screen overflow-x-hidden bg-[#08090d] text-[#f5f0e8]">
+    <><SeoJsonLd id="mousa-organization-jsonld" data={organizationJsonLd(settings.data || {})} /><div dir="rtl" className="min-h-screen overflow-x-hidden bg-[#08090d] text-[#f5f0e8]">
       <div className="fixed inset-x-0 top-0 z-50 hidden h-10 border-b border-[#d4af37]/10 bg-black/95 md:block">
         <div className="container flex h-full items-center justify-between text-xs text-[#d4af37]/75">
           <div className="flex items-center gap-5">{whatsappNumber ? <a href={`tel:+${whatsappNumber}`} dir="ltr" className="inline-flex items-center gap-1.5 hover:text-[#d4af37]"><Phone size={12} />+{whatsappNumber}</a> : <span className="inline-flex items-center gap-1.5"><Phone size={12} />تنتظر بيانات التواصل</span>}</div>
@@ -62,6 +64,6 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <div className="border-t border-[#d4af37]/10 py-4 text-center text-xs text-[#f5f0e8]/65">© {new Date().getFullYear()} موسى لإكسسوارات الزجاج. جميع الحقوق محفوظة.</div>
       </footer>
       {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="تواصل معنا عبر واتساب" className="fixed bottom-5 left-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#25d366] text-white shadow-xl shadow-[#25d366]/25 transition-transform hover:scale-105"><MessageCircle className="h-6 w-6" /></a>}
-    </div>
+    </div></>
   );
 }

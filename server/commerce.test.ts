@@ -30,8 +30,15 @@ const dbMocks = vi.hoisted(() => ({
 
 const storageMocks = vi.hoisted(() => ({ storagePut: vi.fn() }));
 
+const operationsMocks = vi.hoisted(() => ({
+  notifyOwnerNonBlocking: vi.fn(),
+  orderAlertPayload: vi.fn((input: { orderNumber: string }) => ({ title: "order", content: input.orderNumber })),
+  paymentProofAlertPayload: vi.fn((input: { orderNumber: string }) => ({ title: "proof", content: input.orderNumber })),
+}));
+
 vi.mock("./db", () => dbMocks);
 vi.mock("./storage", () => storageMocks);
+vi.mock("./_core/operations", () => operationsMocks);
 
 import { appRouter } from "./routers";
 
@@ -140,7 +147,7 @@ describe("commerce tRPC procedures", () => {
   });
 
   it("creates an InstaPay order attached to the authenticated customer and returns WhatsApp handoff", async () => {
-    dbMocks.createCheckoutOrder.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", totalAmount: 26000 });
+    dbMocks.createCheckoutOrder.mockResolvedValue({ orderId: 22, orderNumber: "MG-ORDER-22", totalAmount: 26000 });
     const result = await appRouter.createCaller(context("user")).orders.create({
       customerName: "Customer Name",
       customerPhone: "201020000000",
@@ -156,10 +163,12 @@ describe("commerce tRPC procedures", () => {
     expect(result.whatsappUrl).toContain("201020848619");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-ORDER-22");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("I placed order");
+    expect(operationsMocks.orderAlertPayload).toHaveBeenCalledWith(expect.objectContaining({ orderId: 22, orderNumber: "MG-ORDER-22", paymentMethod: "instapay" }));
+    expect(operationsMocks.notifyOwnerNonBlocking).toHaveBeenCalledWith({ title: "order", content: "MG-ORDER-22" });
   });
 
   it("creates a Cash on Delivery order with the configured WhatsApp confirmation handoff", async () => {
-    dbMocks.createCheckoutOrder.mockResolvedValue({ id: 23, orderNumber: "MG-COD-23", totalAmount: 12500 });
+    dbMocks.createCheckoutOrder.mockResolvedValue({ orderId: 23, orderNumber: "MG-COD-23", totalAmount: 12500 });
     const result = await appRouter.createCaller(context("user")).orders.create({
       customerName: "Cash Customer",
       customerPhone: "2010602223037",
@@ -223,6 +232,8 @@ describe("commerce tRPC procedures", () => {
     expect(result.whatsappUrl).toContain("https://wa.me/201020848619");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-ORDER-22");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("proof for order");
+    expect(operationsMocks.paymentProofAlertPayload).toHaveBeenCalledWith({ orderId: 22, orderNumber: "MG-ORDER-22" });
+    expect(operationsMocks.notifyOwnerNonBlocking).toHaveBeenCalledWith({ title: "proof", content: "MG-ORDER-22" });
   });
 
   it("rejects a payment proof upload when the customer does not own the order", async () => {

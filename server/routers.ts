@@ -31,6 +31,7 @@ import {
   updateStoreSettings,
 } from "./db";
 import { storagePut } from "./storage";
+import { notifyOwnerNonBlocking, orderAlertPayload, paymentProofAlertPayload } from "./_core/operations";
 
 const catalogQuery = z.object({
   search: z.string().trim().max(100).optional(),
@@ -178,6 +179,7 @@ export const appRouter = router({
         }
         try {
           const order = await createCheckoutOrder({ ...input, userId: ctx.user.id });
+          notifyOwnerNonBlocking(orderAlertPayload({ orderId: order.orderId, orderNumber: order.orderNumber, paymentMethod: input.paymentMethod }));
           return { ...order, whatsappUrl: paymentWhatsappUrl(settings.whatsappNumber, order.orderNumber, "created"), instaPayHandle: settings.instaPayHandle };
         } catch (error) {
           throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Unable to create the order." });
@@ -199,6 +201,7 @@ export const appRouter = router({
         const image = decodeImage(input.imageData);
         const stored = await storagePut(`payment-proofs/${order.orderNumber}/${fileStem(input.fileName)}.${image.extension}`, image.data, image.mimeType);
         await addPaymentProof({ orderId: order.id, storageKey: stored.key, url: stored.url, originalFilename: input.fileName, mimeType: image.mimeType });
+        notifyOwnerNonBlocking(paymentProofAlertPayload({ orderId: order.id, orderNumber: order.orderNumber }));
         const settings = await getStoreSettings();
         return { success: true, whatsappUrl: paymentWhatsappUrl(settings.whatsappNumber, order.orderNumber, "proof_submitted") };
       }),
