@@ -173,3 +173,4 @@
 - [x] Add and verify an explicit same-origin CORS policy for the Express/tRPC surface, including rejected cross-origin and preflight behavior.
 - [x] Resolve and regression-test the Express 5 wildcard-route startup error recorded by the development server without weakening public-route fallback behavior.
 - [x] Extend the documented 480px staging-image `srcSet` delivery to Home featured cards without affecting unknown future merchant media or catalog staging.
+- [x] Measure a root error-boundary dependency split and retain the existing boundary after build evidence showed a larger shared lazy-icon first-load dependency; no release regression was introduced.

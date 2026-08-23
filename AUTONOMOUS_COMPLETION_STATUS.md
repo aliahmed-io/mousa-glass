@@ -44,7 +44,7 @@ The cache-busted mobile Home audit for checkpoint `24c2b326`, after applying the
 
 The first-paint staging disclosure avoids a measured layout shift while settings load. If the catalog is later authorized to leave staging, its reverse-layout behavior must be tested with approved non-staging configuration or redesigned with a merchant-approved reserved-height treatment. The current staging data must not be changed merely to run that test.
 
-Published console and bfcache findings are attributable to managed injected scripts blocked by the intentionally strict CSP and managed `no-store` headers. The application does not relax those safeguards to optimize a lab score. The currently observed shared-bundle unused-JavaScript finding is recorded for future measurement; the safe root toast/tooltip removal is covered by a regression test, while authenticated administrator interaction validation remains an account-authority gate.
+Published console and bfcache findings are attributable to managed injected scripts blocked by the intentionally strict CSP and managed `no-store` headers. The application does not relax those safeguards to optimize a lab score. A measured root-error-boundary dependency experiment was reverted because it introduced a new lazy icon chunk on Home first load; the retained shared-bundle unused-JavaScript finding remains open for a larger measured solution. The safe root toast/tooltip removal is covered by a regression test, while authenticated administrator interaction validation remains an account-authority gate.
 
 ## Release boundary
 
