@@ -115,6 +115,7 @@
 - [x] Add structured LocalBusiness/Organization schema and product JSON-LD that activates only for merchant-approved non-staging catalog data.
 - [x] Document and validate the staging-to-live search-discovery workflow, including final canonical/social domain updates and product indexing activation.
 - [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
+- [x] Defer the currently eager Home and Shop route modules so the shared application entry can be split more effectively without changing staging controls or public behavior.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
 - [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
 - [x] Add a public non-sensitive health endpoint and best-effort owner alerts for new orders and submitted payment proofs without blocking customer workflows.
