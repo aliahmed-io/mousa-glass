@@ -120,12 +120,13 @@
 - [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
 - [x] Defer the currently eager Home and Shop route modules so the shared application entry can be split more effectively without changing staging controls or public behavior.
 - [x] Reduce the published LCP image payload and reserve media layout space based on the fresh Lighthouse image-delivery and CLS findings.
-- [ ] Investigate the fresh Lighthouse console, ARIA-role, contrast, bfcache, and server-response findings; resolve only issues controllable in the application and document managed-platform constraints.
-- [ ] Extract and document the current published Lighthouse ARIA-role result, including whether an actionable application issue remains.
+- [x] Investigate the fresh Lighthouse console, ARIA-role, contrast, bfcache, and server-response findings; resolve only issues controllable in the application and document managed-platform constraints.
+- [x] Extract and document the current published Lighthouse ARIA-role result, including whether an actionable application issue remains.
 - [x] Add an evidence table mapping console, ARIA-role, contrast, bfcache, and server-response findings to a verified application fix, a managed-platform constraint, or a separately tracked deferred action.
-- [ ] Replace the invalid `role="status"` on the staging `<aside>` with an equivalent valid live-region treatment, then verify it in a published Lighthouse audit.
+- [x] Replace the invalid `role="status"` on the staging `<aside>` with an equivalent valid live-region treatment, then verify it in a published Lighthouse audit.
 - [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
 - [ ] Address the remaining published Lighthouse findings: 2.77 s initial-server-response opportunity, 53 KiB unused JavaScript, 105 KiB image-delivery opportunity, 230 ms render-blocking insight, console errors, contrast, bfcache, and one measured layout shift.
+- [ ] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
 - [ ] Scope global tooltip and toast dependencies away from the public application entry where they are not needed, then validate public and administrator interaction paths.
 - [ ] Verify an authenticated administrator route and inspect administrator source usage after removing root tooltip/toast providers, then record whether any admin dependency must be restored or scoped locally.
 - [x] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.
