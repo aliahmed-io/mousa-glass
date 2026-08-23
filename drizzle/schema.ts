@@ -93,6 +93,8 @@ export const orders = mysqlTable(
     customerEmail: varchar("customerEmail", { length: 320 }),
     shippingAddress: text("shippingAddress").notNull(),
     notes: text("notes"),
+    idempotencyKey: varchar("idempotencyKey", { length: 64 }).notNull(),
+    checkoutFingerprint: varchar("checkoutFingerprint", { length: 64 }).notNull(),
     paymentMethod: mysqlEnum("paymentMethod", paymentMethods).notNull(),
     paymentStatus: mysqlEnum("paymentStatus", paymentStatuses).default("not_required").notNull(),
     status: mysqlEnum("status", orderStatuses).default("pending").notNull(),
@@ -104,6 +106,7 @@ export const orders = mysqlTable(
   },
   table => [
     uniqueIndex("orders_number_unique").on(table.orderNumber),
+    uniqueIndex("orders_user_idempotency_unique").on(table.userId, table.idempotencyKey),
     index("orders_customer_idx").on(table.userId, table.createdAt),
     index("orders_status_idx").on(table.status, table.createdAt),
   ],

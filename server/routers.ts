@@ -73,6 +73,12 @@ function decodeImage(dataUrl: string) {
   if (data.length === 0 || data.length > 5 * 1024 * 1024) {
     throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Images must be 5 MB or smaller." });
   }
+  const isPng = data.length >= 8 && data.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  const isJpeg = data.length >= 3 && data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff;
+  const isWebp = data.length >= 12 && data.subarray(0, 4).equals(Buffer.from("RIFF")) && data.subarray(8, 12).equals(Buffer.from("WEBP"));
+  if ((mimeType === "image/png" && !isPng) || (mimeType === "image/jpeg" && !isJpeg) || (mimeType === "image/webp" && !isWebp)) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "The uploaded bytes do not match the declared image format." });
+  }
   const extension = mimeType === "image/png" ? "png" : mimeType === "image/webp" ? "webp" : "jpg";
   return { data, mimeType, extension };
 }
@@ -155,6 +161,7 @@ export const appRouter = router({
         notes: z.string().trim().max(1500).nullable().optional(),
         paymentMethod: z.enum(["cash_on_delivery", "instapay"]),
         items: z.array(z.object({ productId: z.number().int().positive(), quantity: z.number().int().min(1).max(99) })).min(1).max(50),
+        idempotencyKey: z.string().uuid(),
       }))
       .mutation(async ({ ctx, input }) => {
         const settings = await getStoreSettings();

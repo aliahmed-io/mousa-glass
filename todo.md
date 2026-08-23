@@ -101,8 +101,8 @@
 - [ ] Obtain merchant-approved category, product, price, stock, tax, delivery, and image data; enter it through the administrator workspace without placeholder merchandise.
 - [x] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
 - [ ] Publish Arabic legal pages covering privacy, terms of sale, delivery, returns, COD, InstaPay proof handling, and customer contact routes.
-- [ ] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
-- [ ] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
+- [x] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
+- [x] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
 - [ ] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
 - [ ] Add database foreign-key constraints, referential indexes, migration safeguards, and a verified schema/data rollback procedure.
 - [ ] Define payment-proof retention, access-review, and deletion procedures consistent with the published privacy policy.
@@ -120,3 +120,6 @@
 - [x] Standardize the public delivery-and-returns route and retain a backward-compatible alias so every navigation link resolves.
 - [x] Verify and record the seeded Arabic staging-catalog records, including categories, descriptions, prices, stock, and product-image assignments.
 - [x] Extend and verify the staging-mode disclosure so contact, payment, delivery, tax, and legal/business-specific terms are explicitly pending wherever relevant.
+- [x] Apply same-origin protection for cookie-authenticated mutations, restrictive browser security headers, and bounded request/upload limits with automated coverage.
+- [ ] Configure or accept an explicit compensating control for globally distributed edge rate limiting before opening orders on autoscaling production infrastructure.
+- [x] Add and verify an explicit same-origin CORS policy for the Express/tRPC surface, including rejected cross-origin and preflight behavior.

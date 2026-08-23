@@ -1,0 +1,134 @@
+import type { Request, RequestHandler } from "express";
+
+type RateLimitOptions = {
+  name: string;
+  windowMs: number;
+  max: number;
+};
+
+type RateLimitBucket = { count: number; resetAt: number };
+
+const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
+
+function requestProtocol(req: Request) {
+  const forwarded = req.header("x-forwarded-proto")?.split(",")[0]?.trim();
+  return forwarded === "https" ? "https" : req.protocol === "https" ? "https" : "http";
+}
+
+function additionalTrustedOrigins() {
+  return (process.env.TRUSTED_WEB_ORIGINS ?? "")
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
+}
+
+export function isAllowedBrowserOrigin(origin: string, host: string, protocol: string, additionalOrigins = additionalTrustedOrigins()) {
+  return origin === `${protocol}://${host}` || additionalOrigins.includes(origin);
+}
+
+function requestClientKey(req: Request) {
+  return req.ip || req.socket.remoteAddress || "unknown";
+}
+
+export function securityHeaders(): RequestHandler {
+  return (req, res, next) => {
+    const development = process.env.NODE_ENV === "development";
+    const scriptSource = development ? "'self' 'unsafe-inline' 'unsafe-eval'" : "'self'";
+    const connectSource = development ? "'self' ws: wss:" : "'self'";
+    res.setHeader("Content-Security-Policy", [
+      "default-src 'self'",
+      `script-src ${scriptSource}`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https:",
+      `connect-src ${connectSource}`,
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join("; "));
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    res.setHeader("Vary", "Origin");
+    if (requestProtocol(req) === "https") {
+      res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    next();
+  };
+}
+
+/** Same-origin by default; optional trusted origins are read from a comma-separated deployment setting. */
+export function corsPolicy(): RequestHandler {
+  return (req, res, next) => {
+    const origin = req.header("origin");
+    const host = req.header("host");
+    const allowed = Boolean(origin && host && isAllowedBrowserOrigin(origin, host, requestProtocol(req)));
+
+    if (req.method === "OPTIONS") {
+      if (!allowed) {
+        res.status(403).json({ error: "Cross-origin preflight is not allowed." });
+        return;
+      }
+      res.setHeader("Access-Control-Allow-Origin", origin!);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,POST,OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-TRPC-Source");
+      res.setHeader("Access-Control-Max-Age", "600");
+      res.status(204).end();
+      return;
+    }
+
+    if (allowed) {
+      res.setHeader("Access-Control-Allow-Origin", origin!);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+    next();
+  };
+}
+
+/**
+ * Cookie-authenticated mutations accept only the deployed site origin (or an
+ * explicitly configured trusted origin). This is the CSRF boundary for tRPC.
+ */
+export function requireTrustedMutationOrigin(): RequestHandler {
+  return (req, res, next) => {
+    if (safeMethods.has(req.method)) return next();
+    const origin = req.header("origin");
+    const host = req.header("host");
+    if (!origin || !host || !isAllowedBrowserOrigin(origin, host, requestProtocol(req))) {
+      res.status(403).json({ error: "Cross-site requests are not allowed." });
+      return;
+    }
+    next();
+  };
+}
+
+/**
+ * Low-maintenance per-process rate limiter. Managed edge protection should be
+ * added before a high-traffic launch; this still limits bursts on every live
+ * instance and protects costly checkout/upload code paths.
+ */
+export function createRateLimiter({ name, windowMs, max }: RateLimitOptions): RequestHandler {
+  const buckets = new Map<string, RateLimitBucket>();
+  return (req, res, next) => {
+    const now = Date.now();
+    const key = `${name}:${requestClientKey(req)}`;
+    const previous = buckets.get(key);
+    const bucket = !previous || previous.resetAt <= now ? { count: 0, resetAt: now + windowMs } : previous;
+    bucket.count += 1;
+    buckets.set(key, bucket);
+
+    res.setHeader("RateLimit-Limit", String(max));
+    res.setHeader("RateLimit-Remaining", String(Math.max(0, max - bucket.count)));
+    res.setHeader("RateLimit-Reset", String(Math.ceil(bucket.resetAt / 1000)));
+    if (bucket.count > max) {
+      res.setHeader("Retry-After", String(Math.max(1, Math.ceil((bucket.resetAt - now) / 1000))));
+      res.status(429).json({ error: "Too many requests. Please try again later." });
+      return;
+    }
+    next();
+  };
+}

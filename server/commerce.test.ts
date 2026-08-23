@@ -63,6 +63,8 @@ const productInput = {
   isFeatured: false,
 };
 
+const pngImageData = `data:image/png;base64,${Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]).toString("base64")}`;
+
 describe("commerce tRPC procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -133,6 +135,7 @@ describe("commerce tRPC procedures", () => {
       notes: null,
       paymentMethod: "instapay",
       items: [{ productId: 5, quantity: 2 }],
+      idempotencyKey: "0d5d3d1d-1e7d-49ae-8668-c566dce7e596",
     });
     expect(dbMocks.createCheckoutOrder).toHaveBeenCalledWith(expect.objectContaining({ userId: 2, paymentMethod: "instapay", items: [{ productId: 5, quantity: 2 }] }));
     expect(result).toMatchObject({ orderNumber: "MG-ORDER-22", instaPayHandle: "01060223037" });
@@ -151,6 +154,7 @@ describe("commerce tRPC procedures", () => {
       notes: "Cash on delivery",
       paymentMethod: "cash_on_delivery",
       items: [{ productId: 6, quantity: 1 }],
+      idempotencyKey: "bcbbc52c-ecaa-4454-9160-a2ab6da76a36",
     });
     expect(dbMocks.createCheckoutOrder).toHaveBeenCalledWith(expect.objectContaining({ userId: 2, paymentMethod: "cash_on_delivery" }));
     expect(result).toMatchObject({ orderNumber: "MG-COD-23", instaPayHandle: "01060223037" });
@@ -168,15 +172,29 @@ describe("commerce tRPC procedures", () => {
       notes: null,
       paymentMethod: "cash_on_delivery",
       items: [{ productId: 6, quantity: 1 }],
+      idempotencyKey: "6bb53a5d-fd7b-458e-92b7-7dd1130c3f2f",
     })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
+  });
+
+  it("requires a UUID idempotency key for each checkout request", async () => {
+    await expect(appRouter.createCaller(context("user")).orders.create({
+      customerName: "Customer Name",
+      customerPhone: "201020000000",
+      customerEmail: null,
+      shippingAddress: "24 Example Street, Cairo",
+      notes: null,
+      paymentMethod: "cash_on_delivery",
+      items: [{ productId: 5, quantity: 1 }],
+      idempotencyKey: "repeat-submit",
+    })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
   });
 
   it("stores an InstaPay proof only for the customer who owns the order", async () => {
     dbMocks.getOrderForUser.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", paymentMethod: "instapay", status: "pending" });
     storageMocks.storagePut.mockResolvedValue({ key: "payment-proofs/MG-ORDER-22/proof.png", url: "https://storage.example/proof.png" });
-    const imageData = `data:image/png;base64,${Buffer.from("valid-image").toString("base64")}`;
-    const result = await appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData });
+    const result = await appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData: pngImageData });
     expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringContaining("payment-proofs/MG-ORDER-22"), expect.any(Buffer), "image/png");
     expect(dbMocks.addPaymentProof).toHaveBeenCalledWith(expect.objectContaining({ orderId: 22, originalFilename: "proof.png" }));
     expect(result.success).toBe(true);
@@ -187,9 +205,15 @@ describe("commerce tRPC procedures", () => {
 
   it("rejects a payment proof upload when the customer does not own the order", async () => {
     dbMocks.getOrderForUser.mockResolvedValue(null);
-    const imageData = `data:image/png;base64,${Buffer.from("valid-image").toString("base64")}`;
-    await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 99, fileName: "proof.png", imageData })).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 99, fileName: "proof.png", imageData: pngImageData })).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(storageMocks.storagePut).not.toHaveBeenCalled();
     expect(dbMocks.addPaymentProof).not.toHaveBeenCalled();
+  });
+
+  it("rejects a payment-proof upload whose bytes do not match its declared image type", async () => {
+    dbMocks.getOrderForUser.mockResolvedValue({ id: 22, orderNumber: "MG-ORDER-22", paymentMethod: "instapay", status: "pending" });
+    const invalidImageData = `data:image/png;base64,${Buffer.from("not-an-image").toString("base64")}`;
+    await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData: invalidImageData })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(storageMocks.storagePut).not.toHaveBeenCalled();
   });
 });

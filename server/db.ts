@@ -24,6 +24,7 @@ import {
   storeSettings,
   users,
 } from "../drizzle/schema";
+import { createHash } from "node:crypto";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -249,7 +250,7 @@ export async function deleteProductImage(id: number) {
 }
 
 type CheckoutLine = { productId: number; quantity: number };
-export async function createCheckoutOrder(input: {
+type CheckoutInput = {
   userId: number;
   customerName: string;
   customerPhone: string;
@@ -258,10 +259,39 @@ export async function createCheckoutOrder(input: {
   notes?: string | null;
   paymentMethod: "cash_on_delivery" | "instapay";
   items: CheckoutLine[];
-}) {
+  idempotencyKey: string;
+};
+
+function fingerprintCheckout(input: CheckoutInput) {
+  return createHash("sha256")
+    .update(JSON.stringify({
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail ?? null,
+      shippingAddress: input.shippingAddress,
+      notes: input.notes ?? null,
+      paymentMethod: input.paymentMethod,
+      items: [...input.items].sort((left, right) => left.productId - right.productId || left.quantity - right.quantity),
+    }))
+    .digest("hex");
+}
+
+function replayOrReject(existing: typeof orders.$inferSelect, fingerprint: string) {
+  if (existing.checkoutFingerprint !== fingerprint) {
+    throw new Error("This checkout request key was already used with different order details.");
+  }
+  return { orderId: existing.id, orderNumber: existing.orderNumber, totalAmount: existing.totalAmount, replayed: true as const };
+}
+
+export async function createCheckoutOrder(input: CheckoutInput) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return db.transaction(async tx => {
+  const fingerprint = fingerprintCheckout(input);
+  const existing = await db.select().from(orders).where(and(eq(orders.userId, input.userId), eq(orders.idempotencyKey, input.idempotencyKey))).limit(1);
+  if (existing[0]) return replayOrReject(existing[0], fingerprint);
+
+  try {
+    return await db.transaction(async tx => {
     const settings = (await tx.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1))[0];
     const shippingAmount = settings?.shippingFeeAmount ?? 0;
     const stagedItems: Array<{ product: ProductRow; quantity: number; imageUrl: string | null }> = [];
@@ -283,6 +313,8 @@ export async function createCheckoutOrder(input: {
       customerEmail: input.customerEmail ?? null,
       shippingAddress: input.shippingAddress,
       notes: input.notes ?? null,
+      idempotencyKey: input.idempotencyKey,
+      checkoutFingerprint: fingerprint,
       paymentMethod: input.paymentMethod,
       paymentStatus: input.paymentMethod === "instapay" ? "awaiting_proof" : "not_required",
       subtotalAmount,
@@ -303,8 +335,13 @@ export async function createCheckoutOrder(input: {
         quantity: item.quantity,
       });
     }
-    return { orderId, orderNumber, totalAmount: subtotalAmount + shippingAmount };
-  });
+      return { orderId, orderNumber, totalAmount: subtotalAmount + shippingAmount, replayed: false as const };
+    });
+  } catch (error) {
+    const completedRequest = await db.select().from(orders).where(and(eq(orders.userId, input.userId), eq(orders.idempotencyKey, input.idempotencyKey))).limit(1);
+    if (completedRequest[0]) return replayOrReject(completedRequest[0], fingerprint);
+    throw error;
+  }
 }
 
 async function hydrateOrders(orderRows: Array<typeof orders.$inferSelect>) {

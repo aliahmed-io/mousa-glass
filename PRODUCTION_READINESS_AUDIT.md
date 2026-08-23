@@ -13,17 +13,21 @@
 
 The current application is correctly positioned as an **Arabic-first, RTL, catalog-led local commerce site**. It provides customer routes for the landing page, shop, product detail, cart, checkout, orders, Contact, About, Delivery & Returns, and FAQ. Administrator routes cover dashboard metrics, products, categories, media, orders, payment status, and store settings. The backend uses tRPC contracts, Zod input validation, Manus OAuth sessions, server-side `adminProcedure` enforcement, transactional order creation, atomic stock decrement, and managed object storage.
 
-The core engineering is credible, but the business is not yet sale-ready because the catalog is intentionally empty. There are no categories, products, images, orders, payment proofs, or real-world validation records. The mandatory first launch gate is therefore **merchant-approved catalog content and a controlled real workflow rehearsal**. The next technical gate is abuse/risk hardening: rate limits, order idempotency, legal pages, monitoring, backup/restore evidence, and a state-transition policy.
+The core engineering is credible, but the business is not yet sale-ready. A clearly disclosed, non-orderable generated staging catalog now exists to validate product discovery and administration; it is **not** merchant-approved commercial content. The mandatory first launch gate is therefore **merchant-approved catalog content and a controlled real workflow rehearsal**. The remaining technical gate is distributed abuse protection, legal pages, monitoring, backup/restore evidence, and a state-transition policy.
+
+### Post-audit remediation update
+
+Since the baseline audit, the application has added a generated Arabic staging catalog with original generated imagery, an order-disable switch, global staging disclosures, and administrator-sourced public contact data. The checkout now sends a client UUID idempotency key; the database stores a request fingerprint and unique user/key pair, replays an identical retry safely, and rejects key reuse with different order details. The server also now applies a tested same-origin mutation guard, restrictive browser-security headers, reduced parser limits, request/upload throttles, and image-signature checks. These are meaningful **P1 risk reductions**, not approval for unrestricted launch: rate limiting remains per-process on autoscaling infrastructure, and genuine merchant data, policy approval, lifecycle controls, operations evidence, and real E2E validation remain mandatory.
 
 | Decision area | Audit result | Launch implication |
 |---|---|---|
 | Arabic RTL customer storefront | **PASS** | Suitable visual and navigational foundation for Egypt-local commerce. |
 | Admin product/category/order operations | **PASS** | Capable of day-to-day catalog and order administration. |
 | Authentication and role enforcement | **PASS** | OAuth session plus server-side owner/admin controls were inspected. |
-| Catalog readiness | **FAIL — P0** | No real products, prices, stock, images, or categories exist. |
+| Catalog readiness | **FAIL — P0** | A non-orderable generated staging catalog exists; real approved products, prices, stock, and images do not. |
 | Payment-proof confidentiality | **PASS after remediation** | Storage proxy now requires order owner or administrator for proof files. |
 | COD/InstaPay business flow | **PARTIAL — P1** | Code exists, but real end-to-end validation was intentionally not completed. |
-| Abuse, fraud, and operational controls | **PARTIAL — P1/P2** | Rate limits, idempotency, monitoring, and backup evidence are missing. |
+| Abuse, fraud, and operational controls | **PARTIAL — P1/P2** | Same-origin guard, headers, local throttles, and idempotency exist; distributed limiting, monitoring, and backup evidence remain missing. |
 | Mobile, accessibility, and local-build performance | **PASS / PARTIAL** | Strong local Lighthouse accessibility/SEO; published-host performance remains variable. |
 
 ---
@@ -76,7 +80,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Maintainable route and module organization | **PARTIAL** | Core files are discoverable, but `server/routers.ts` and `server/db.ts` are large central modules and should be split by feature before significant growth. |
 | Shared e-commerce vocabulary | **PASS** | Categories, products, images, orders, items, payment proofs, and settings have dedicated schema and procedure names. |
 | Vendor lock-in awareness | **PARTIAL** | The app intentionally uses Manus OAuth, hosting, storage, and database platform services. Low maintenance cost is strong; exit/recovery runbook and export process need more proof. |
-| Environment/secrets handling | **PASS** | System secrets are injected rather than stored in source. Static scan did not find committed `.env`/key material. |
+| Environment/secrets handling | **PASS** | System secrets are injected rather than stored in source. Static scan did not find committed `.env`/key material. The optional `TRUSTED_WEB_ORIGINS` setting accepts only explicit additional browser origins for CORS and mutation checks; its value is not stored in source. |
 | CI/CD pipeline | **FAIL — P2** | No repository CI workflow was identified. Builds/tests are run manually in the managed environment. |
 
 ---
@@ -151,7 +155,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Store | `store.settings` | — | `admin.storeSettings`, `admin.updateStoreSettings` | **PASS** — public data is limited to safe customer settings. |
 | Categories | `categories.list` | — | list/create/update/delete | **PASS** — admin writes are guarded and Zod validated. |
 | Products | list/bySlug | — | list/create/update/delete/uploadImage/deleteImage | **PASS** — pagination/sort bounds and payload rules exist. |
-| Orders | — | create/mine/get/uploadPaymentProof | list/detail/update/dashboard | **PARTIAL** — ownership is enforced, but idempotency and transition policy are missing. |
+| Orders | — | create/mine/get/uploadPaymentProof | list/detail/update/dashboard | **PARTIAL** — ownership and checkout idempotency are enforced; transition policy is still missing. |
 
 ### 6.2 Validation and error handling
 
@@ -162,9 +166,9 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Query pagination limits | **PASS** | Catalog max is 48; admin order list maximum is 200. |
 | Error handling | **PARTIAL** | User-visible tRPC errors and UI loading/error states exist. There is no structured error taxonomy, correlation ID, or external error tracking. |
 | API documentation | **PARTIAL** | tRPC contracts are self-describing in code; there is no external OpenAPI/public API documentation. Appropriate for an internal storefront but insufficient for third-party integrations. |
-| Rate limiting / bot mitigation | **FAIL — P1** | No application-level limit was found for catalog search, OAuth-adjacent flows, checkout creation, image upload, or proof upload. |
-| Idempotency | **FAIL — P1** | Checkout has no idempotency key. Browser retries or repeated submits can create duplicate orders. |
-| CSRF hardening | **PARTIAL — P1** | OAuth callback validates a state nonce. Session cookies are `httpOnly` and secure over HTTPS, but application mutations use a long-lived `SameSite=None` session cookie without an explicit CSRF token/origin middleware. Review with platform gateway/CORS behavior and add CSRF protection if cross-site requests can reach `/api/trpc`. |
+| Rate limiting / bot mitigation | **PARTIAL — P1** | Per-process limits now protect tRPC, checkout, proof upload, and storage requests. Add an edge/distributed control or documented compensating measure before high-traffic autoscaling launch. |
+| Idempotency | **PASS after remediation** | Checkout requires a UUID key and persists a request fingerprint plus unique user/key constraint; identical retries safely reuse the existing order outcome. |
+| CSRF hardening | **PASS / PARTIAL** | OAuth callback validates a state nonce and non-safe tRPC requests now require the same trusted browser origin. Cookies remain `httpOnly` and HTTPS-secure. Maintain the trusted-origin allowlist if cross-origin deployments are introduced. |
 
 ---
 
@@ -199,10 +203,10 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Control | Status | Evidence and recommended action |
 |---|---|---|
 | Compression | **PASS** | Express `compression()` is enabled before API/static routes. |
-| Request-body limit | **PARTIAL** | 50 MB global JSON/urlencoded limit supports uploads but is much larger than the 5 MB image business rule. Lower global parser limit or isolate upload parsing. |
+| Request-body limit | **PASS / PARTIAL** | Global JSON parsing is limited to 8 MB, URL-encoded parsing to 1 MB, and image payloads to 5 MB with type and byte-signature checks. Consider a streaming upload design if future media requirements exceed this model. |
 | TLS | **PARTIAL** | Published Manus URL uses HTTPS in browser. Custom-domain TLS and HSTS are not yet verifiable. |
-| Security headers | **FAIL — P1** | No Helmet/CSP, `X-Content-Type-Options`, `Referrer-Policy`, clickjacking protection, or Permissions-Policy middleware was found. Add a tested baseline security-header policy. |
-| CORS policy | **UNVERIFIED — P1** | No explicit CORS middleware is present. Same-origin behavior is expected, but gateway behavior was not proven. Establish and document an allowlist. |
+| Security headers | **PASS after remediation** | Tested CSP, nosniff, referrer, framing, permissions, COOP, HSTS-on-HTTPS, and Vary headers are emitted. Review CSP whenever third-party assets are added. |
+| CORS policy | **PASS / PARTIAL** | The application intentionally exposes no permissive CORS middleware; mutation traffic is same-origin by default with a configurable trusted-origin list. Confirm any future custom-domain or cross-origin architecture before changing this policy. |
 | Secrets in source | **PASS** | No committed secrets were found in targeted static scan. |
 | Dependency vulnerabilities | **UNVERIFIED — P2** | Audit command stalled/timed out; rerun in CI or a network-stable environment. |
 
@@ -232,7 +236,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Atomic inventory decrement | **PASS** | Transaction uses conditional `stock >= quantity` SQL decrement; it throws if affected rows are not exactly one. |
 | Transaction boundary | **PASS** | Order creation, stock updates, and item creation run under a database transaction. |
 | Over-selling resistance | **PASS / PARTIAL** | Conditional decrement is materially correct. It should be load-tested with real concurrent checkout volume before claiming high-confidence capacity. |
-| Idempotent order submission | **FAIL — P1** | No checkout idempotency key/unique client submission token. |
+| Idempotent order submission | **PASS after remediation** | Client UUID, server fingerprint, unique user/key constraint, and replay-safe transaction handling protect duplicate checkout retries. |
 | Order state-machine validation | **FAIL — P1** | Admin may submit allowed enum values, but invalid business transitions (for example delivered → pending) are not blocked. |
 | Cancellation restock | **FAIL — P1** | `updateOrder` changes status only; cancelled paid/reserved quantities are not returned to stock. |
 | Payment proof duplicates | **PARTIAL** | Multiple proof rows can be added. This may be a valid resubmission model, but needs a defined business rule and admin UI explanation. |
@@ -296,9 +300,9 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 
 | ID | Severity | Finding | Risk | Required remediation | Owner |
 |---|---|---|---|---|---|
-| AUD-01 | **P0** | Empty live catalog | Store cannot sell; incomplete landing/category/product paths in real conditions | Add approved categories, product names/slugs, EGP prices, stock, Arabic descriptions, compliant images/alt text; QA each product | Merchant/admin |
-| AUD-02 | **P1** | No order idempotency | Repeated submissions can create duplicate orders/stock decrements | Add client submission key with server-side unique constraint and replay-safe response | Engineering |
-| AUD-03 | **P1** | No rate limiting | Catalog, checkout, and uploads are exposed to abuse/cost pressure | Add per-IP/user limits, upload throttles, and alert thresholds at gateway/application level | Engineering |
+| AUD-01 | **P0** | No merchant-approved live catalog | Generated seed entries are non-orderable and cannot support customer sales | Replace seed content through admin with approved categories, products, EGP prices, stock, Arabic descriptions, compliant images, and QA evidence | Merchant/admin |
+| AUD-02 | **Resolved P1** | Duplicate checkout retry risk | Client UUID, database fingerprint, unique user/key constraint, and replay-safe response now exist | Retain regression tests and include in CI | Engineering |
+| AUD-03 | **P1** | Distributed rate limiting remains absent | Per-process limits protect key routes but cannot coordinate across autoscaled instances | Add gateway/distributed limit or record an accepted compensating operational control | Engineering |
 | AUD-04 | **P1** | No order transition matrix or cancellation restock | Invalid status history and lost stock | Define transition rules; transact cancellation restock once; test all transitions | Engineering + operations |
 | AUD-05 | **P1** | No FK constraints / lifecycle policy | Potential orphans and inconsistent direct-admin data changes | Add database FKs, deletion behavior, and migration/restore test plan | Engineering |
 | AUD-06 | **P1** | Security header/CORS/CSRF posture incomplete | Browser-integrity and cross-site request risk not fully controlled | Add Helmet/CSP/frame/referrer/content-type policies; document strict CORS and explicit CSRF/origin strategy | Engineering |
@@ -317,6 +321,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | ID | Severity | Resolution evidence |
 |---|---|---|
 | AUD-R1 | **P1** | Payment-proof download bypass corrected. `/manus-storage/payment-proofs/*` now authorizes order owner/admin; focused unauthenticated/unrelated-user regression tests pass. Public product images remain public. |
+| AUD-R2 | **P1** | Checkout idempotency, same-origin mutation guard, explicit trusted-origin CORS/preflight handling, browser security headers, smaller request limits, route throttles, and image-signature checks implemented; 27 automated tests pass. Distributed rate limiting remains a launch gate. |
 
 ---
 
@@ -328,7 +333,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 2. Publish final Arabic privacy policy, terms of sale, delivery/return/exchange policy, payment-proof data-retention policy, and merchant identity/contact information.
 3. Configure and verify the final WhatsApp number, InstaPay handle, shipping fee, hours, and local delivery scope in Admin Settings.
 4. Connect the final custom domain; add canonical URL, sitemap, social metadata, and merchant/product structured data.
-5. Add rate limiting, checkout idempotency, explicit state transition/restock handling, security headers/CORS/CSRF policy, and database referential constraints.
+5. Add distributed rate limiting, explicit state transition/restock handling, and database referential constraints; keep the implemented idempotency and same-origin/header controls covered by CI.
 6. Perform a controlled real-world order: catalog → cart → login → checkout → WhatsApp → COD or InstaPay proof → admin review → status change → cancellation/restock test.
 7. Establish documented backups, retention, restore test, error tracking/uptime alert, and a minimum incident/rollback procedure.
 
@@ -346,4 +351,4 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 
 Mousa Glass is **well beyond a static prototype**: it has an Arabic RTL e-commerce storefront, meaningful admin operations, validated typed API boundaries, OAuth/RBAC enforcement, transaction-aware stock reduction, manageable catalog controls, storage-backed media, and a newly secured private payment-proof route. It is appropriate for **owner content entry and controlled launch preparation**.
 
-It is **not yet ready for unrestricted customer sales**. The blockers are concrete and addressable: a real catalog; legal/business policies; abuse/idempotency/order-lifecycle safeguards; data recovery/monitoring proof; and a controlled live business-flow rehearsal. Once the P0/P1 gates are closed and documented, the application can progress to a managed production launch with substantially lower operational risk.
+It is **not yet ready for unrestricted customer sales**. The blockers are concrete and addressable: merchant-approved catalog data; legal/business policies; distributed abuse protection and order-lifecycle safeguards; data recovery/monitoring proof; and a controlled live business-flow rehearsal. Once the P0/P1 gates are closed and documented, the application can progress to a managed production launch with substantially lower operational risk.
