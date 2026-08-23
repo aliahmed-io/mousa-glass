@@ -78,6 +78,12 @@ describe("public storefront routes", () => {
     expect(responsiveImages).toContain("(max-width: 639px)");
   });
 
+  it("retains an explicit main landmark around the Shop catalog content", () => {
+    const shop = readProjectFile("client/src/pages/Shop.tsx");
+
+    expect(shop).toContain('<main id="main-content" role="main"');
+  });
+
   it("reserves staging-disclosure space when a future authorized non-staging setting resolves", () => {
     const layout = readProjectFile("client/src/components/StoreLayout.tsx");
 
