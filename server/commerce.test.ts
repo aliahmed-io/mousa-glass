@@ -88,6 +88,19 @@ describe("commerce tRPC procedures", () => {
     expect(dbMocks.updateProduct).toHaveBeenCalledWith(17, { stock: 4, isActive: true, isFeatured: false });
   });
 
+  it("uses the protected update path to archive a product instead of deleting its order history", async () => {
+    await appRouter.createCaller(context("admin")).products.update({ id: 17, isActive: false });
+    expect(dbMocks.updateProduct).toHaveBeenCalledWith(17, { isActive: false, isFeatured: false });
+  });
+
+  it("returns archive guidance when a historical product deletion is rejected", async () => {
+    dbMocks.deleteProduct.mockRejectedValue(new Error("Products referenced by order history cannot be deleted. Archive the product by hiding it instead."));
+    await expect(appRouter.createCaller(context("admin")).products.delete({ id: 17 })).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: expect.stringContaining("Archive the product"),
+    });
+  });
+
   it("passes customer category filters and Arabic catalog sort selections to the database layer", async () => {
     dbMocks.getCatalogProducts.mockResolvedValue({ products: [], total: 0 });
     await appRouter.createCaller(context("user")).products.list({ categorySlug: "door-handles", sort: "price_asc", page: 1, limit: 24 });

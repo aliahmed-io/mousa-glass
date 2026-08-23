@@ -132,7 +132,11 @@ export const appRouter = router({
       return { success: true };
     }),
     delete: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
-      await deleteProduct(input.id);
+      try {
+        await deleteProduct(input.id);
+      } catch (error) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Product deletion was rejected." });
+      }
       return { success: true };
     }),
     uploadImage: adminProcedure
@@ -210,7 +214,11 @@ export const appRouter = router({
       .input(z.object({ id: z.number().int().positive(), status: orderStatus.optional(), paymentStatus: paymentStatus.optional() }))
       .mutation(async ({ input }) => {
         if (!input.status && !input.paymentStatus) throw new TRPCError({ code: "BAD_REQUEST", message: "No order changes were supplied." });
-        await updateOrder(input);
+        try {
+          await updateOrder(input);
+        } catch (error) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Order update was rejected." });
+        }
         return { success: true };
       }),
     storeSettings: adminProcedure.query(() => getStoreSettings()),

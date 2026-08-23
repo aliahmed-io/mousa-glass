@@ -5,6 +5,7 @@ import {
   eq,
   gte,
   inArray,
+  isNull,
   like,
   ne,
   or,
@@ -230,11 +231,21 @@ export async function updateProduct(id: number, input: Partial<{
   await db.update(products).set(input).where(eq(products.id, id));
 }
 
+export function assertProductCanBeDeleted(orderReferenceCount: number) {
+  if (orderReferenceCount > 0) {
+    throw new Error("Products referenced by order history cannot be deleted. Archive the product by hiding it instead.");
+  }
+}
+
 export async function deleteProduct(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(productImages).where(eq(productImages.productId, id));
-  await db.delete(products).where(eq(products.id, id));
+  await db.transaction(async tx => {
+    const historicalReference = await tx.select({ id: orderItems.id }).from(orderItems).where(eq(orderItems.productId, id)).limit(1);
+    assertProductCanBeDeleted(historicalReference.length);
+    await tx.delete(productImages).where(eq(productImages.productId, id));
+    await tx.delete(products).where(eq(products.id, id));
+  });
 }
 
 export async function addProductImage(input: { productId: number; storageKey: string; url: string; altText?: string | null; sortOrder: number }) {
@@ -417,8 +428,21 @@ export async function getOrderById(orderId: number) {
 export async function addPaymentProof(input: { orderId: number; storageKey: string; url: string; originalFilename: string; mimeType: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(paymentProofs).values(input);
-  await db.update(orders).set({ paymentStatus: "under_review" }).where(eq(orders.id, input.orderId));
+  await db.transaction(async tx => {
+    const order = (await tx.select().from(orders).where(eq(orders.id, input.orderId)).limit(1))[0];
+    if (!order) throw new Error("Order not found.");
+    if (order.paymentMethod !== "instapay") throw new Error("Payment proof uploads are only available for InstaPay orders.");
+    if (!canTransitionPaymentStatus(order.paymentStatus, "under_review")) {
+      throw new Error("A new payment proof cannot be submitted for this order state.");
+    }
+    const update = await tx
+      .update(orders)
+      .set({ paymentStatus: "under_review" })
+      .where(and(eq(orders.id, input.orderId), eq(orders.paymentStatus, order.paymentStatus)));
+    const updated = Number((update as unknown as [{ affectedRows: number }])[0]?.affectedRows ?? 0);
+    if (updated !== 1) throw new Error("Payment status changed while submitting the proof. Please try again.");
+    await tx.insert(paymentProofs).values(input);
+  });
 }
 
 export async function getPaymentProofAccessByStorageKey(storageKey: string) {
@@ -433,11 +457,74 @@ export async function getPaymentProofAccessByStorageKey(storageKey: string) {
   return rows[0] ?? null;
 }
 
-export async function updateOrder(input: { id: number; status?: (typeof orders.status.enumValues)[number]; paymentStatus?: (typeof orders.paymentStatus.enumValues)[number] }) {
+export type OrderStatus = (typeof orders.status.enumValues)[number];
+export type PaymentStatus = (typeof orders.paymentStatus.enumValues)[number];
+
+const orderTransitions: Record<OrderStatus, readonly OrderStatus[]> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+
+const paymentTransitions: Record<PaymentStatus, readonly PaymentStatus[]> = {
+  not_required: [],
+  awaiting_proof: ["under_review"],
+  under_review: ["verified", "rejected"],
+  verified: [],
+  rejected: ["under_review"],
+};
+
+export function canTransitionOrderStatus(from: OrderStatus, to: OrderStatus) {
+  return orderTransitions[from].includes(to);
+}
+
+export function canTransitionPaymentStatus(from: PaymentStatus, to: PaymentStatus) {
+  return paymentTransitions[from].includes(to);
+}
+
+export function shouldRestoreStock(currentStatus: OrderStatus, requestedStatus: OrderStatus | undefined, stockRestoredAt: Date | null) {
+  return currentStatus !== "cancelled" && requestedStatus === "cancelled" && stockRestoredAt === null && canTransitionOrderStatus(currentStatus, requestedStatus);
+}
+
+export async function updateOrder(input: { id: number; status?: OrderStatus; paymentStatus?: PaymentStatus }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const { id, ...changes } = input;
-  await db.update(orders).set(changes).where(eq(orders.id, id));
+  await db.transaction(async tx => {
+    const current = (await tx.select().from(orders).where(eq(orders.id, input.id)).limit(1))[0];
+    if (!current) throw new Error("Order not found.");
+    if (input.status && !canTransitionOrderStatus(current.status, input.status)) {
+      throw new Error(`Order cannot move from ${current.status} to ${input.status}.`);
+    }
+    if (input.paymentStatus && !canTransitionPaymentStatus(current.paymentStatus, input.paymentStatus)) {
+      throw new Error(`Payment cannot move from ${current.paymentStatus} to ${input.paymentStatus}.`);
+    }
+
+    const isCancelling = shouldRestoreStock(current.status, input.status, current.stockRestoredAt);
+    const update = await tx
+      .update(orders)
+      .set({
+        ...(input.status ? { status: input.status } : {}),
+        ...(input.paymentStatus ? { paymentStatus: input.paymentStatus } : {}),
+        ...(isCancelling ? { stockRestoredAt: new Date() } : {}),
+      })
+      .where(and(
+        eq(orders.id, input.id),
+        eq(orders.status, current.status),
+        eq(orders.paymentStatus, current.paymentStatus),
+        ...(isCancelling ? [isNull(orders.stockRestoredAt)] : []),
+      ));
+    const updated = Number((update as unknown as [{ affectedRows: number }])[0]?.affectedRows ?? 0);
+    if (updated !== 1) throw new Error("Order changed while updating it. Please refresh and try again.");
+
+    if (isCancelling) {
+      const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, input.id));
+      for (const item of items) {
+        await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
+      }
+    }
+  });
 }
 
 export async function getDashboardMetrics() {

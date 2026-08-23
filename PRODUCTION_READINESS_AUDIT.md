@@ -3,7 +3,7 @@
 **Audit date:** 23 August 2026  
 **System assessed:** Mousa Glass — Arabic RTL e-commerce storefront for Hurghada, Egypt  
 **Scope:** React 19/Tailwind customer storefront; Express/tRPC backend; Drizzle/MySQL-compatible database; Manus OAuth; managed object storage; admin workspace; current published Manus deployment; operational documentation.  
-**Overall decision:** **NOT READY FOR UNRESTRICTED CUSTOMER LAUNCH.** The application is a sound **pre-production commerce foundation** with secure server-side RBAC, a functional admin workflow, responsive Arabic storefront, managed payment-proof protection, and passing automated tests. However, it has no live catalog, lacks several production safeguards and business/legal inputs, and has not been proven end-to-end with real customer data or payments.
+**Overall decision:** **NOT READY FOR UNRESTRICTED CUSTOMER LAUNCH.** The application is a sound **pre-production commerce foundation** with secure server-side RBAC, a functional admin workflow, responsive Arabic storefront, managed payment-proof protection, and passing automated tests. It has a clearly disclosed non-orderable seed catalog rather than merchant-approved commercial data, lacks several production safeguards and business/legal inputs, and has not been proven end-to-end with real customer data or payments.
 
 > **Assessment convention:** **PASS** means directly verified during this audit. **PARTIAL** means implemented but not fully proven in the required conditions. **UNVERIFIED** means no safe or reliable evidence was available. **NOT APPLICABLE** means the requirement does not apply to the selected manual COD/InstaPay model.
 
@@ -13,11 +13,11 @@
 
 The current application is correctly positioned as an **Arabic-first, RTL, catalog-led local commerce site**. It provides customer routes for the landing page, shop, product detail, cart, checkout, orders, Contact, About, Delivery & Returns, and FAQ. Administrator routes cover dashboard metrics, products, categories, media, orders, payment status, and store settings. The backend uses tRPC contracts, Zod input validation, Manus OAuth sessions, server-side `adminProcedure` enforcement, transactional order creation, atomic stock decrement, and managed object storage.
 
-The core engineering is credible, but the business is not yet sale-ready. A clearly disclosed, non-orderable generated staging catalog now exists to validate product discovery and administration; it is **not** merchant-approved commercial content. The mandatory first launch gate is therefore **merchant-approved catalog content and a controlled real workflow rehearsal**. The remaining technical gate is distributed abuse protection, legal pages, monitoring, backup/restore evidence, and a state-transition policy.
+The core engineering is credible, but the business is not yet sale-ready. A clearly disclosed, non-orderable generated staging catalog now exists to validate product discovery and administration; it is **not** merchant-approved commercial content. The mandatory first launch gate is therefore **merchant-approved catalog content and a controlled real workflow rehearsal**. The remaining technical gate is distributed abuse protection, legal pages, monitoring, and backup/restore evidence.
 
 ### Post-audit remediation update
 
-Since the baseline audit, the application has added a generated Arabic staging catalog with original generated imagery, an order-disable switch, global staging disclosures, and administrator-sourced public contact data. The checkout now sends a client UUID idempotency key; the database stores a request fingerprint and unique user/key pair, replays an identical retry safely, and rejects key reuse with different order details. The server also now applies a tested same-origin mutation guard, restrictive browser-security headers, reduced parser limits, request/upload throttles, and image-signature checks. These are meaningful **P1 risk reductions**, not approval for unrestricted launch: rate limiting remains per-process on autoscaling infrastructure, and genuine merchant data, policy approval, lifecycle controls, operations evidence, and real E2E validation remain mandatory.
+Since the baseline audit, the application has added a generated Arabic staging catalog with original generated imagery, an order-disable switch, global staging disclosures, and administrator-sourced public contact data. The checkout now sends a client UUID idempotency key; the database stores a request fingerprint and unique user/key pair, replays an identical retry safely, and rejects key reuse with different order details. The server also now applies a tested same-origin mutation guard, explicit trusted-origin CORS/preflight handling, restrictive browser-security headers, reduced parser limits, request/upload throttles, and image-signature checks. Commerce data now has reviewed foreign keys and indexes, a transactionally enforced order/payment transition matrix, and exactly-once cancellation stock restoration. These are meaningful **P1 risk reductions**, not approval for unrestricted launch: rate limiting remains per-process on autoscaling infrastructure, and genuine merchant data, policy approval, operations evidence, and real E2E validation remain mandatory.
 
 | Decision area | Audit result | Launch implication |
 |---|---|---|
@@ -39,11 +39,11 @@ Since the baseline audit, the application has added a generated Arabic staging c
 | Evidence source | Result | Used for |
 |---|---|---|
 | Published storefront `https://mousaglass-393f3nnk.manus.space/` | Loaded successfully in an interactive browser. Arabic RTL header, public routes, cart state, WhatsApp CTA, and empty catalog state rendered. | Live reachability and customer-facing rendering. |
-| Reproducible validation | `pnpm check`, `pnpm test`, and `pnpm build` completed successfully. Latest suite: **4 test files, 20 tests passed**. | Build integrity and automated regression coverage. |
+| Reproducible validation | `pnpm check`, `pnpm test`, and `pnpm build` completed successfully. Latest suite: **7 test files, 37 tests passed**. This includes lifecycle/restock, protected-storage, request-security, historical-product deletion, and administrator archive-path regressions. | Build integrity and automated regression coverage. |
 | Current production bundle | Shared initial bundle: **709.05 kB minified / 201.34 kB gzip**; build emits a chunk-size warning. | Performance finding. |
 | Published-deployment Lighthouse | Mobile Home and Shop: **40 Performance, 100 Accessibility, 82 Best Practices, 100 SEO**. | Live performance baseline. |
 | Current local production Lighthouse | Expanded Home: **85 Performance, 100 Accessibility, 82 Best Practices, 100 SEO**; FCP 3.3 s, LCP 3.3 s, CLS 0.012, TBT 110 ms. | Regression and responsive-page validation. |
-| Database inspection | 1 user and 1 store-settings row; **0 categories, products, images, orders, order items, and payment proofs**. | Catalog readiness and safe data assessment. |
+| Database inspection | 1 user, 1 store-settings row, **4 generated staging categories, 5 generated staging products, 5 product-image records, and 0 orders, order items, or payment proofs**. `isCatalogStaging` is enabled, so customer order creation is disabled. | Catalog readiness and safe data assessment. |
 | Code inspection | Schema, DB helpers, router, tRPC middleware, OAuth, cookie policy, storage proxy, admin pages, public layout, metadata, crawler policy, and operations guide reviewed. | Architecture, security, data, and operations conclusions. |
 
 ### 2.2 Limitations
@@ -112,7 +112,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Keyboard and semantic accessibility | **PASS / PARTIAL** | Lighthouse is 100 Accessibility locally after fixes; labels, decorative logo alt handling, contrast, focusable controls, and Arabic accessible names were addressed. A full screen-reader manual audit remains unperformed. |
 | Layout stability | **PASS** | Current expanded landing page CLS measured 0.012. Shop empty-state layout was stabilized. |
 | Localization and local context | **PASS** | Arabic copy, Hurghada/Red Sea address, Egyptian phone format, EGP settings, and local WhatsApp contact are in the public shell. |
-| Content readiness | **FAIL — P0** | The product catalog is empty. Public navigation and landing copy are ready, but real commercial content is not. |
+| Content readiness | **FAIL — P0** | A five-product generated staging catalog supports flow validation, but it is explicitly non-orderable and is not real commercial content. Merchant-approved catalog data remains required. |
 | Internationalization scalability | **PARTIAL** | RTL and Arabic are first-class; there is no multi-locale framework, translation catalog, or language selector. This is acceptable for an Arabic-only local store. |
 
 ### 4.3 SEO and discoverability
@@ -135,11 +135,11 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Requirement | Status | Evidence and conclusion |
 |---|---|---|
 | Admin route protection | **PASS** | Admin procedures use server-side `adminProcedure`, not only client checks. Admin pages redirect/display access restriction UI for non-admin users. |
-| Product create/edit/delete | **PASS** | Administrator product procedures validate names, slugs, price, stock, activity, feature state, and category assignment. |
+| Product create/edit/archive | **PASS** | Administrator product procedures validate names, slugs, price, stock, activity, feature state, and category assignment. The dashboard archives products; server deletion is transactionally refused where immutable order history references the product. |
 | Category create/edit/delete | **PASS** | Admin category screen supports search, editor validation, unique-slug backend enforcement, visibility, sort order, delete error feedback, desktop table, and mobile cards. |
 | Category filtering and sort | **PASS** | Public server-side sort enum and category slug filter are validated; controls retain URL state. |
 | Product image management | **PASS / PARTIAL** | Admin-only upload/delete is implemented; type, base64, MIME, and 5 MB decoded-size checks exist. Malware/antivirus scanning is not present. |
-| Order operations | **PARTIAL** | Admin can list/filter/view orders and update status/payment state. Transition rules, cancellation restock, export/reporting, and real operating volume are not proven. |
+| Order operations | **PASS / PARTIAL** | Admin permits only valid next order/payment states; invalid transitions are rejected server-side, eligible cancellations restore stock exactly once, and historical products are archived rather than deleted. Real operating volume and authenticated business E2E remain unproven. |
 | Settings management | **PASS** | Store name, WhatsApp, InstaPay handle, and shipping fee are admin-editable and query-backed. |
 | Operational documentation | **PASS / PARTIAL** | `PRODUCTION_OPERATIONS.md` documents launch, routine checks, daily processing, and recovery at a practical level. Formal incident, retention, backup, and privacy procedures remain absent. |
 
@@ -224,8 +224,8 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Monetary precision | **PASS** | Prices and totals use integer minor units (piastres), avoiding floating-point money errors. |
 | Order item price snapshot | **PASS** | Item name, image, unit price, and quantity are copied onto `orderItems`. |
 | Order number uniqueness | **PASS** | Unique order-number index exists. |
-| Foreign-key enforcement | **FAIL — P1** | Schema uses ID columns and application joins but no database foreign-key constraints. Orphans can result from direct database changes or incomplete manual cleanup. Add FK constraints/cascade rules after migration planning. |
-| Soft delete / audit history | **PARTIAL** | Product/category visibility exists; hard deletes remain available. There is no immutable change log for price, stock, settings, or order state. |
+| Foreign-key enforcement | **PASS after remediation** | Reviewed migration added commerce foreign keys and an order-item index after an orphan scan returned no records. Product/image deletion is transactionally protected from partial cleanup. A formal schema/data recovery drill remains required. |
+| Soft delete / audit history | **PARTIAL** | Product visibility now supports safe archival, and products referenced by order history cannot be deleted. There is still no immutable change log for price, stock, settings, or order state. |
 
 ### 8.2 Checkout, stock, payment, and order lifecycle
 
@@ -237,8 +237,8 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Transaction boundary | **PASS** | Order creation, stock updates, and item creation run under a database transaction. |
 | Over-selling resistance | **PASS / PARTIAL** | Conditional decrement is materially correct. It should be load-tested with real concurrent checkout volume before claiming high-confidence capacity. |
 | Idempotent order submission | **PASS after remediation** | Client UUID, server fingerprint, unique user/key constraint, and replay-safe transaction handling protect duplicate checkout retries. |
-| Order state-machine validation | **FAIL — P1** | Admin may submit allowed enum values, but invalid business transitions (for example delivered → pending) are not blocked. |
-| Cancellation restock | **FAIL — P1** | `updateOrder` changes status only; cancelled paid/reserved quantities are not returned to stock. |
+| Order state-machine validation | **PASS after remediation** | Server permits only documented forward transitions, selected cancellation points, and controlled InstaPay review transitions; the Arabic admin UI exposes only valid next actions. Six focused lifecycle tests pass. |
+| Cancellation restock | **PASS after remediation** | Eligible pending/confirmed cancellations restore each order item’s stock in the same transaction and set `stockRestoredAt`; the row guard prevents duplicate restoration. |
 | Payment proof duplicates | **PARTIAL** | Multiple proof rows can be added. This may be a valid resubmission model, but needs a defined business rule and admin UI explanation. |
 | Payment gateway/webhook signature verification | **NOT APPLICABLE** | The selected workflow is manual COD/InstaPay proof review; no online card gateway or external payment webhook exists. |
 | Refunds/reconciliation | **NOT APPLICABLE / PARTIAL** | No automated payments mean no automated refunds. Document manual refund/refusal/reconciliation policy before launch. |
@@ -303,8 +303,8 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | AUD-01 | **P0** | No merchant-approved live catalog | Generated seed entries are non-orderable and cannot support customer sales | Replace seed content through admin with approved categories, products, EGP prices, stock, Arabic descriptions, compliant images, and QA evidence | Merchant/admin |
 | AUD-02 | **Resolved P1** | Duplicate checkout retry risk | Client UUID, database fingerprint, unique user/key constraint, and replay-safe response now exist | Retain regression tests and include in CI | Engineering |
 | AUD-03 | **P1** | Distributed rate limiting remains absent | Per-process limits protect key routes but cannot coordinate across autoscaled instances | Add gateway/distributed limit or record an accepted compensating operational control | Engineering |
-| AUD-04 | **P1** | No order transition matrix or cancellation restock | Invalid status history and lost stock | Define transition rules; transact cancellation restock once; test all transitions | Engineering + operations |
-| AUD-05 | **P1** | No FK constraints / lifecycle policy | Potential orphans and inconsistent direct-admin data changes | Add database FKs, deletion behavior, and migration/restore test plan | Engineering |
+| AUD-04 | **Resolved P1** | Lifecycle transition and cancellation-restock risk | Transition matrix, transactional stock restoration, and focused regression tests now exist | Retain tests in CI; validate the full workflow with a real business order before launch | Engineering + operations |
+| AUD-05 | **Partial P1** | Data recovery evidence remains incomplete | Foreign keys, indexes, migration safeguards, and archival behavior now protect live consistency; no restore drill has been recorded | Run and document database/schema/storage recovery exercise with RPO/RTO | Engineering + owner |
 | AUD-06 | **P1** | Security header/CORS/CSRF posture incomplete | Browser-integrity and cross-site request risk not fully controlled | Add Helmet/CSP/frame/referrer/content-type policies; document strict CORS and explicit CSRF/origin strategy | Engineering |
 | AUD-07 | **P1** | Backup/restore evidence absent | Inability to recover commerce data reliably | Document backup retention; perform database and storage restoration drill; record RPO/RTO | Owner + platform |
 | AUD-08 | **P1** | Privacy/terms/business policy missing | Legal and customer-trust exposure | Publish approved Arabic privacy, terms, returns, payment-proof retention, and contact/merchant disclosures | Merchant/legal |

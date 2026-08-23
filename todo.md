@@ -103,14 +103,15 @@
 - [ ] Publish Arabic legal pages covering privacy, terms of sale, delivery, returns, COD, InstaPay proof handling, and customer contact routes.
 - [x] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
 - [x] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
-- [ ] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
+- [x] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
 - [ ] Add database foreign-key constraints, referential indexes, migration safeguards, and a verified schema/data rollback procedure.
+- [x] Prevent deletion of products referenced by order history and guide administrators to archive products instead.
 - [ ] Define payment-proof retention, access-review, and deletion procedures consistent with the published privacy policy.
 - [ ] Perform and record a production backup-and-restore drill for database, settings, order records, and storage references.
 - [ ] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
 - [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
-- [ ] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
+- [x] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
 - [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
 - [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.
 - [ ] Generate original, rights-clear product imagery for a clearly labelled staging catalog that matches the Arabic Mousa Glass visual identity.
@@ -120,6 +121,9 @@
 - [x] Standardize the public delivery-and-returns route and retain a backward-compatible alias so every navigation link resolves.
 - [x] Verify and record the seeded Arabic staging-catalog records, including categories, descriptions, prices, stock, and product-image assignments.
 - [x] Extend and verify the staging-mode disclosure so contact, payment, delivery, tax, and legal/business-specific terms are explicitly pending wherever relevant.
+- [x] Add and apply reviewed foreign keys, commerce indexes, and non-destructive migrations after confirming the database has no orphaned commerce records.
+- [x] Add focused regression evidence that products referenced by order history cannot be deleted and that administrators archive them instead.
+- [x] Add router-level regression coverage for the administrator archive mutation and archive guidance on historical-order deletion attempts.
 - [x] Apply same-origin protection for cookie-authenticated mutations, restrictive browser security headers, and bounded request/upload limits with automated coverage.
 - [ ] Configure or accept an explicit compensating control for globally distributed edge rate limiting before opening orders on autoscaling production infrastructure.
 - [x] Add and verify an explicit same-origin CORS policy for the Express/tRPC surface, including rejected cross-origin and preflight behavior.
