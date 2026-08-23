@@ -179,3 +179,4 @@
 - [x] Extend CI push triggers to cover the non-default verified readiness snapshot branch pattern without enabling or changing the default production branch.
 - [x] Upgrade supported GitHub Action pins to Node 24-capable releases and verify the verified snapshot CI run no longer emits the Node 20 runtime deprecation warning.
 - [x] Add and verify source-specific 720px and 800px full-composition staging derivatives for the measured Shop mobile `srcSet` overfetch without modifying catalog records or future merchant media.
+- [x] Investigate the latest published `/api/healthz` response body observation: repeated HTTP/1.1, no-cache HTTP/2, and preview probes return the documented minimal JSON payload and opaque request ID; no current regression was confirmed.
