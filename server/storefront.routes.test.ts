@@ -84,6 +84,14 @@ describe("public storefront routes", () => {
     expect(shop).toContain('<main id="main-content" role="main"');
   });
 
+  it("keeps development and production SPA fallbacks compatible with Express 5", () => {
+    const viteServer = readProjectFile("server/_core/vite.ts");
+
+    expect(viteServer).toContain('app.use("/{*splat}"');
+    expect(viteServer).not.toContain('app.use("*"');
+    expect(viteServer).not.toContain("app.use('*'");
+  });
+
   it("reserves staging-disclosure space when a future authorized non-staging setting resolves", () => {
     const layout = readProjectFile("client/src/components/StoreLayout.tsx");
 

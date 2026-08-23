@@ -288,12 +288,13 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Audit point | Status | Evidence and recommendation |
 |---|---|---|
 | Route-level code splitting | **PASS** | Lower-frequency commerce/admin/information routes are lazy-loaded; Home and Shop remain eagerly available. |
-| Image optimization | **PASS** | Shared hero uses managed responsive WebP variants with media-specific preload and noncritical image deferral. |
+| Image optimization | **PASS / PARTIAL** | Shared hero uses managed responsive WebP variants with media-specific preload and noncritical image deferral. The five documented generated staging Shop products additionally use source-specific 480/960 WebP `srcSet` sources; the cache-busted mobile Shop audit for checkpoint `c9ea991d` has an empty image-delivery evidence array. Future merchant media remains intentionally unmapped until approved assets are supplied. |
 | HTTP compression | **PASS** | Enabled in Express. |
 | CSS/font loading | **PASS / PARTIAL** | Cairo uses preconnect and asynchronous stylesheet preload. Consider self-hosting/subsetting after brand finalization to remove third-party font variability. |
 | Local Lighthouse accessibility | **PASS** | Current landing page reached 100 Accessibility. Previously found contrast/label issues were remediated. |
 | SEO score | **PASS / PARTIAL** | Lighthouse SEO was 100. Canonical/social metadata, sitemap, and staging-aware WebSite/Organization/Product JSON-LD are implemented; final-domain configuration, live product discovery, breadcrumbs, and optional SSR/prerendering remain future launch/marketing decisions. |
-| Live mobile performance | **PARTIAL — P2** | Live score 40 conflicts with local production score 85. Validate on warm cache and actual production network after catalog/image content is live. |
+| Live mobile performance | **PARTIAL — P2** | Cache-busted production tests remain variable. The verified mobile Shop audit for checkpoint `c9ea991d` recorded 63 Performance, FCP 4.0 s, LCP 5.2 s, TBT 80 ms, and CLS 0.002, with a 1.34 s initial-server-response opportunity and 36 KiB unused JavaScript. It confirms responsive media delivery but is not a Core Web Vitals pass. |
+| Published Shop accessibility and responsive media | **PASS for verified scope** | The first post-media audit reported a conflicting `landmark-one-main` finding despite an existing semantic main element. The Shop now exposes source-tested `main#main-content[role="main"]`; a fresh cache-busted mobile audit scored 100 Accessibility with empty contrast, ARIA-role, and image-delivery evidence. A direct published browser check rendered all five staged cards and their intended noir imagery after loading settled. |
 | Client bundle size | **PARTIAL — P2** | 709 kB minified main chunk warning remains. Analyze dependencies and remove/admin-isolate shared code before major traffic campaigns. |
 | Core Web Vitals production monitoring | **FAIL — P2** | No real-user monitoring or alert thresholds were verified. |
 
@@ -306,13 +307,14 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Managed autoscaling deployment | **PASS** | Project is on managed Manus autoscale hosting with checkpoint-based releases. |
 | Production build reproducibility | **PASS** | `pnpm build` completed. |
 | Static type safety | **PASS** | `pnpm check` completed. |
-| Automated test suite | **PASS / PARTIAL** | 56 tests across 11 files pass, including commerce, lifecycle, security, request-correlation and diagnostic-log safety, crawler/SEO, storage proxy, health contract, owner-alert, and reverse-layout-shift coverage. UI E2E, migration, load, and true production smoke coverage are missing. |
+| Automated test suite | **PASS / PARTIAL** | 59 tests across 11 files pass, including commerce, lifecycle, security, request-correlation and diagnostic-log safety, crawler/SEO, storage proxy, health contract, owner-alert, reverse-layout-shift, responsive staging media, explicit Shop landmark, and Express 5-compatible SPA fallback coverage. UI E2E, migration, load, and true production smoke coverage are missing. |
 | Runtime logs | **PARTIAL** | Managed dev/production logs exist, minimal owner alerts are available for successful order/proof writes, every response carries a validated or generated opaque `X-Request-Id`, and tRPC failures emit a non-PII structured diagnostic containing only that ID, procedure path, and error classification. A local unknown-procedure probe produced the expected `NOT_FOUND` diagnostic with a generated ID. External error aggregation and uptime escalation remain absent. |
 | Health/readiness endpoint | **PASS / PARTIAL** | `GET /healthz` returns HTTP 200 with only stable non-sensitive `{ status, service, timestamp }`; the payload has focused regression coverage. Published-host uptime behavior remains unproven because command-line probes intermittently timed out. |
 | Error reporting/alerting | **PARTIAL — P2** | Successful order creation and proof submission call a post-write, fire-and-forget owner alert with only an order reference and admin route. Router-trigger and failed-delivery containment regressions pass. There is still no external error aggregation, independent uptime monitor, failed-alert escalation, or threshold alert. |
 | Backup and restore evidence | **FAIL — P1** | No database backup-retention proof, restoration drill, or storage recovery test is documented. |
 | Incident runbook | **PARTIAL** | Operational guide gives daily and recovery guidance but lacks severity levels, communication templates, escalation, RTO/RPO, and tested restore steps. |
 | Deployment rollback | **PASS / PARTIAL** | Managed checkpoints support rollback. A formal rollback rehearsal and post-deploy verification checklist should be added. |
+| Development fallback startup | **PASS** | The historic local `originalPath: "*"` startup error was not present after a managed restart. Both development and production SPA fallbacks use Express 5-compatible `/{*splat}` syntax, guarded by a focused source regression test. |
 | Maintenance-cost model | **PASS / PARTIAL** | Managed services minimize infrastructure work; monitoring, policies, data protection, and business operations still require owner effort. |
 
 ---
