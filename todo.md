@@ -137,6 +137,7 @@
 - [x] Verify the `/healthz` payload and status contract, including its non-sensitive response body.
 - [x] Verify order/proof owner-alert triggers, non-blocking failure behavior, and focused regression coverage.
 - [x] Inspect and validate the GitHub Actions workflow syntax, triggers, and install/typecheck/test/build job sequence.
+- [ ] Correct the GitHub Actions pnpm setup conflict exposed by the first observed run, then obtain a successful hosted validation execution.
 - [x] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
 - [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
 - [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.
