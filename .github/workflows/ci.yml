@@ -2,7 +2,10 @@ name: Validation
 
 on:
   push:
-    branches: [main, production-readiness-audit-plan]
+    branches:
+      - main
+      - production-readiness-audit-plan
+      - 'production-readiness-verified-*'
   pull_request:
 
 permissions:

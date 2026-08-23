@@ -1,8 +1,17 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { attemptOwnerNotification, orderAlertPayload, paymentProofAlertPayload } from "./_core/operations";
 import { logTrpcFailure, trpcFailureDiagnostic } from "./_core/diagnostics";
 
 describe("operational owner alerts", () => {
+  it("runs hosted validation for the non-default verified readiness snapshot branch pattern", () => {
+    const workflow = fs.readFileSync(path.resolve(process.cwd(), ".github/workflows/ci.yml"), "utf8");
+
+    expect(workflow).toContain("production-readiness-audit-plan");
+    expect(workflow).toContain("'production-readiness-verified-*'");
+  });
+
   it("uses an order reference and admin route without customer PII", () => {
     const payload = orderAlertPayload({ orderId: 12, orderNumber: "MG-20260823-12", paymentMethod: "cash_on_delivery" });
     expect(payload.content).toContain("MG-20260823-12");

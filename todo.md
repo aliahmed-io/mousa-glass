@@ -176,3 +176,4 @@
 - [x] Measure a root error-boundary dependency split and retain the existing boundary after build evidence showed a larger shared lazy-icon first-load dependency; no release regression was introduced.
 - [x] Add and verify a database-backed, secret-hashed shared limiter for checkout and proof-upload paths, including safe database-failure behavior and bounded bucket cleanup.
 - [x] Assess server rendering against the measured Home waterfall and defer conversion because it would add per-request prefetch/hydration work to the slow server path while staging remains intentionally no-indexed.
+- [x] Extend CI push triggers to cover the non-default verified readiness snapshot branch pattern without enabling or changing the default production branch.
