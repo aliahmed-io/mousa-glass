@@ -90,3 +90,10 @@
 - [x] Preserve mobile responsiveness, accessibility, and lightweight image loading in the expanded landing-page sections.
 - [x] Validate the expanded landing page with type checks, automated tests, and mobile/desktop visual review.
 - [x] Resolve the landing-page Lighthouse accessibility finding and confirm the expanded page remains performance-conscious.
+
+- [x] Inventory the architecture, repository structure, dependencies, routes, and deployment configuration for the production-readiness audit.
+- [x] Audit customer storefront, e-commerce flows, responsive behavior, accessibility, and functional UI coverage.
+- [x] Audit backend APIs, OAuth, RBAC, database, storage, and security controls against the supplied checklist.
+- [x] Validate tests, production deployment behavior, observability, performance, and documented operational gaps.
+- [x] Write a point-by-point production-readiness report with verified status, evidence, risk classification, and remediation priorities.
+- [x] Restrict payment-proof file downloads to the owning customer or an administrator and validate the access control.

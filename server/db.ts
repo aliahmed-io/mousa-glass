@@ -383,6 +383,18 @@ export async function addPaymentProof(input: { orderId: number; storageKey: stri
   await db.update(orders).set({ paymentStatus: "under_review" }).where(eq(orders.id, input.orderId));
 }
 
+export async function getPaymentProofAccessByStorageKey(storageKey: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({ orderUserId: orders.userId })
+    .from(paymentProofs)
+    .innerJoin(orders, eq(paymentProofs.orderId, orders.id))
+    .where(eq(paymentProofs.storageKey, storageKey))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function updateOrder(input: { id: number; status?: (typeof orders.status.enumValues)[number]; paymentStatus?: (typeof orders.paymentStatus.enumValues)[number] }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

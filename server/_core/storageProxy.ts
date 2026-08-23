@@ -1,5 +1,7 @@
 import type { Express } from "express";
+import { getPaymentProofAccessByStorageKey } from "../db";
 import { ENV } from "./env";
+import { sdk } from "./sdk";
 
 export function registerStorageProxy(app: Express) {
   app.get("/manus-storage/*", async (req, res) => {
@@ -7,6 +9,21 @@ export function registerStorageProxy(app: Express) {
     if (!key) {
       res.status(400).send("Missing storage key");
       return;
+    }
+
+    if (key.startsWith("payment-proofs/")) {
+      const user = await sdk.authenticateRequest(req).catch(() => null);
+      if (!user) {
+        res.status(401).send("Authentication required");
+        return;
+      }
+      if (user.role !== "admin") {
+        const proof = await getPaymentProofAccessByStorageKey(key);
+        if (!proof || proof.orderUserId !== user.id) {
+          res.status(403).send("Forbidden");
+          return;
+        }
+      }
     }
 
     if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
