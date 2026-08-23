@@ -117,7 +117,7 @@
 - [x] Prevent search engines from indexing generated staging catalog content while retaining a documented path to enable merchant-approved product discovery.
 - [x] Add structured LocalBusiness/Organization schema and product JSON-LD that activates only for merchant-approved non-staging catalog data.
 - [x] Document and validate the staging-to-live search-discovery workflow, including final canonical/social domain updates and product indexing activation.
-- [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
+- [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability; latest cache-busted Home evidence remains outside target despite preserving accessibility and CLS.
 - [x] Defer the currently eager Home and Shop route modules so the shared application entry can be split more effectively without changing staging controls or public behavior.
 - [x] Reduce the published LCP image payload and reserve media layout space based on the fresh Lighthouse image-delivery and CLS findings.
 - [x] Investigate the fresh Lighthouse console, ARIA-role, contrast, bfcache, and server-response findings; resolve only issues controllable in the application and document managed-platform constraints.

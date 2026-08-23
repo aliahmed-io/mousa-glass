@@ -24,6 +24,8 @@ The latest full local suite completed with `pnpm release:check`, which executes 
 
 The cache-busted published mobile Home audit for the responsive category-banner release reports **61 Performance, 100 Accessibility, 92 Best Practices, and 100 SEO**. It confirms **CLS 0** and no remaining image-delivery, contrast, or ARIA-role finding. It is not a Core Web Vitals pass: FCP is **3.9 s**, LCP **5.7 s**, and the audit still estimates **3.34 s** server-response savings. The server-response opportunity is a managed-hosting investigation, not a reason to weaken CSP, cache controls, or staging safeguards.
 
+A subsequent cache-busted mobile Home remeasurement after checkpoint `8035fc77` returns **55 Performance, 100 Accessibility, 92 Best Practices, and 100 SEO** with FCP **6.4 s**, LCP **8.1 s**, TBT **110 ms**, and CLS **0**. It again has no image-delivery, contrast, or ARIA-role finding, but reports a **1.67 s** server-response opportunity and approximately **37 KiB** unused JavaScript. This variable cold-path lab result preserves the no-go for live performance targets while confirming that accessibility and layout stability did not regress.
+
 ## Non-bypassable launch gates
 
 | Gate owner | Required evidence before enabling real orders | Why it remains open |
