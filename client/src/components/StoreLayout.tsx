@@ -17,7 +17,9 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   const { user, loading, logout } = useAuth();
   const { itemCount } = useCart();
   const settings = trpc.store.settings.useQuery();
-  const isCatalogStaging = settings.data?.isCatalogStaging === true;
+  // Fail closed for initial paint: staging disclosure must reserve its space before
+  // the settings query settles, avoiding a late shift of the public Home hero.
+  const isCatalogStaging = settings.data?.isCatalogStaging !== false;
   const whatsappNumber = settings.data?.whatsappNumber?.replace(/\D/g, "") || "";
   const whatsappUrl = whatsappNumber ? `https://wa.me/${whatsappNumber}` : null;
   const nav = [

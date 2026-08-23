@@ -124,6 +124,9 @@
 - [ ] Re-run a published Lighthouse accessibility audit after deployment to verify that the Home and Shop category-label contrast finding is resolved.
 - [ ] Replace the broad global `!important` contrast override with a narrowly scoped Home/Shop product-card rule, then revalidate local and published accessibility evidence.
 - [x] Create, validate, and adopt a compact deterministic logo derivative for the 56–98px logo placements identified by the published image-delivery audit.
+- [ ] Render the required staging disclosure from the first client paint while catalog mode is loading to prevent the measured Home hero layout shift in safe staging mode.
+- [ ] Re-run a published Lighthouse audit after deployment to verify the Home hero layout-shift finding is resolved by the first-paint staging disclosure behavior.
+- [ ] Before leaving staging mode, verify that the fail-closed disclosure logic does not create a reverse layout shift when `isCatalogStaging` resolves false, or replace it with a reserved-height alternative.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
 - [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
 - [x] Add a public non-sensitive health endpoint and best-effort owner alerts for new orders and submitted payment proofs without blocking customer workflows.

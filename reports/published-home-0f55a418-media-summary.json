@@ -1,0 +1,367 @@
+{
+  "requestedUrl": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+  "finalUrl": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+  "categories": {
+    "performance": 62,
+    "accessibility": 96,
+    "best-practices": 92,
+    "seo": 100
+  },
+  "metrics": [
+    {
+      "id": "first-contentful-paint",
+      "value": "3.6 s"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "value": "4.5 s"
+    },
+    {
+      "id": "total-blocking-time",
+      "value": "80 ms"
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "value": "0.134"
+    },
+    {
+      "id": "speed-index",
+      "value": "12.1 s"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "server-response-time",
+      "title": "Reduce initial server response time",
+      "score": 0,
+      "savingsMs": 2767,
+      "displayValue": "Root document took 2,870 ms"
+    },
+    {
+      "id": "unused-javascript",
+      "title": "Reduce unused JavaScript",
+      "score": 0,
+      "savingsMs": 300,
+      "displayValue": "Est savings of 53 KiB"
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "errors-in-console",
+      "title": "Browser errors were logged to the console",
+      "score": 0
+    },
+    {
+      "id": "layout-shifts",
+      "title": "Avoid large layout shifts",
+      "score": 0,
+      "displayValue": "1 layout shift found"
+    },
+    {
+      "id": "color-contrast",
+      "title": "Background and foreground colors do not have a sufficient contrast ratio.",
+      "score": 0
+    },
+    {
+      "id": "inspector-issues",
+      "title": "Issues were logged in the `Issues` panel in Chrome Devtools",
+      "score": 0
+    },
+    {
+      "id": "bf-cache",
+      "title": "Page prevented back/forward cache restoration",
+      "score": 0,
+      "displayValue": "2 failure reasons"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0.5,
+      "displayValue": "Est savings of 105 KiB"
+    },
+    {
+      "id": "render-blocking-insight",
+      "title": "Render-blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 230 ms"
+    }
+  ],
+  "focusedEvidence": {
+    "consoleErrors": [
+      {
+        "source": "security",
+        "description": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 28,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-ApGQL/efXXIFjw7PJ6YmGzxedXyxK09f6IdOJN7vsw0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 119,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kp93lwgzlaYgae4ER/aK95sTlxpldakC71nyLX2kpLw='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 100,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-qOgOCo4Gdx/jjFtkwLJJ3qTQ6lf/Qg0tD99zQlSVeu0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 35,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://files.manuscdn.com/manus-space-dispatcher/spaceEditor-DPV-_I11.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://manus-analytics.com/umami' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      }
+    ],
+    "layoutShifts": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-1-SECTION",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,0,SECTION",
+          "selector": "div.min-h-screen > div.pt-[72px] > main > section.relative",
+          "boundingRect": {
+            "top": 193,
+            "bottom": 944,
+            "left": 0,
+            "right": 412,
+            "width": 412,
+            "height": 751
+          },
+          "snippet": "<section class=\"relative isolate min-h-[calc(100svh-72px)] overflow-hidden bg-black\">",
+          "nodeLabel": "موسى\n\nلجميع أنواع إكسسوارات الزجاج\n\nجودة لا تُضاهى\nفي كل تفصيلة\n\nمقابض، مفصلات، …"
+        },
+        "score": 0.1341607992570819
+      }
+    ],
+    "backForwardCache": [
+      {
+        "reason": "Pages whose main resource has cache-control:no-store cannot enter back/forward cache.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse"
+            }
+          ]
+        },
+        "protocolReason": "MainResourceHasCacheControlNoStore"
+      },
+      {
+        "reason": "Back/forward cache is disabled because some JavaScript network request received resource with Cache-Control: no-store header.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/?release=0f55a418-lighthouse"
+            }
+          ]
+        },
+        "protocolReason": "JsNetworkRequestReceivedCacheControlNoStoreResource"
+      }
+    ],
+    "colorContrast": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "1-1-P",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,3,SECTION,1,DIV,1,DIV,0,ARTICLE,1,DIV,0,P",
+          "selector": "div.mt-12 > article.group > div.p-5 > p.text-xs",
+          "boundingRect": {
+            "top": 2847,
+            "bottom": 2863,
+            "left": 37,
+            "right": 375,
+            "width": 338,
+            "height": 16
+          },
+          "snippet": "<p class=\"text-xs font-semibold text-[#d4af37]/65\">",
+          "nodeLabel": "ديكور زجاجي",
+          "explanation": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #8e762a, background color: #0d0d12, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "relatedNode": {
+                "type": "node",
+                "lhId": "1-2-ARTICLE",
+                "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,3,SECTION,1,DIV,1,DIV,0,ARTICLE",
+                "selector": "section.relative > div.container > div.mt-12 > article.group",
+                "boundingRect": {
+                  "top": 2570,
+                  "bottom": 2972,
+                  "left": 16,
+                  "right": 396,
+                  "width": 380,
+                  "height": 402
+                },
+                "snippet": "<article class=\"group min-h-[374px] overflow-hidden rounded-xl border border-[#d4af37]/15 …\">",
+                "nodeLabel": "ديكور زجاجي\n\nمزهرية كهرمانية — نموذج تجريبي\n‏١٬٦٥٠ ج.م.‏\nأضف للسلة"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "node": {
+          "type": "node",
+          "lhId": "1-3-P",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,3,SECTION,1,DIV,1,DIV,3,ARTICLE,1,DIV,0,P",
+          "selector": "div.mt-12 > article.group > div.p-5 > p.text-xs",
+          "boundingRect": {
+            "top": 4125,
+            "bottom": 4141,
+            "left": 37,
+            "right": 375,
+            "width": 338,
+            "height": 16
+          },
+          "snippet": "<p class=\"text-xs font-semibold text-[#d4af37]/65\">",
+          "nodeLabel": "حاملات شموع",
+          "explanation": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #8e762a, background color: #0d0d12, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "relatedNode": {
+                "type": "node",
+                "lhId": "1-4-ARTICLE",
+                "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,3,SECTION,1,DIV,1,DIV,3,ARTICLE",
+                "selector": "section.relative > div.container > div.mt-12 > article.group",
+                "boundingRect": {
+                  "top": 3848,
+                  "bottom": 4250,
+                  "left": 16,
+                  "right": 396,
+                  "width": 380,
+                  "height": 402
+                },
+                "snippet": "<article class=\"group min-h-[374px] overflow-hidden rounded-xl border border-[#d4af37]/15 …\">",
+                "nodeLabel": "حاملات شموع\n\nحاملات شموع زجاجية — نموذج تجريبي\n‏٩٥٠ ج.م.‏\nأضف للسلة"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "imageDelivery": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,0,SECTION,4,DIV,0,DIV,0,DIV,0,IMG",
+          "selector": "div.container > div.max-w-2xl > div.mb-8 > img.h-14",
+          "boundingRect": {
+            "top": 374,
+            "bottom": 430,
+            "left": 340,
+            "right": 396,
+            "width": 56,
+            "height": 56
+          },
+          "snippet": "<img alt=\"موسى\" class=\"h-14 w-14 rounded-full object-cover ring-2 ring-[#d4af37]/55\" src=\"/manus-storage/pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d1934…\">",
+          "nodeLabel": "موسى"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d193407d_32f06135.jpeg?Expires=1787508597&Signature=NEYCC8DzdMtsotF~W5Doy0DKrssQiPLBi7-KJmcWvFG~X85ADJnZgyTXH0y9LUYbOqTVhC~ZFrGobSyUB7ZoJrp4J0tc4SIBzfJkofpP4vA~Z-8Iy7h-mFnfnnF-EaOWSw9QPSoeyQdraZ77OLue8LkqsQbjkHnfS5o-d9a2OLLd4kxCXwmYUH-oZKk13Yw0e7eBZt92AtsYu-rQ5EXuXeYw0CPwJHy6BMBnzV14ChJME4tbitngOAwKB5Bxu2GLiwWdWq-9Xgv054TXaSW7~nnVAhSibhV8-Yzum6y1Q24GEIwCWjlbnkV4iKPDcYfFuzGL5P-en3Kl9DvEIHWULA__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 99657,
+        "wastedBytes": 99048,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (1254x1254) for its displayed dimensions (98x98). Use responsive images to reduce the image download size.",
+              "wastedBytes": 99048
+            }
+          ]
+        }
+      },
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-5-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,2,SECTION,0,DIV,1,DIV,3,A,0,IMG",
+          "selector": "div.container > div.mt-12 > a.group > img.absolute",
+          "boundingRect": {
+            "top": 2034,
+            "bottom": 2192,
+            "left": 17,
+            "right": 395,
+            "width": 378,
+            "height": 158
+          },
+          "snippet": "<img alt=\"\" loading=\"lazy\" decoding=\"async\" class=\"absolute inset-0 h-full w-full object-cover opacity-15 transition duration…\" src=\"/manus-storage/mousa-glass-category-banner-960_fce01c36.webp\">",
+          "nodeLabel": "div.container > div.mt-12 > a.group > img.absolute"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/mousa-glass-category-banner-960_fce01c36.webp?Expires=1787508599&Signature=pjmcJxThBm9ThazdfqUJaZxvsGlzDUD6ST8K2o9nh5RNxa2eiCy31Y~DtZU-i5Wr0vJ58wWyIGNWW58~Gtl0XbN-BWXP~Aw01GoWfkI1EI9cnw4t76Y0K6ZYmBPsfuO5rhNLS-VZD29vmZVemqY-atu~nvfiQCzuGpQZSpYxUZxCi7OTxhnWS18~wXp9dp-J0rlw2U79Gy1I~mYJusMhyH2a7Fpf0ZRb0Z3DE2fDgI9vCJQBBUJx1nlJHEQ5Hhu5wiC62cdxlZoDFjzEEU0ty-aW6yjSlNTVgWfCLMW6e2x0Fngje~sR~OLXHc~8iP3pqiK5x8VnLQampZZyg6ZgYg__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 21994,
+        "wastedBytes": 7982,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (960x402) for its displayed dimensions (662x372). Use responsive images to reduce the image download size.",
+              "wastedBytes": 7982
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
