@@ -126,7 +126,7 @@
 - [x] Replace the invalid `role="status"` on the staging `<aside>` with an equivalent valid live-region treatment, then verify it in a published Lighthouse audit.
 - [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
 - [ ] Address the remaining published Lighthouse findings: 2.77 s initial-server-response opportunity, 53 KiB unused JavaScript, 105 KiB image-delivery opportunity, 230 ms render-blocking insight, console errors, contrast, bfcache, and one measured layout shift.
-- [ ] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
+- [x] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
 - [ ] Scope global tooltip and toast dependencies away from the public application entry where they are not needed, then validate public and administrator interaction paths.
 - [ ] Verify an authenticated administrator route and inspect administrator source usage after removing root tooltip/toast providers, then record whether any admin dependency must be restored or scoped locally.
 - [x] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.

@@ -29,4 +29,15 @@ describe("public storefront routes", () => {
     expect(robots).toContain("Disallow: /admin");
     expect(llms).toContain("## Public pages");
   });
+
+  it("does not load unused global toast or tooltip providers in the public application entry", () => {
+    const app = readProjectFile("client/src/App.tsx");
+    const showcase = readProjectFile("client/src/pages/ComponentShowcase.tsx");
+
+    expect(app).not.toContain("TooltipProvider");
+    expect(app).not.toContain("Toaster");
+    expect(app).not.toContain("from \"sonner\"");
+    expect(showcase).toContain('import { toast as sonnerToast } from "sonner"');
+    expect(app).not.toContain("ComponentShowcase");
+  });
 });
