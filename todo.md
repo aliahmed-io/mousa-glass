@@ -127,6 +127,7 @@
 - [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
 - [ ] Address the remaining published Lighthouse findings: 2.77 s initial-server-response opportunity, 53 KiB unused JavaScript, 105 KiB image-delivery opportunity, 230 ms render-blocking insight, console errors, contrast, bfcache, and one measured layout shift.
 - [x] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
+- [ ] Verify the 480px staged-product derivatives and `srcSet` delivery in a published mobile Shop check before closing the responsive product-media task; catalog records and merchant data remain unchanged.
 - [x] Scope global tooltip and toast dependencies away from the public application entry and verify all routed public and administrator source modules remain independent of them.
 - [ ] Verify an authenticated real-administrator route after removing root tooltip/toast providers, then record whether any administrator dependency must be restored or scoped locally.
 - [x] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.
