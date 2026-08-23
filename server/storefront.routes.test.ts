@@ -67,10 +67,13 @@ describe("public storefront routes", () => {
 
   it("uses documented 480px derivatives for staged Shop card images without changing catalog data", () => {
     const shop = readProjectFile("client/src/pages/Shop.tsx");
+    const home = readProjectFile("client/src/pages/Home.tsx");
     const responsiveImages = readProjectFile("client/src/lib/responsiveStagingImages.ts");
 
     expect(shop).toContain('import { responsiveStagingProductImage } from "@/lib/responsiveStagingImages"');
     expect(shop).toContain("<img {...responsiveStagingProductImage(primaryImage(product.images))}");
+    expect(home).toContain('import { responsiveStagingProductImage } from "@/lib/responsiveStagingImages"');
+    expect(home).toContain("<img {...responsiveStagingProductImage(primaryImage(product.images))}");
     expect(responsiveImages).toContain("mousa-glass-staging-amber-vase-480_2b5a53c5.webp");
     expect(responsiveImages).toContain("mousa-glass-staging-amber-glassware-480_0fabe6c3.webp");
     expect(responsiveImages).toContain("480w");
