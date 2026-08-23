@@ -132,6 +132,11 @@
 - [x] Standardize the public delivery-and-returns route and retain a backward-compatible alias so every navigation link resolves.
 - [x] Verify and record the seeded Arabic staging-catalog records, including categories, descriptions, prices, stock, and product-image assignments.
 - [x] Extend and verify the staging-mode disclosure so contact, payment, delivery, tax, and legal/business-specific terms are explicitly pending wherever relevant.
+- [x] Document verifiable provenance for every generated staging image, including its generation source, prompt or source record, creation date, and ownership/use note.
+- [x] Record review evidence that each staged product image is the intended generated asset and visually aligns with the Arabic Mousa Glass design direction.
+- [x] Replace the existing staging product-media URLs with the documented 2026-08-23 generated assets and validate every catalog assignment.
+- [x] Confirm every documented staging-media URL resolves to a completed image rather than a generation placeholder or failure, then add a repo-tracked per-asset visual acceptance record.
+- [x] Add and run an inspectable local asset-completion check for all five documented staging-image URLs before closing visual-render verification.
 - [x] Add and apply reviewed foreign keys, commerce indexes, and non-destructive migrations after confirming the database has no orphaned commerce records.
 - [x] Add focused regression evidence that products referenced by order history cannot be deleted and that administrators archive them instead.
 - [x] Add router-level regression coverage for the administrator archive mutation and archive guidance on historical-order deletion attempts.
