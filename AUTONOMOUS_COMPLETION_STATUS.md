@@ -20,7 +20,7 @@ This record separates work that can be completed safely in the application from 
 
 ## Current release validation
 
-The latest full local suite completed with `pnpm audit --prod --json`, `pnpm check`, `pnpm test`, `pnpm build`, and `node scripts/verify-staging-assets.mjs`. It passed **51 tests across 11 files**, completed the production build, and verified all five assigned staging-image responses, signatures, sizes, and hashes. The production build retains a shared-entry size warning; it is a tracked performance concern rather than a release failure.
+The latest full local suite completed with `pnpm release:check`, which executes `pnpm audit --prod --json`, `pnpm check`, `pnpm test`, `pnpm build`, and `node scripts/verify-staging-assets.mjs`. It passed **51 tests across 11 files**, completed the production build, and verified all five assigned staging-image responses, signatures, sizes, and hashes. The production build retains a shared-entry size warning; it is a tracked performance concern rather than a release failure.
 
 The cache-busted published mobile Home audit for the responsive category-banner release reports **61 Performance, 100 Accessibility, 92 Best Practices, and 100 SEO**. It confirms **CLS 0** and no remaining image-delivery, contrast, or ARIA-role finding. It is not a Core Web Vitals pass: FCP is **3.9 s**, LCP **5.7 s**, and the audit still estimates **3.34 s** server-response savings. The server-response opportunity is a managed-hosting investigation, not a reason to weaken CSP, cache controls, or staging safeguards.
 
