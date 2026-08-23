@@ -153,6 +153,7 @@ export const storeSettings = mysqlTable("storeSettings", {
   currency: varchar("currency", { length: 8 }).default("EGP").notNull(),
   shippingFeeAmount: int("shippingFeeAmount").default(0).notNull(),
   isCatalogStaging: boolean("isCatalogStaging").default(true).notNull(),
+  paymentProofRetentionDays: int("paymentProofRetentionDays"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 

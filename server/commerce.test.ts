@@ -8,6 +8,7 @@ const dbMocks = vi.hoisted(() => ({
   createCheckoutOrder: vi.fn(),
   createProduct: vi.fn(),
   deleteCategory: vi.fn(),
+  deletePaymentProof: vi.fn(),
   deleteProduct: vi.fn(),
   deleteProductImage: vi.fn(),
   getAdminProducts: vi.fn(),
@@ -68,7 +69,7 @@ const pngImageData = `data:image/png;base64,${Buffer.from([0x89, 0x50, 0x4e, 0x4
 describe("commerce tRPC procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: false });
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: false, paymentProofRetentionDays: 90 });
   });
 
   it("allows administrators to create a catalog product", async () => {
@@ -190,6 +191,14 @@ describe("commerce tRPC procedures", () => {
     expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
   });
 
+  it("requires a configured retention period before accepting a non-staging InstaPay order", async () => {
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: false, paymentProofRetentionDays: null });
+    await expect(appRouter.createCaller(context("user")).orders.create({
+      customerName: "InstaPay Customer", customerPhone: "2010602223037", customerEmail: null, shippingAddress: "Hurghada, Red Sea", notes: null, paymentMethod: "instapay", items: [{ productId: 6, quantity: 1 }], idempotencyKey: "a85989c9-3403-48e3-ae31-75c6f15f0e59",
+    })).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
+    expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
+  });
+
   it("requires a UUID idempotency key for each checkout request", async () => {
     await expect(appRouter.createCaller(context("user")).orders.create({
       customerName: "Customer Name",
@@ -228,5 +237,11 @@ describe("commerce tRPC procedures", () => {
     const invalidImageData = `data:image/png;base64,${Buffer.from("not-an-image").toString("base64")}`;
     await expect(appRouter.createCaller(context("user")).orders.uploadPaymentProof({ id: 22, fileName: "proof.png", imageData: invalidImageData })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(storageMocks.storagePut).not.toHaveBeenCalled();
+  });
+
+  it("allows only administrators to remove a payment-proof reference", async () => {
+    await expect(appRouter.createCaller(context("user")).admin.deletePaymentProof({ id: 12 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(appRouter.createCaller(context("admin")).admin.deletePaymentProof({ id: 12 })).resolves.toEqual({ success: true });
+    expect(dbMocks.deletePaymentProof).toHaveBeenCalledWith(12);
   });
 });

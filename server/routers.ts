@@ -10,6 +10,7 @@ import {
   createCategory,
   createCheckoutOrder,
   createProduct,
+  deletePaymentProof,
   deleteCategory,
   deleteProduct,
   deleteProductImage,
@@ -172,6 +173,9 @@ export const appRouter = router({
         if (settings.isCatalogStaging) {
           throw new TRPCError({ code: "FORBIDDEN", message: "The generated staging catalog does not accept customer orders." });
         }
+        if (input.paymentMethod === "instapay" && settings.paymentProofRetentionDays === null) {
+          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "InstaPay orders are unavailable until the payment-proof retention policy is configured by an administrator." });
+        }
         try {
           const order = await createCheckoutOrder({ ...input, userId: ctx.user.id });
           return { ...order, whatsappUrl: paymentWhatsappUrl(settings.whatsappNumber, order.orderNumber, "created"), instaPayHandle: settings.instaPayHandle };
@@ -223,8 +227,12 @@ export const appRouter = router({
       }),
     storeSettings: adminProcedure.query(() => getStoreSettings()),
     updateStoreSettings: adminProcedure
-      .input(z.object({ storeName: z.string().trim().min(2).max(120).optional(), whatsappNumber: z.string().trim().min(7).max(30).optional(), instaPayHandle: z.string().trim().max(160).nullable().optional(), shippingFeeAmount: z.number().int().min(0).max(10000000).optional(), isCatalogStaging: z.boolean().optional() }))
+      .input(z.object({ storeName: z.string().trim().min(2).max(120).optional(), whatsappNumber: z.string().trim().min(7).max(30).optional(), instaPayHandle: z.string().trim().max(160).nullable().optional(), shippingFeeAmount: z.number().int().min(0).max(10000000).optional(), isCatalogStaging: z.boolean().optional(), paymentProofRetentionDays: z.number().int().min(1).max(3650).nullable().optional() }))
       .mutation(({ input }) => updateStoreSettings(input)),
+    deletePaymentProof: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+      await deletePaymentProof(input.id);
+      return { success: true };
+    }),
   }),
 });
 

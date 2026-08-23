@@ -39,7 +39,7 @@ Since the baseline audit, the application has added a generated Arabic staging c
 | Evidence source | Result | Used for |
 |---|---|---|
 | Published storefront `https://mousaglass-393f3nnk.manus.space/` | Loaded successfully in an interactive browser. Arabic RTL header, public routes, cart state, WhatsApp CTA, and empty catalog state rendered. | Live reachability and customer-facing rendering. |
-| Reproducible validation | `pnpm check`, `pnpm test`, and `pnpm build` completed successfully. Latest suite: **7 test files, 37 tests passed**. This includes lifecycle/restock, protected-storage, request-security, historical-product deletion, and administrator archive-path regressions. | Build integrity and automated regression coverage. |
+| Reproducible validation | `pnpm check`, `pnpm test`, and `pnpm build` completed successfully. Latest suite: **7 test files, 39 tests passed**. This includes lifecycle/restock, protected-storage, request-security, historical-product deletion, administrator archive-path, retention-gate, and proof-reference-deletion regressions. | Build integrity and automated regression coverage. |
 | Current production bundle | Shared initial bundle: **709.05 kB minified / 201.34 kB gzip**; build emits a chunk-size warning. | Performance finding. |
 | Published-deployment Lighthouse | Mobile Home and Shop: **40 Performance, 100 Accessibility, 82 Best Practices, 100 SEO**. | Live performance baseline. |
 | Current local production Lighthouse | Expanded Home: **85 Performance, 100 Accessibility, 82 Best Practices, 100 SEO**; FCP 3.3 s, LCP 3.3 s, CLS 0.012, TBT 110 ms. | Regression and responsive-page validation. |
@@ -290,7 +290,7 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | Account deletion/data requests | **FAIL — P2** | No public process or admin tool for access/export/deletion requests was identified. |
 | Merchant identity and contact | **PARTIAL** | Public address, phone, and WhatsApp exist. Add formal business/merchant identity, tax/registration details if applicable, and a verified final domain. |
 | Inventory, pricing, and delivery promises | **FAIL — P0** | No live products or approved content exists; commercial commitments cannot yet be verified. |
-| Payment policy | **PARTIAL** | COD/InstaPay process is defined technically, but refund, rejection, fraud, proof-retention, and reconciliation SOPs are not finalized. |
+| Payment policy | **PARTIAL** | COD/InstaPay process is defined technically. The admin settings screen requires an approved proof-retention duration before non-staging InstaPay checkout, and admins can remove a proof reference after review. Refund, rejection, fraud, reconciliation, policy approval, and verified physical deletion of managed-storage objects are still unresolved. |
 
 ---
 
@@ -307,12 +307,12 @@ WhatsApp deep links, manual COD and InstaPay confirmation operations.
 | AUD-05 | **Partial P1** | Data recovery evidence remains incomplete | Foreign keys, indexes, migration safeguards, and archival behavior now protect live consistency; no restore drill has been recorded | Run and document database/schema/storage recovery exercise with RPO/RTO | Engineering + owner |
 | AUD-06 | **P1** | Security header/CORS/CSRF posture incomplete | Browser-integrity and cross-site request risk not fully controlled | Add Helmet/CSP/frame/referrer/content-type policies; document strict CORS and explicit CSRF/origin strategy | Engineering |
 | AUD-07 | **P1** | Backup/restore evidence absent | Inability to recover commerce data reliably | Document backup retention; perform database and storage restoration drill; record RPO/RTO | Owner + platform |
-| AUD-08 | **P1** | Privacy/terms/business policy missing | Legal and customer-trust exposure | Publish approved Arabic privacy, terms, returns, payment-proof retention, and contact/merchant disclosures | Merchant/legal |
+| AUD-08 | **P1** | Privacy/terms/business policy missing | Legal and customer-trust exposure | Publish approved Arabic privacy, terms, returns, payment-proof retention, and contact/merchant disclosures; verify physical managed-storage object deletion before representing proof erasure as complete | Merchant/legal |
 | AUD-09 | **P1** | E2E payment/order validation incomplete | Manual COD/InstaPay operating flow is unproven | Use controlled real product/customer test after catalog approval; validate WhatsApp, proof review, status, cancellation/restock | Merchant + QA |
 | AUD-10 | **P2** | Published performance inconsistent / large bundle | Slow first load under some production conditions | Warm-cache audit, inspect RUM, trim shared dependencies, reduce third-party scripts, re-audit with real images | Engineering |
 | AUD-11 | **P2** | SEO content/metadata gaps | Reduced discoverability/sharing | Final domain, canonical, sitemap, OG/social images, JSON-LD, breadcrumbs, product schema | Marketing + engineering |
 | AUD-12 | **P2** | No observability/CI/error alerting | Slower detection and recovery | CI tests/build, error tracking, uptime monitoring, order failure alert, structured logs | Engineering |
-| AUD-13 | **P2** | File malware/retention controls absent | Payment-proof data and upload risk | Re-encode/scan images; set retention/deletion schedule for proofs; document access policy | Engineering + owner |
+| AUD-13 | **P2** | File malware/retention controls remain partial | Payment-proof data and upload risk | Image signature checks, admin-configured retention gating, and application-reference removal exist; add re-encoding/scanning, approved policy, physical deletion workflow, and documented access review | Engineering + owner |
 | AUD-14 | **P2** | Dependency security status unverified | Unknown package vulnerability posture | Rerun dependency audit in CI/network-stable environment; triage findings | Engineering |
 | AUD-15 | **P3** | Central modules and `any` casts | Maintainability and type quality degrade as features grow | Split routers/db by bounded context; replace application `any` casts | Engineering |
 

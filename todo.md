@@ -107,6 +107,8 @@
 - [ ] Add database foreign-key constraints, referential indexes, migration safeguards, and a verified schema/data rollback procedure.
 - [x] Prevent deletion of products referenced by order history and guide administrators to archive products instead.
 - [ ] Define payment-proof retention, access-review, and deletion procedures consistent with the published privacy policy.
+- [ ] Obtain merchant and qualified local legal approval for the payment-proof retention, access-review, physical deletion, and customer-policy decisions recorded in the launch approval packet.
+- [x] Add a merchant-configured payment-proof retention setting, prevent customer ordering until it is set outside staging mode, and provide an administrator proof-reference deletion control.
 - [ ] Perform and record a production backup-and-restore drill for database, settings, order records, and storage references.
 - [ ] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
 - [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
