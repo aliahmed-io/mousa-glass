@@ -55,6 +55,8 @@ const focusedEvidence = {
   layoutShifts: detailRows("layout-shifts"),
   backForwardCache: detailRows("bf-cache"),
   colorContrast: detailRows("color-contrast"),
+  ariaAllowedRole: detailRows("aria-allowed-role"),
+  ariaRoles: detailRows("aria-roles"),
   imageDelivery: detailRows("image-delivery-insight"),
   unusedJavaScript: detailRows("unused-javascript"),
 };
