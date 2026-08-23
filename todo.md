@@ -97,3 +97,19 @@
 - [x] Validate tests, production deployment behavior, observability, performance, and documented operational gaps.
 - [x] Write a point-by-point production-readiness report with verified status, evidence, risk classification, and remediation priorities.
 - [x] Restrict payment-proof file downloads to the owning customer or an administrator and validate the access control.
+
+- [ ] Obtain merchant-approved category, product, price, stock, tax, delivery, and image data; enter it through the administrator workspace without placeholder merchandise.
+- [ ] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
+- [ ] Publish Arabic legal pages covering privacy, terms of sale, delivery, returns, COD, InstaPay proof handling, and customer contact routes.
+- [ ] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
+- [ ] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
+- [ ] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
+- [ ] Add database foreign-key constraints, referential indexes, migration safeguards, and a verified schema/data rollback procedure.
+- [ ] Define payment-proof retention, access-review, and deletion procedures consistent with the published privacy policy.
+- [ ] Perform and record a production backup-and-restore drill for database, settings, order records, and storage references.
+- [ ] Add crawler-ready canonical URLs, Open Graph/Twitter metadata, sitemap, structured product/business data, and an updated robots policy.
+- [ ] Re-measure deployed Core Web Vitals and reduce the published home/shop performance gap without degrading Arabic RTL usability.
+- [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
+- [ ] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
+- [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
+- [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.
