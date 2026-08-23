@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
-import { corsPolicy, createRateLimiter, isAllowedBrowserOrigin, requireTrustedMutationOrigin } from "./_core/security";
+import { corsPolicy, createRateLimiter, isAllowedBrowserOrigin, requestCorrelation, requireTrustedMutationOrigin } from "./_core/security";
 
 function request(overrides: Partial<Request> = {}) {
   return {
@@ -15,6 +15,7 @@ function request(overrides: Partial<Request> = {}) {
 
 function response() {
   const res = {
+    locals: {},
     setHeader: vi.fn(),
     status: vi.fn(),
     json: vi.fn(),
@@ -29,6 +30,20 @@ describe("request security controls", () => {
     expect(isAllowedBrowserOrigin("https://mousaglass.example", "mousaglass.example", "https")).toBe(true);
     expect(isAllowedBrowserOrigin("https://attacker.example", "mousaglass.example", "https")).toBe(false);
     expect(isAllowedBrowserOrigin("https://admin.example", "mousaglass.example", "https", ["https://admin.example"])).toBe(true);
+  });
+
+  it("attaches a safe request correlation identifier and ignores unsafe reflected values", () => {
+    const middleware = requestCorrelation();
+    const supplied = response();
+    const generated = response();
+    const next = vi.fn();
+
+    middleware(request({ header: name => ({ "x-request-id": "release_20260823" }[name.toLowerCase()]) }), supplied, next);
+    middleware(request({ header: name => ({ "x-request-id": "<unsafe value>" }[name.toLowerCase()]) }), generated, next);
+
+    expect(supplied.setHeader).toHaveBeenCalledWith("X-Request-Id", "release_20260823");
+    expect(generated.setHeader).toHaveBeenCalledWith("X-Request-Id", expect.stringMatching(/^[0-9a-f-]{36}$/));
+    expect(next).toHaveBeenCalledTimes(2);
   });
 
   it("rejects cross-site tRPC mutations before router execution", () => {

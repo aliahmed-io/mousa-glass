@@ -9,7 +9,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { corsPolicy, createRateLimiter, requireTrustedMutationOrigin, securityHeaders } from "./security";
+import { corsPolicy, createRateLimiter, requestCorrelation, requireTrustedMutationOrigin, securityHeaders } from "./security";
 import { registerCrawlerRoutes } from "./crawler";
 import { healthPayload } from "./health";
 
@@ -36,6 +36,7 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   app.set("trust proxy", 1);
+  app.use(requestCorrelation());
   app.use(securityHeaders());
   app.use(corsPolicy());
   app.use(compression());

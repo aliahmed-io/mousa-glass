@@ -138,6 +138,7 @@
 - [x] Run a published Lighthouse accessibility audit against the Shop route and record that its shared product-category label selector has no contrast finding.
 - [ ] Before leaving staging mode, verify that the fail-closed disclosure logic does not create a reverse layout shift when `isCatalogStaging` resolves false, or replace it with a reserved-height alternative.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
+- [x] Add safe server request-correlation identifiers for incident investigation without logging customer data or relying on an external monitoring vendor.
 - [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
 - [x] Add a public non-sensitive health endpoint and best-effort owner alerts for new orders and submitted payment proofs without blocking customer workflows.
 - [x] Add a GitHub Actions release gate for dependency installation, type checking, regression tests, and production builds.
