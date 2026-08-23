@@ -1,0 +1,12 @@
+# CI runtime upgrade sources
+
+The following official sources were reviewed on 24 August 2026 before updating the CI action pins.
+
+| Source | Relevant guidance | Intended project use |
+| --- | --- | --- |
+| [GitHub Actions Node 20 deprecation notice](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/) | GitHub instructs workflow users to update to the latest action versions that run on Node 24. | Replace runtime-legacy action pins rather than opting out to an insecure legacy runtime. |
+| [actions/checkout README](https://github.com/actions/checkout) | Checkout v5 and later use the Node 24 action runtime; the current maintained usage is newer still. | Upgrade checkout from the legacy v4 runtime pin using no workflow-input changes. |
+| [actions/setup-node README](https://github.com/actions/setup-node) | Setup-node v5 upgraded action internals from Node 20 to Node 24. | Upgrade setup-node from v4 while retaining the existing Node version and pnpm cache inputs. |
+| [pnpm/action-setup README](https://github.com/pnpm/action-setup) | The maintained action-setup v6 documentation retains pnpm v10 support; its v11-only successor is not appropriate for a pnpm 10 project. | Upgrade the action pin without changing the project package-manager major version or install semantics. |
+
+The project uses GitHub-hosted runners, so the documented minimum runner versions for Node 24-capable action majors are supplied by the managed platform. The workflow will still be validated on its non-default verified snapshot branch before this is considered resolved.

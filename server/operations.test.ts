@@ -10,6 +10,12 @@ describe("operational owner alerts", () => {
 
     expect(workflow).toContain("production-readiness-audit-plan");
     expect(workflow).toContain("'production-readiness-verified-*'");
+    expect(workflow).toContain("actions/checkout@v6");
+    expect(workflow).toContain("pnpm/action-setup@v6");
+    expect(workflow).toContain("actions/setup-node@v6");
+    expect(workflow).not.toContain("actions/checkout@v4");
+    expect(workflow).not.toContain("pnpm/action-setup@v4");
+    expect(workflow).not.toContain("actions/setup-node@v4");
   });
 
   it("uses an order reference and admin route without customer PII", () => {
