@@ -172,4 +172,4 @@
 - [ ] Configure or accept an explicit compensating control for globally distributed edge rate limiting before opening orders on autoscaling production infrastructure.
 - [x] Add and verify an explicit same-origin CORS policy for the Express/tRPC surface, including rejected cross-origin and preflight behavior.
 - [x] Resolve and regression-test the Express 5 wildcard-route startup error recorded by the development server without weakening public-route fallback behavior.
-- [ ] Extend the documented 480px staging-image `srcSet` delivery to Home featured cards without affecting unknown future merchant media or catalog staging.
+- [x] Extend the documented 480px staging-image `srcSet` delivery to Home featured cards without affecting unknown future merchant media or catalog staging.
