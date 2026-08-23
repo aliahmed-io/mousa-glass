@@ -105,6 +105,7 @@
 - [x] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
 - [ ] Publish Arabic legal pages covering privacy, terms of sale, delivery, returns, COD, InstaPay proof handling, and customer contact routes.
 - [x] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
+- [x] Add focused regression coverage that shared limiter keys derive from Express proxy-normalized client identity rather than untrusted forwarded-header text.
 - [x] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
 - [x] Define and enforce an order-status state machine, authorized transitions, cancellation rules, and transactional stock restoration.
 - [x] Add reviewed database foreign-key constraints, referential indexes, and non-destructive migrations; the separate production restore drill remains open below.

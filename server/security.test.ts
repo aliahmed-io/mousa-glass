@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
-import { corsPolicy, createRateLimiter, createSharedRateLimiter, hashRateLimitClientKey, isAllowedBrowserOrigin, requestCorrelation, requireTrustedMutationOrigin } from "./_core/security";
+import { corsPolicy, createRateLimiter, createSharedRateLimiter, hashRateLimitClientKey, isAllowedBrowserOrigin, requestClientKey, requestCorrelation, requireTrustedMutationOrigin } from "./_core/security";
 
 function request(overrides: Partial<Request> = {}) {
   return {
@@ -102,6 +102,19 @@ describe("request security controls", () => {
     }));
     expect(JSON.stringify(consume.mock.calls)).not.toContain("203.0.113.10");
     expect(blocked.status).toHaveBeenCalledWith(429);
+  });
+
+  it("uses Express proxy-normalized client identity instead of direct forwarded-header text", () => {
+    const req = request({
+      ip: "198.51.100.24",
+      header: name => ({
+        "x-forwarded-for": "attacker-controlled, 203.0.113.10",
+      }[name.toLowerCase()]),
+    });
+
+    expect(requestClientKey(req)).toBe("198.51.100.24");
+    expect(hashRateLimitClientKey(requestClientKey(req), "test-secret"))
+      .toBe(hashRateLimitClientKey("198.51.100.24", "test-secret"));
   });
 
   it("fails closed for high-risk mutations when shared limiter storage is unavailable", async () => {

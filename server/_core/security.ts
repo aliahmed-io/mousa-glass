@@ -53,7 +53,12 @@ export function isAllowedBrowserOrigin(origin: string, host: string, protocol: s
   return origin === `${protocol}://${host}` || additionalOrigins.includes(origin);
 }
 
-function requestClientKey(req: Request) {
+/**
+ * Express derives `req.ip` only after its application-level trusted-proxy
+ * policy runs. Do not read forwarding headers here: direct header values are
+ * attacker-controlled when requests bypass or reach a different proxy.
+ */
+export function requestClientKey(req: Request) {
   return req.ip || req.socket.remoteAddress || "unknown";
 }
 
