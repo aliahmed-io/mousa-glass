@@ -143,7 +143,7 @@
 - [x] Add a public non-sensitive health endpoint and best-effort owner alerts for new orders and submitted payment proofs without blocking customer workflows.
 - [x] Add a GitHub Actions release gate for dependency installation, type checking, regression tests, and production builds.
 - [x] Verify the `/healthz` payload and status contract, including its non-sensitive response body.
-- [ ] Add and verify a public health-route alias that remains reachable when the managed edge reserves `/healthz`.
+- [x] Add and verify a public health-route alias that remains reachable when the managed edge reserves `/healthz`.
 - [x] Verify order/proof owner-alert triggers, non-blocking failure behavior, and focused regression coverage.
 - [x] Inspect and validate the GitHub Actions workflow syntax, triggers, and install/typecheck/test/build job sequence.
 - [x] Correct the GitHub Actions pnpm setup conflict exposed by the first observed run, then obtain a successful hosted validation execution.
