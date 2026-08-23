@@ -15,7 +15,7 @@ This record separates work that can be completed safely in the application from 
 | Access and storage controls | OAuth/RBAC procedure protection, protected payment-proof access, same-origin mutation controls, restrictive headers, CORS/preflight policy, bounded parsers/uploads, and in-process request throttles are implemented. | Focused security, storage, and commerce tests. |
 | Admin foundation | Product/category/media/settings/order workflows, archival guardrails, and dashboard views are implemented without promoting any account. | Code review and protected-procedure tests. |
 | SEO and crawler safety | Canonical/social metadata, staging-aware robots and sitemap behavior, conditional structured data, and staging `noindex` protection exist. | Crawler and structured-data tests. |
-| Operational engineering | `/healthz`, non-blocking owner alerts, CI validation, production dependency audit, and operations documentation are present. | Hosted GitHub Actions run 32655491665 and local release validation. |
+| Operational engineering | `/healthz`, non-blocking owner alerts, CI validation, production dependency audit, and operations documentation are present. | Hosted GitHub Actions runs 32655491665 and 32664773989, plus local release validation. |
 | Media and accessibility | Five source-recorded generated staging images are compressed and verified; the category banner has responsive 768/960 WebP sources; published Home accessibility is 100 with no active contrast or ARIA-role finding. | Staging asset verifier and published Lighthouse reports. |
 
 ## Current release validation
