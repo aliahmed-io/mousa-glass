@@ -66,7 +66,7 @@ const productInput = {
 describe("commerce tRPC procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0 });
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: false });
   });
 
   it("allows administrators to create a catalog product", async () => {
@@ -156,6 +156,20 @@ describe("commerce tRPC procedures", () => {
     expect(result).toMatchObject({ orderNumber: "MG-COD-23", instaPayHandle: "01060223037" });
     expect(result.whatsappUrl).toContain("https://wa.me/201020848619");
     expect(decodeURIComponent(result.whatsappUrl)).toContain("MG-COD-23");
+  });
+
+  it("rejects order creation while the generated staging catalog is enabled", async () => {
+    dbMocks.getStoreSettings.mockResolvedValue({ whatsappNumber: "201020848619", instaPayHandle: "01060223037", shippingFeeAmount: 0, isCatalogStaging: true });
+    await expect(appRouter.createCaller(context("user")).orders.create({
+      customerName: "Staging Customer",
+      customerPhone: "2010602223037",
+      customerEmail: null,
+      shippingAddress: "Hurghada, Red Sea",
+      notes: null,
+      paymentMethod: "cash_on_delivery",
+      items: [{ productId: 6, quantity: 1 }],
+    })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(dbMocks.createCheckoutOrder).not.toHaveBeenCalled();
   });
 
   it("stores an InstaPay proof only for the customer who owns the order", async () => {

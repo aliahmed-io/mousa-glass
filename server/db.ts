@@ -99,10 +99,10 @@ async function enrichProducts(rows: ProductRow[]): Promise<CatalogProduct[]> {
 
 export async function getStoreSettings() {
   const db = await getDb();
-  if (!db) return { id: 1, storeName: "Mousa Glass", whatsappNumber: "201020848619", instaPayHandle: null, currency: "EGP", shippingFeeAmount: 0 };
+  if (!db) return { id: 1, storeName: "Mousa Glass", whatsappNumber: "201020848619", instaPayHandle: null, currency: "EGP", shippingFeeAmount: 0, isCatalogStaging: true };
   const rows = await db.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1);
   if (rows[0]) return rows[0];
-  await db.insert(storeSettings).values({ id: 1, storeName: "Mousa Glass", whatsappNumber: "201020848619", currency: "EGP", shippingFeeAmount: 0 });
+  await db.insert(storeSettings).values({ id: 1, storeName: "Mousa Glass", whatsappNumber: "201020848619", currency: "EGP", shippingFeeAmount: 0, isCatalogStaging: true });
   return (await db.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1))[0]!;
 }
 
@@ -111,10 +111,11 @@ export async function updateStoreSettings(input: {
   whatsappNumber?: string;
   instaPayHandle?: string | null;
   shippingFeeAmount?: number;
+  isCatalogStaging?: boolean;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(storeSettings).values({ id: 1, storeName: "Mousa Glass", whatsappNumber: "201020848619", currency: "EGP", shippingFeeAmount: 0 }).onDuplicateKeyUpdate({ set: input });
+  await db.insert(storeSettings).values({ id: 1, storeName: "Mousa Glass", whatsappNumber: "201020848619", currency: "EGP", shippingFeeAmount: 0, isCatalogStaging: true }).onDuplicateKeyUpdate({ set: input });
   return getStoreSettings();
 }
 

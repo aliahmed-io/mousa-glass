@@ -157,9 +157,12 @@ export const appRouter = router({
         items: z.array(z.object({ productId: z.number().int().positive(), quantity: z.number().int().min(1).max(99) })).min(1).max(50),
       }))
       .mutation(async ({ ctx, input }) => {
+        const settings = await getStoreSettings();
+        if (settings.isCatalogStaging) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "The generated staging catalog does not accept customer orders." });
+        }
         try {
           const order = await createCheckoutOrder({ ...input, userId: ctx.user.id });
-          const settings = await getStoreSettings();
           return { ...order, whatsappUrl: paymentWhatsappUrl(settings.whatsappNumber, order.orderNumber, "created"), instaPayHandle: settings.instaPayHandle };
         } catch (error) {
           throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Unable to create the order." });
@@ -205,7 +208,7 @@ export const appRouter = router({
       }),
     storeSettings: adminProcedure.query(() => getStoreSettings()),
     updateStoreSettings: adminProcedure
-      .input(z.object({ storeName: z.string().trim().min(2).max(120).optional(), whatsappNumber: z.string().trim().min(7).max(30).optional(), instaPayHandle: z.string().trim().max(160).nullable().optional(), shippingFeeAmount: z.number().int().min(0).max(10000000).optional() }))
+      .input(z.object({ storeName: z.string().trim().min(2).max(120).optional(), whatsappNumber: z.string().trim().min(7).max(30).optional(), instaPayHandle: z.string().trim().max(160).nullable().optional(), shippingFeeAmount: z.number().int().min(0).max(10000000).optional(), isCatalogStaging: z.boolean().optional() }))
       .mutation(({ input }) => updateStoreSettings(input)),
   }),
 });

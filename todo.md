@@ -99,7 +99,7 @@
 - [x] Restrict payment-proof file downloads to the owning customer or an administrator and validate the access control.
 
 - [ ] Obtain merchant-approved category, product, price, stock, tax, delivery, and image data; enter it through the administrator workspace without placeholder merchandise.
-- [ ] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
+- [x] Remove public contact-data drift by sourcing storefront WhatsApp, InstaPay, and contact details from the verified store-settings record.
 - [ ] Publish Arabic legal pages covering privacy, terms of sale, delivery, returns, COD, InstaPay proof handling, and customer contact routes.
 - [ ] Introduce abuse-resistant API controls: endpoint-aware rate limiting, upload limits, security headers, explicit CORS policy, and documented CSRF posture.
 - [ ] Add checkout idempotency so retries and duplicate submissions cannot create duplicate orders or reserve inventory twice.
@@ -113,3 +113,10 @@
 - [ ] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
 - [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
 - [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.
+- [ ] Generate original, rights-clear product imagery for a clearly labelled staging catalog that matches the Arabic Mousa Glass visual identity.
+- [x] Seed realistic Arabic glass-accessory categories, product descriptions, prices, stock, and product-media records for browsing and workflow validation.
+- [x] Clearly disclose generated/seed catalog status in the administration workflow and storefront until merchant-approved commercial data replaces it.
+- [x] Keep business-specific contact, payment, delivery, tax, and legal terms visibly pending where merchant approval is required.
+- [x] Standardize the public delivery-and-returns route and retain a backward-compatible alias so every navigation link resolves.
+- [x] Verify and record the seeded Arabic staging-catalog records, including categories, descriptions, prices, stock, and product-image assignments.
+- [x] Extend and verify the staging-mode disclosure so contact, payment, delivery, tax, and legal/business-specific terms are explicitly pending wherever relevant.

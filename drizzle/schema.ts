@@ -148,6 +148,7 @@ export const storeSettings = mysqlTable("storeSettings", {
   instaPayHandle: varchar("instaPayHandle", { length: 160 }),
   currency: varchar("currency", { length: 8 }).default("EGP").notNull(),
   shippingFeeAmount: int("shippingFeeAmount").default(0).notNull(),
+  isCatalogStaging: boolean("isCatalogStaging").default(true).notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 

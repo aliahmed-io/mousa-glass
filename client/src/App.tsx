@@ -31,6 +31,7 @@ function Router() {
     <Route path="/shop" component={Shop} />
     <Route path="/about" component={About} />
     <Route path="/contact" component={Contact} />
+    <Route path="/delivery-returns" component={DeliveryReturns} />
     <Route path="/delivery&returns" component={DeliveryReturns} />
     <Route path="/faq" component={FAQ} />
     <Route path="/products/:slug" component={ProductDetail} />
