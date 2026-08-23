@@ -8,7 +8,7 @@ import { Link } from "wouter";
 
 const HERO_MOBILE = "/manus-storage/mousa-hero-mobile_1eecd256.webp";
 const HERO_DESKTOP = "/manus-storage/mousa-hero-desktop_0e11b818.webp";
-const LOGO = "/manus-storage/pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d193407d_32f06135.jpeg";
+const LOGO = "/manus-storage/mousa-logo-128_bf907234.webp";
 const CATEGORY_IMAGE = "/manus-storage/mousa-glass-category-banner-960_fce01c36.webp";
 const ABOUT_IMAGE = HERO_DESKTOP;
 const SERVICE_STEPS = [

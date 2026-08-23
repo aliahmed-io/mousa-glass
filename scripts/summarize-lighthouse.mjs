@@ -44,6 +44,20 @@ const diagnostics = Object.values(report.audits ?? {})
     displayValue: audit.displayValue,
   }));
 
+const detailRows = (auditId) => {
+  const audit = report.audits?.[auditId];
+  if (!audit?.details?.items) return [];
+  return audit.details.items.slice(0, 10);
+};
+
+const focusedEvidence = {
+  consoleErrors: detailRows("errors-in-console"),
+  layoutShifts: detailRows("layout-shifts"),
+  backForwardCache: detailRows("bf-cache"),
+  colorContrast: detailRows("color-contrast"),
+  imageDelivery: detailRows("image-delivery-insight"),
+};
+
 console.log(JSON.stringify({
   requestedUrl: report.requestedUrl,
   finalUrl: report.finalUrl,
@@ -51,4 +65,5 @@ console.log(JSON.stringify({
   metrics,
   opportunities,
   diagnostics,
+  focusedEvidence,
 }, null, 2));

@@ -9,7 +9,7 @@ import { SeoJsonLd } from "@/components/SeoJsonLd";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 
-const LOGO = "/manus-storage/pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d193407d_32f06135.jpeg";
+const LOGO = "/manus-storage/mousa-logo-128_bf907234.webp";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
