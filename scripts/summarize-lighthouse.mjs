@@ -56,6 +56,7 @@ const focusedEvidence = {
   backForwardCache: detailRows("bf-cache"),
   colorContrast: detailRows("color-contrast"),
   imageDelivery: detailRows("image-delivery-insight"),
+  unusedJavaScript: detailRows("unused-javascript"),
 };
 
 console.log(JSON.stringify({

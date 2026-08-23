@@ -1,0 +1,221 @@
+{
+  "requestedUrl": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+  "finalUrl": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+  "categories": {
+    "performance": 62,
+    "accessibility": 100,
+    "best-practices": 92,
+    "seo": 100
+  },
+  "metrics": [
+    {
+      "id": "first-contentful-paint",
+      "value": "3.7 s"
+    },
+    {
+      "id": "largest-contentful-paint",
+      "value": "5.6 s"
+    },
+    {
+      "id": "total-blocking-time",
+      "value": "100 ms"
+    },
+    {
+      "id": "cumulative-layout-shift",
+      "value": "0"
+    },
+    {
+      "id": "speed-index",
+      "value": "12.2 s"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "server-response-time",
+      "title": "Reduce initial server response time",
+      "score": 0,
+      "savingsMs": 2447,
+      "displayValue": "Root document took 2,550 ms"
+    },
+    {
+      "id": "unused-javascript",
+      "title": "Reduce unused JavaScript",
+      "score": 0,
+      "savingsMs": 300,
+      "displayValue": "Est savings of 53 KiB"
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "errors-in-console",
+      "title": "Browser errors were logged to the console",
+      "score": 0
+    },
+    {
+      "id": "inspector-issues",
+      "title": "Issues were logged in the `Issues` panel in Chrome Devtools",
+      "score": 0
+    },
+    {
+      "id": "bf-cache",
+      "title": "Page prevented back/forward cache restoration",
+      "score": 0,
+      "displayValue": "2 failure reasons"
+    },
+    {
+      "id": "image-delivery-insight",
+      "title": "Improve image delivery",
+      "score": 0.5,
+      "displayValue": "Est savings of 8 KiB"
+    },
+    {
+      "id": "render-blocking-insight",
+      "title": "Render-blocking requests",
+      "score": 0,
+      "displayValue": "Est savings of 250 ms"
+    }
+  ],
+  "focusedEvidence": {
+    "consoleErrors": [
+      {
+        "source": "security",
+        "description": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 28,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-ApGQL/efXXIFjw7PJ6YmGzxedXyxK09f6IdOJN7vsw0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 119,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kp93lwgzlaYgae4ER/aK95sTlxpldakC71nyLX2kpLw='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 100,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-qOgOCo4Gdx/jjFtkwLJJ3qTQ6lf/Qg0tD99zQlSVeu0='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 35,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://files.manuscdn.com/manus-space-dispatcher/spaceEditor-DPV-_I11.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://manus-analytics.com/umami' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      },
+      {
+        "source": "security",
+        "description": "Loading the script 'https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js' violates the following Content Security Policy directive: \"script-src 'self'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+        "sourceLocation": {
+          "type": "source-location",
+          "url": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse",
+          "urlProvider": "network",
+          "line": 0,
+          "column": 0
+        }
+      }
+    ],
+    "layoutShifts": [],
+    "backForwardCache": [
+      {
+        "reason": "Pages whose main resource has cache-control:no-store cannot enter back/forward cache.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse"
+            }
+          ]
+        },
+        "protocolReason": "MainResourceHasCacheControlNoStore"
+      },
+      {
+        "reason": "Back/forward cache is disabled because some JavaScript network request received resource with Cache-Control: no-store header.",
+        "failureType": "Not actionable",
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "frameUrl": "https://mousaglass-393f3nnk.manus.space/?release=cbe33973-lighthouse"
+            }
+          ]
+        },
+        "protocolReason": "JsNetworkRequestReceivedCacheControlNoStoreResource"
+      }
+    ],
+    "colorContrast": [],
+    "imageDelivery": [
+      {
+        "node": {
+          "type": "node",
+          "lhId": "page-3-IMG",
+          "path": "1,HTML,1,BODY,1,DIV,1,DIV,2,DIV,1,MAIN,2,SECTION,0,DIV,1,DIV,3,A,0,IMG",
+          "selector": "div.container > div.mt-12 > a.group > img.absolute",
+          "boundingRect": {
+            "top": 2034,
+            "bottom": 2192,
+            "left": 17,
+            "right": 395,
+            "width": 378,
+            "height": 158
+          },
+          "snippet": "<img alt=\"\" loading=\"lazy\" decoding=\"async\" class=\"absolute inset-0 h-full w-full object-cover opacity-15 transition duration…\" src=\"/manus-storage/mousa-glass-category-banner-960_fce01c36.webp\">",
+          "nodeLabel": "div.container > div.mt-12 > a.group > img.absolute"
+        },
+        "url": "https://d36hbw14aib5lz.cloudfront.net/310519663885080823/393f3NnkKhkb4HK3tUdZNJ/mousa-glass-category-banner-960_fce01c36.webp?Expires=1787509613&Signature=b5DfK5oCX9duewACDm66b95731cLHoAoSVsQ7r5BPQcf4aJRKVGF6cvNBVchlHz0g7l0A0BbfrCABrmqzYYFp8vQ6HGfXssdmbeb8gQsHHeYeJ8A58RLnnE2kR7NBTojQ0KK20I8IT7rKBzNu0AtcGz6WMW5wIxYUgJyIlfpz43vi2BlIACLKu99jXPLD4uo7-UM5YF38wpQNUav13-5dix7GJ0-F8TrMObOc5TAatwiQb4q3kq3GgD5K5xF-TB5Y7W5v6JacMc5-Emw1n8edXFZd17r5h2HuzDwmGDkrZXBetCNFCO8WK7edsirVhW~ZiyOkmwzRDxPXBmZMCawTA__&Key-Pair-Id=K1MP89RTKNH4J",
+        "totalBytes": 21994,
+        "wastedBytes": 7982,
+        "subItems": {
+          "type": "subitems",
+          "items": [
+            {
+              "reason": "This image file is larger than it needs to be (960x402) for its displayed dimensions (662x372). Use responsive images to reduce the image download size.",
+              "wastedBytes": 7982
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

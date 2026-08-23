@@ -120,12 +120,15 @@
 - [ ] Investigate the fresh Lighthouse console, ARIA-role, contrast, bfcache, and server-response findings; resolve only issues controllable in the application and document managed-platform constraints.
 - [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
 - [ ] Address the remaining published Lighthouse findings: 2.77 s initial-server-response opportunity, 53 KiB unused JavaScript, 105 KiB image-delivery opportunity, 230 ms render-blocking insight, console errors, contrast, bfcache, and one measured layout shift.
-- [ ] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.
-- [ ] Re-run a published Lighthouse accessibility audit after deployment to verify that the Home and Shop category-label contrast finding is resolved.
-- [ ] Replace the broad global `!important` contrast override with a narrowly scoped Home/Shop product-card rule, then revalidate local and published accessibility evidence.
+- [ ] Scope global tooltip and toast dependencies away from the public application entry where they are not needed, then validate public and administrator interaction paths.
+- [ ] Verify an authenticated administrator route and inspect administrator source usage after removing root tooltip/toast providers, then record whether any admin dependency must be restored or scoped locally.
+- [x] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.
+- [x] Re-run a published Lighthouse accessibility audit after deployment to verify that the Home and Shop category-label contrast finding is resolved.
+- [x] Replace the broad global `!important` contrast override with a narrowly scoped Home/Shop product-card rule, then revalidate local and published accessibility evidence.
 - [x] Create, validate, and adopt a compact deterministic logo derivative for the 56–98px logo placements identified by the published image-delivery audit.
-- [ ] Render the required staging disclosure from the first client paint while catalog mode is loading to prevent the measured Home hero layout shift in safe staging mode.
-- [ ] Re-run a published Lighthouse audit after deployment to verify the Home hero layout-shift finding is resolved by the first-paint staging disclosure behavior.
+- [x] Render the required staging disclosure from the first client paint while catalog mode is loading to prevent the measured Home hero layout shift in safe staging mode.
+- [x] Re-run a published Lighthouse audit after deployment to verify the Home hero layout-shift finding is resolved by the first-paint staging disclosure behavior.
+- [x] Run a published Lighthouse accessibility audit against the Shop route and record that its shared product-category label selector has no contrast finding.
 - [ ] Before leaving staging mode, verify that the fail-closed disclosure logic does not create a reverse layout shift when `isCatalogStaging` resolves false, or replace it with a reserved-height alternative.
 - [ ] Add production error monitoring, actionable operational alerts, health checks, dependency-vulnerability review, and a CI release gate.
 - [x] Upgrade direct production dependencies flagged by the bounded audit and reassess remaining transitive vulnerabilities before launch.
