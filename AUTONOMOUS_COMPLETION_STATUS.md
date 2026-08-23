@@ -20,7 +20,7 @@ This record separates work that can be completed safely in the application from 
 
 ## Current release validation
 
-The latest full local suite completed with `pnpm audit --prod --json`, `pnpm check`, `pnpm test`, `pnpm build`, and `node scripts/verify-staging-assets.mjs`. It passed **49 tests across 11 files**, completed the production build, and verified all five assigned staging-image responses, signatures, sizes, and hashes. The production build retains a shared-entry size warning; it is a tracked performance concern rather than a release failure.
+The latest full local suite completed with `pnpm audit --prod --json`, `pnpm check`, `pnpm test`, `pnpm build`, and `node scripts/verify-staging-assets.mjs`. It passed **51 tests across 11 files**, completed the production build, and verified all five assigned staging-image responses, signatures, sizes, and hashes. The production build retains a shared-entry size warning; it is a tracked performance concern rather than a release failure.
 
 The cache-busted published mobile Home audit for the responsive category-banner release reports **61 Performance, 100 Accessibility, 92 Best Practices, and 100 SEO**. It confirms **CLS 0** and no remaining image-delivery, contrast, or ARIA-role finding. It is not a Core Web Vitals pass: FCP is **3.9 s**, LCP **5.7 s**, and the audit still estimates **3.34 s** server-response savings. The server-response opportunity is a managed-hosting investigation, not a reason to weaken CSP, cache controls, or staging safeguards.
 
@@ -30,7 +30,7 @@ The cache-busted published mobile Home audit for the responsive category-banner 
 | --- | --- | --- |
 | Merchant | Approved Arabic product/category records, prices, stock, tax, delivery, return terms, contact details, and rights-cleared product media. | These are business facts and cannot be invented from staging seed data. |
 | Merchant and qualified local adviser | Approved Arabic privacy, sale, delivery, return, COD, and InstaPay-proof policies; a defensible proof-retention/access/review/deletion decision. | Legal and operational policy approval cannot be automated or self-authorized. |
-| Authorized administrator | Authenticated validation of the live admin workflows and a controlled real COD/InstaPay/WhatsApp handoff rehearsal. | The connected browser is correctly a non-admin account; no role was changed to bypass authorization. |
+| Authorized administrator | Authenticated validation of the live admin workflows and a controlled real COD/InstaPay/WhatsApp handoff rehearsal. | A cache-busted published `/admin` visit correctly displayed the Arabic access-denied state for the connected non-admin account; no role was changed to bypass authorization. |
 | Operations / hosting | Backup-and-restore drill, storage physical-deletion confirmation, external error monitoring and uptime escalation, and a distributed edge rate-limit control or explicitly accepted compensating control. | These require external systems, account authority, or live operational evidence beyond safe source changes. |
 | Release authority | Final go/no-go review after the preceding evidence is recorded. | The catalog is intentionally generated and non-orderable, so unrestricted launch is not authorized. |
 

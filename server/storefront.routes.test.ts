@@ -40,4 +40,28 @@ describe("public storefront routes", () => {
     expect(showcase).toContain('import { toast as sonnerToast } from "sonner"');
     expect(app).not.toContain("ComponentShowcase");
   });
+
+  it("keeps routed administrator sources independent of the removed root toast and tooltip providers", () => {
+    const dashboard = readProjectFile("client/src/pages/AdminDashboard.tsx");
+    const categories = readProjectFile("client/src/pages/AdminCategories.tsx");
+    const media = readProjectFile("client/src/pages/AdminMedia.tsx");
+    const layout = readProjectFile("client/src/components/DashboardLayout.tsx");
+
+    for (const source of [dashboard, categories, media, layout]) {
+      expect(source).not.toContain('from "sonner"');
+      expect(source).not.toContain("TooltipProvider");
+      expect(source).not.toContain('from "@/components/ui/tooltip"');
+    }
+  });
+
+  it("keeps the responsive staging category-banner source set and viewport sizing metadata", () => {
+    const home = readProjectFile("client/src/pages/Home.tsx");
+
+    expect(home).toContain("mousa-glass-category-banner-768_5b2bd47a.webp");
+    expect(home).toContain("mousa-glass-category-banner-960_fce01c36.webp");
+    expect(home).toContain("srcSet={`");
+    expect(home).toContain("768w");
+    expect(home).toContain("960w");
+    expect(home).toContain('sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"');
+  });
 });
