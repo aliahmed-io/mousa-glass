@@ -2,11 +2,11 @@ import { createHash } from "node:crypto";
 
 const origin = process.env.STAGING_ASSET_ORIGIN ?? "http://127.0.0.1:3000";
 const assets = [
-  ["مزهرية كهرمانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-amber-vase-2026-08-23_64fec273.jpg"],
-  ["مرآة بيضاوية دخانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-smoked-mirror-v2-2026-08-23_d8905769.jpg"],
-  ["حاملات شموع زجاجية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-candleholders-v2-2026-08-23_0ac47a14.jpg"],
-  ["صينية تقديم دخانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-serving-tray-v2-2026-08-23_3c786ad2.jpg"],
-  ["طقم أكواب بحافة كهرمانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-amber-glassware-v2-2026-08-23_5eb5cd91.jpg"],
+  ["مزهرية كهرمانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-amber-vase-960_a1759e41.webp"],
+  ["مرآة بيضاوية دخانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-smoked-mirror-960_2bbc7cec.webp"],
+  ["حاملات شموع زجاجية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-candleholders-960_c3670fc6.webp"],
+  ["صينية تقديم دخانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-serving-tray-960_a43d0762.webp"],
+  ["طقم أكواب بحافة كهرمانية — نموذج تجريبي", "/manus-storage/mousa-glass-staging-amber-glassware-960_e4bd2db3.webp"],
 ];
 
 function isJpeg(bytes) {

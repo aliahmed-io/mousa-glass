@@ -9,15 +9,15 @@
 
 All five assigned URLs rendered as completed product images in the full-page shop review. No image-generation-failure panel, loading placeholder, external brand mark, or visible text appeared in the reviewed product cards. The set consistently uses a dark studio background, smoked/amber glass or brass-adjacent accent treatment, and a restrained noir-and-gold presentation compatible with the existing Mousa Glass storefront visual direction.
 
-The repeatable local command `node scripts/verify-staging-assets.mjs` was also run on 2026-08-23 against the active development service. Every assigned URL returned HTTP 200 as an `image/webp` response, had a valid WebP container signature, exceeded the 10 KB minimum payload threshold, contained no plain failed-generation marker, and produced the following SHA-256 digests.
+The repeatable local command `node scripts/verify-staging-assets.mjs` was rerun on 2026-08-23 against the active development service after the catalog moved to 960-pixel WebP delivery derivatives. Every currently assigned URL returned HTTP 200 as an `image/webp` response, had a valid WebP container signature, exceeded the 10 KB minimum payload threshold, contained no plain failed-generation marker, and produced the following SHA-256 digests.
 
-| Product | Exact assigned asset URL | Render status | Technical visual result |
-| --- | --- | --- | --- |
-| مزهرية كهرمانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-amber-vase-2026-08-23_64fec273.jpg` | **Pass** — completed image | Amber glass vase reads clearly against the black studio field; warm rim lighting matches the storefront accent. | `9e5716b8f4d86b855e1d95b8774460b432daf319e4ffd1bba9df410b7e4732c7` |
-| مرآة بيضاوية دخانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-smoked-mirror-v2-2026-08-23_d8905769.jpg` | **Pass** — completed image | Single oval mirror has controlled smoky reflection, adequate contrast, and no room-scene distraction. | `6354ded07d9cee3453aa72d234cb4f3db06d281b9e5d9adec630ea63585f39d4` |
-| حاملات شموع زجاجية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-candleholders-v2-2026-08-23_0ac47a14.jpg` | **Pass** — completed image | Paired holders are legible with consistent warm-glass lighting and no flame, label, or unrelated object. | `fca4eac9774ef0ee8e8368fbe7eb5977472761fbb97f39de32c2c8b3ffbf82fd` |
-| صينية تقديم دخانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-serving-tray-v2-2026-08-23_3c786ad2.jpg` | **Pass** — completed image | Tray geometry is visually plausible, product-focused, and retains the restrained black-and-gold treatment. | `a94096f984805b0cc74ab1567f4dc28823d9dcb42019b911f5aaa421370636d4` |
-| طقم أكواب بحافة كهرمانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-amber-glassware-v2-2026-08-23_5eb5cd91.jpg` | **Pass** — completed image | Glass set is distinct, undistorted at card scale, and visually aligned with the warm amber accent system. | `2ffc1b4f8e3bbb79603cfe5ec17f23c4fbcff47d57213fcd402fba1c772cfe06` |
+| Product | Exact assigned asset URL | Render status | Technical visual result | SHA-256 |
+| --- | --- | --- | --- | --- |
+| مزهرية كهرمانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-amber-vase-960_a1759e41.webp` | **Pass** — completed image | Amber glass vase reads clearly against the black studio field; warm rim lighting matches the storefront accent. | `34533e6c65079f302d0aeda4599e3affd9493ddc570fdfaa69748f4655d9b084` |
+| مرآة بيضاوية دخانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-smoked-mirror-960_2bbc7cec.webp` | **Pass** — completed image | Single oval mirror has controlled smoky reflection, adequate contrast, and no room-scene distraction. | `444311d72676943c8da34ce59b340f7ecf2f9209f7766868a94c1736ea441497` |
+| حاملات شموع زجاجية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-candleholders-960_c3670fc6.webp` | **Pass** — completed image | Paired holders are legible with consistent warm-glass lighting and no flame, label, or unrelated object. | `00ec48ab217188bc51daa35d6f2eb062c708f9bedf8c97f971b5ddac184649d4` |
+| صينية تقديم دخانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-serving-tray-960_a43d0762.webp` | **Pass** — completed image | Tray geometry is visually plausible, product-focused, and retains the restrained black-and-gold treatment. | `24619d25e3e6cc9fa3e6e1fa67b6b806525ff54692fc3ad51840036366b13ffe` |
+| طقم أكواب بحافة كهرمانية — نموذج تجريبي | `/manus-storage/mousa-glass-staging-amber-glassware-960_e4bd2db3.webp` | **Pass** — completed image | Glass set is distinct, undistorted at card scale, and visually aligned with the warm amber accent system. | `43284685e2dca618a735f284b9d6e49147dbf10c22b23c8fa39fd99a033f3a34` |
 
 ## Boundary
 
