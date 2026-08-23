@@ -129,7 +129,7 @@
 - [x] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
 - [x] Verify the 480px staged-product derivatives and `srcSet` delivery in a published mobile Shop check before closing the responsive product-media task; catalog records and merchant data remain unchanged.
 - [x] Scope global tooltip and toast dependencies away from the public application entry and verify all routed public and administrator source modules remain independent of them.
-- [ ] Verify an authenticated real-administrator route after removing root tooltip/toast providers, then record whether any administrator dependency must be restored or scoped locally.
+- [ ] Verify an authenticated real-administrator route after removing root tooltip/toast providers, then record whether any administrator dependency must be restored or scoped locally. The available authenticated account was rechecked at published checkpoint `824ee0ab` and correctly receives Arabic access denial; do not promote it merely to close this authority-dependent gate.
 - [x] Raise low-contrast product-category labels on the Home and Shop cards to meet the published Lighthouse contrast finding without changing the noir-and-gold visual system.
 - [x] Re-run a published Lighthouse accessibility audit after deployment to verify that the Home and Shop category-label contrast finding is resolved.
 - [x] Replace the broad global `!important` contrast override with a narrowly scoped Home/Shop product-card rule, then revalidate local and published accessibility evidence.
