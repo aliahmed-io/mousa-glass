@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { attemptOwnerNotification, orderAlertPayload, paymentProofAlertPayload } from "./_core/operations";
+import { logTrpcFailure, trpcFailureDiagnostic } from "./_core/diagnostics";
 
 describe("operational owner alerts", () => {
   it("uses an order reference and admin route without customer PII", () => {
@@ -20,5 +21,38 @@ describe("operational owner alerts", () => {
     })).resolves.toBe(false);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("customer workflow continued"));
     warn.mockRestore();
+  });
+
+  it("records only a correlation ID, procedure path, and error classification for server failures", () => {
+    const diagnostic = trpcFailureDiagnostic({
+      requestId: "c8794c45-519b-45eb-b317-73daef2d5b43",
+      path: "orders.create",
+      code: "FORBIDDEN",
+    });
+
+    expect(diagnostic).toEqual({
+      event: "trpc_failure",
+      requestId: "c8794c45-519b-45eb-b317-73daef2d5b43",
+      path: "orders.create",
+      code: "FORBIDDEN",
+    });
+    expect(JSON.stringify(diagnostic)).not.toContain("customer");
+  });
+
+  it("falls back to safe diagnostic placeholders and emits structured log output", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    expect(trpcFailureDiagnostic({ requestId: 1, path: null, code: undefined })).toEqual({
+      event: "trpc_failure",
+      requestId: "unavailable",
+      path: "unknown",
+      code: "UNKNOWN",
+    });
+
+    logTrpcFailure({ requestId: "probe-123", path: "health.probe", code: "INTERNAL_SERVER_ERROR" });
+    expect(error).toHaveBeenCalledWith(
+      "[server diagnostic]",
+      expect.stringContaining('"requestId":"probe-123"'),
+    );
+    error.mockRestore();
   });
 });

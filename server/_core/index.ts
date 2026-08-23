@@ -9,9 +9,10 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { corsPolicy, createRateLimiter, requireTrustedMutationOrigin, securityHeaders } from "./security";
+import { corsPolicy, createRateLimiter, requestCorrelation, requireTrustedMutationOrigin, securityHeaders } from "./security";
 import { registerCrawlerRoutes } from "./crawler";
-import { healthPayload } from "./health";
+import { registerHealthRoutes } from "./health";
+import { logTrpcFailure } from "./diagnostics";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,12 +37,13 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   app.set("trust proxy", 1);
+  app.use(requestCorrelation());
   app.use(securityHeaders());
   app.use(corsPolicy());
   app.use(compression());
   app.use(express.json({ limit: "8mb" }));
   app.use(express.urlencoded({ limit: "1mb", extended: true }));
-  app.get("/healthz", (_req, res) => res.status(200).json(healthPayload()));
+  registerHealthRoutes(app);
   app.use("/manus-storage", createRateLimiter({ name: "storage", windowMs: 60_000, max: 120 }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
@@ -55,6 +57,13 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError({ error, path, ctx }) {
+        logTrpcFailure({
+          requestId: ctx?.res.locals.requestId,
+          path,
+          code: error.code,
+        });
+      },
     })
   );
   registerCrawlerRoutes(app);

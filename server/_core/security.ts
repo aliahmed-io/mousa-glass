@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Request, RequestHandler } from "express";
 
 type RateLimitOptions = {
@@ -9,6 +10,22 @@ type RateLimitOptions = {
 type RateLimitBucket = { count: number; resetAt: number };
 
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
+const requestIdPattern = /^[A-Za-z0-9_-]{8,128}$/;
+
+/**
+ * Provides a short, non-sensitive identifier that can be shared between a
+ * customer-support report and deployment logs. Untrusted header values are
+ * never reflected unless they meet a deliberately narrow identifier format.
+ */
+export function requestCorrelation(): RequestHandler {
+  return (req, res, next) => {
+    const supplied = req.header("x-request-id");
+    const requestId = supplied && requestIdPattern.test(supplied) ? supplied : randomUUID();
+    res.locals.requestId = requestId;
+    res.setHeader("X-Request-Id", requestId);
+    next();
+  };
+}
 
 function requestProtocol(req: Request) {
   const forwarded = req.header("x-forwarded-proto")?.split(",")[0]?.trim();
