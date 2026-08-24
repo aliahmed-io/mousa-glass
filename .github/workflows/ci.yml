@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      # Test-only value for administrator authorization coverage; never a production credential.
+      # Test-only values for administrator authorization coverage; never production credentials.
       ADMIN_ACCESS_PASSPHRASE: ci-test-only-admin-passphrase
+      JWT_SECRET: ci-test-only-cookie-signing-secret
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
