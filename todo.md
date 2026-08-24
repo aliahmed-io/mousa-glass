@@ -127,6 +127,7 @@
 - [x] Replace the invalid `role="status"` on the staging `<aside>` with an equivalent valid live-region treatment, then verify it in a published Lighthouse audit.
 - [x] Reserve the Home category and featured-product grid footprint while catalog queries load to reduce the measured layout shift without changing staging behavior.
 - [ ] Address the remaining application-controlled published Lighthouse opportunities: variable 1.34–2.86 s initial-server response, approximately 36 KiB unused JavaScript, and 110–150 ms render-blocking insight. Keep managed CSP/no-store reports and intentional staging crawl blocking documented rather than weakening safeguards; the latest measured Shop image-delivery overfetch is resolved.
+- [x] Measure a supported narrow tRPC HTTP batch-link import and retain the existing client contract after source-map evidence showed `@trpc/react-query` re-exports the same root client barrel, yielding no shared-entry reduction.
 - [x] Add a responsive category-banner delivery variant and `srcSet`/`sizes` markup to remove the remaining 8 KiB published image-delivery overfetch without changing visual composition.
 - [x] Verify the 480px staged-product derivatives and `srcSet` delivery in a published mobile Shop check before closing the responsive product-media task; catalog records and merchant data remain unchanged.
 - [x] Scope global tooltip and toast dependencies away from the public application entry and verify all routed public and administrator source modules remain independent of them.
@@ -181,3 +182,5 @@
 - [x] Upgrade supported GitHub Action pins to Node 24-capable releases and verify the verified snapshot CI run no longer emits the Node 20 runtime deprecation warning.
 - [x] Add and verify source-specific 720px and 800px full-composition staging derivatives for the measured Shop mobile `srcSet` overfetch without modifying catalog records or future merchant media.
 - [x] Investigate the latest published `/api/healthz` response body observation: repeated HTTP/1.1, no-cache HTTP/2, and preview probes return the documented minimal JSON payload and opaque request ID; no current regression was confirmed.
+- [x] Add a server-verified, time-bounded administrator passphrase authorization path for signed-in users, backed by a managed secret and protected by regression tests; retain the existing role model and do not expose the passphrase in source or client bundles.
+- [ ] Perform a final live signed-in administrator passphrase smoke test after OAuth account selection; this remains blocked because browser takeover and account selection were explicitly declined.

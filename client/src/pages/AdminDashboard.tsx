@@ -1,5 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
+import { AdminAccessGate } from "@/components/AdminAccessGate";
+import { useAdminAccess } from "@/_core/hooks/useAdminAccess";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -185,9 +187,9 @@ function SettingsPage() {
 }
 
 export default function AdminDashboard() {
-  const { user, loading } = useAuth(); const [location] = useLocation();
+  const { user, authorized, loading } = useAdminAccess(); const [location] = useLocation();
   if (loading) return <div className="min-h-screen bg-[#08090d]" />;
-  if (user?.role !== "admin") return <div className="grid min-h-screen place-items-center bg-[#08090d] p-6 text-center text-[#f5f0e8]"><div className={`${panelClass} p-8`}><AlertTriangle className="mx-auto h-10 w-10 text-[#d4af37]" /><h1 className="mt-4 text-xl font-black">يلزم صلاحية مدير</h1><p className="mt-2 text-sm text-[#f5f0e8]/60">لا يملك هذا الحساب صلاحية إدارة المتجر.</p></div></div>;
+  if (!authorized) return <AdminAccessGate signedIn={Boolean(user)} />;
   const orderMatch = location.match(/^\/admin\/orders\/(\d+)$/);
   const page = location === "/admin/products" ? <Products /> : location === "/admin/orders" || orderMatch ? <AdminOrders initialId={orderMatch ? Number(orderMatch[1]) : undefined} /> : location === "/admin/settings" ? <SettingsPage /> : <Overview />;
   return <DashboardLayout>{page}</DashboardLayout>;

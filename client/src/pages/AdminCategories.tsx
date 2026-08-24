@@ -1,4 +1,5 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAdminAccess } from "@/_core/hooks/useAdminAccess";
+import { AdminAccessGate } from "@/components/AdminAccessGate";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,8 +56,8 @@ function Editor({ category, close }: { category?: any; close: () => void }) {
 }
 
 export default function AdminCategories() {
-  const { user, loading } = useAuth();
-  const q = trpc.categories.adminList.useQuery(undefined, { enabled: user?.role === "admin" });
+  const { user, authorized, loading } = useAdminAccess();
+  const q = trpc.categories.adminList.useQuery(undefined, { enabled: authorized });
   const utils = trpc.useUtils();
   const remove = trpc.categories.delete.useMutation({ onSuccess: () => { void utils.categories.adminList.invalidate(); void utils.categories.list.invalidate(); } });
   const update = trpc.categories.update.useMutation({ onSuccess: () => { void utils.categories.adminList.invalidate(); void utils.categories.list.invalidate(); } });
@@ -66,7 +67,7 @@ export default function AdminCategories() {
   const [error, setError] = useState("");
   const categories = useMemo(() => (q.data || []).filter(category => `${category.name} ${category.slug} ${category.description || ""}`.toLowerCase().includes(search.toLowerCase())), [q.data, search]);
   if (loading) return <div className="min-h-screen bg-[#08090d]" />;
-  if (user?.role !== "admin") return <div className="grid min-h-screen place-items-center bg-[#08090d] p-6 text-center text-[#f5f0e8]"><div className={`${panelClass} p-8`}><TriangleAlert className="mx-auto h-10 w-10 text-[#d4af37]" /><h1 className="mt-4 text-xl font-black">يلزم صلاحية مدير</h1><p className="mt-2 text-sm text-[#f5f0e8]/55">سجّل الدخول بحساب مدير للوصول إلى هذه الصفحة.</p></div></div>;
+  if (!authorized) return <AdminAccessGate signedIn={Boolean(user)} />;
   const closeEditor = () => { setEdit(null); setAdding(false); };
   async function deleteCategory(category: any) {
     if (!window.confirm(`حذف قسم ${category.name}؟`)) return;

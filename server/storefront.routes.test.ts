@@ -54,6 +54,22 @@ describe("public storefront routes", () => {
     }
   });
 
+  it("uses the shared server-confirmed administrator authorization gate across every administrator entrypoint", () => {
+    const dashboard = readProjectFile("client/src/pages/AdminDashboard.tsx");
+    const categories = readProjectFile("client/src/pages/AdminCategories.tsx");
+    const media = readProjectFile("client/src/pages/AdminMedia.tsx");
+    const gate = readProjectFile("client/src/components/AdminAccessGate.tsx");
+
+    for (const source of [dashboard, categories, media]) {
+      expect(source).toContain('from "@/_core/hooks/useAdminAccess"');
+      expect(source).toContain("<AdminAccessGate");
+      expect(source).not.toContain('user?.role !== "admin"');
+    }
+    expect(gate).toContain("trpc.auth.authorizeAdmin.useMutation");
+    expect(gate).toContain("type=\"password\"");
+    expect(gate).not.toContain("ADMIN_ACCESS_PASSPHRASE");
+  });
+
   it("keeps the responsive staging category-banner source set and viewport sizing metadata", () => {
     const home = readProjectFile("client/src/pages/Home.tsx");
 

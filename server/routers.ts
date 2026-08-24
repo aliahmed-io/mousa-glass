@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { ADMIN_ACCESS_COOKIE, ADMIN_ACCESS_DURATION_MS, createAdminAccessToken, hasAdminPassphraseAccess, verifyAdminPassphrase } from "./_core/adminAccess";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
@@ -93,8 +94,25 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    adminAccess: protectedProcedure.query(({ ctx }) => ({
+      authorized: ctx.user.role === "admin" || hasAdminPassphraseAccess(ctx.req, ctx.user.id),
+    })),
+    authorizeAdmin: protectedProcedure
+      .input(z.object({ passphrase: z.string().min(1).max(128) }))
+      .mutation(({ ctx, input }) => {
+        if (!verifyAdminPassphrase(input.passphrase)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Administrator authorization was rejected." });
+        }
+        const token = createAdminAccessToken(ctx.user.id);
+        ctx.res.cookie(ADMIN_ACCESS_COOKIE, token, {
+          ...getSessionCookieOptions(ctx.req),
+          maxAge: ADMIN_ACCESS_DURATION_MS,
+        });
+        return { authorized: true, expiresInSeconds: ADMIN_ACCESS_DURATION_MS / 1000 } as const;
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       ctx.res.clearCookie(COOKIE_NAME, { ...getSessionCookieOptions(ctx.req), maxAge: -1 });
+      ctx.res.clearCookie(ADMIN_ACCESS_COOKIE, { ...getSessionCookieOptions(ctx.req), maxAge: -1 });
       return { success: true } as const;
     }),
   }),

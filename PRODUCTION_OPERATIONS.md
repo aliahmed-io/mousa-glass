@@ -6,7 +6,7 @@ Mousa Glass is an Arabic RTL React storefront with a typed server API for sellin
 
 | Area | Production implementation | Administrator responsibility |
 |---|---|---|
-| Authentication | Manus OAuth session flow with server-side role checks | Use the owner account for store administration; promote any additional staff accounts deliberately. |
+| Authentication | Manus OAuth session flow with server-side role checks and an optional server-confirmed administrator passphrase session | Use the owner role or a signed-in account that has been deliberately given the managed administrator passphrase; keep the passphrase private and rotate it if exposed. |
 | Catalog | Products, categories, stock, featured flags, and product-image metadata are stored in the relational database | Keep product copy, live pricing, stock counts, and images current. |
 | Orders | Orders, line items, delivery details, payment method, proof metadata, and lifecycle status are stored in the database | Review new orders promptly and update their fulfillment status. |
 | Files | Product photos and proof screenshots are stored as object files; the database stores only file references | Remove obsolete images and never use screenshots for any purpose other than verifying the related order. |
@@ -20,7 +20,7 @@ After publishing the application, sign in with the project owner account. The ow
 
 The configured customer-confirmation contacts are **WhatsApp: 01020848619** and **InstaPay: 01060223037**. The first number opens the customer’s WhatsApp confirmation handoff after an order is placed, while the second is shown as the current InstaPay payment destination. Review these values in `/admin/settings` whenever the business contact or payment destination changes.
 
-To access administration, publish or preview the site, sign in using the project owner’s Manus account, and then visit `/admin`. The owner account receives the `admin` role automatically after its first sign-in. Other accounts remain customers until a deliberate role promotion is made.
+To access administration, publish or preview the site, sign in through Manus OAuth, and then visit `/admin`. The owner account receives the `admin` role automatically after its first sign-in. A different signed-in account can instead enter the managed administrator passphrase at the protected Arabic gate; this creates a user-bound, HTTP-only administrator session for eight hours or until logout without changing that account’s database role. Do not share the passphrase, place it in documentation, or bypass OAuth to use it.
 
 > The public catalog currently contains clearly labelled **generated staging records and imagery** for browsing and workflow validation. Staging mode blocks all customer orders. Do not disable staging or represent these records as merchant-approved merchandise. Replace them through the administrator interface only with supplier-confirmed product details and images.
 
@@ -42,7 +42,7 @@ An order is not automatically paid merely because an image was uploaded. The pay
 
 ## Security and data-handling controls
 
-All account-scoped procedures use the authenticated user ID, and administrator procedures additionally require the `admin` role. The client UI mirrors these rules for clarity, but the server-side checks are the security boundary. Object uploads are limited to images, are size-constrained by the application workflow, and product/payment files are kept outside the relational database.
+All account-scoped procedures use the authenticated user ID. Administrator procedures require either the `admin` role or a valid, signed, unexpired administrator-authorization cookie that is bound to the current OAuth user after a server-side managed-passphrase verification. The client UI mirrors these rules for clarity, but the centralized server-side procedure is the security boundary. Passphrase attempts are database-backed rate-limited, and logout clears the temporary authorization cookie. Object uploads are limited to images, are size-constrained by the application workflow, and product/payment files are kept outside the relational database.
 
 The administrator should use a separate, protected owner account for operational access. Do not share an administrator session or export customer delivery details unnecessarily. Payment screenshots, phone numbers, email addresses, and delivery addresses should be treated as sensitive business records and retained only for the operational period needed to serve the order and resolve any dispute. The configured proof-retention duration must be approved by the merchant and qualified local adviser before non-staging InstaPay orders are accepted.
 

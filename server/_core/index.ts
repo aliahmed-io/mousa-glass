@@ -52,6 +52,7 @@ async function startServer() {
   app.use("/api/trpc", createRateLimiter({ name: "trpc", windowMs: 60_000, max: 180 }));
   app.use("/api/trpc/orders.create", createSharedRateLimiter({ name: "checkout", windowMs: 15 * 60_000, max: 8 }));
   app.use("/api/trpc/orders.uploadPaymentProof", createSharedRateLimiter({ name: "proof-upload", windowMs: 15 * 60_000, max: 12 }));
+  app.use("/api/trpc/auth.authorizeAdmin", createSharedRateLimiter({ name: "admin-passphrase", windowMs: 15 * 60_000, max: 8 }));
   app.use(
     "/api/trpc",
     createExpressMiddleware({

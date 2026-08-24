@@ -1,5 +1,5 @@
 import { startLogin } from "@/const";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAdminAccess } from "@/_core/hooks/useAdminAccess";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Clock, LogIn, MapPin, Menu, MessageCircle, Phone, ShoppingCart, UserRound, X } from "lucide-react";
@@ -14,7 +14,7 @@ const LOGO = "/manus-storage/mousa-logo-128_bf907234.webp";
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
-  const { user, loading, logout } = useAuth();
+  const { user, authorized, loading, logout } = useAdminAccess();
   const { itemCount } = useCart();
   const settings = trpc.store.settings.useQuery();
   // Fail closed for initial paint: staging disclosure must reserve its space before
@@ -28,7 +28,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
     { href: "/about", label: "عن موسى" },
     { href: "/contact", label: "تواصل معنا" },
     ...(user ? [{ href: "/orders", label: "طلباتي" }] : []),
-    ...(user?.role === "admin" ? [{ href: "/admin", label: "لوحة الإدارة" }] : []),
+    ...(authorized ? [{ href: "/admin", label: "لوحة الإدارة" }] : []),
   ];
 
   return (
