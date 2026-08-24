@@ -20,8 +20,21 @@ The cache-busted published Lighthouse captures identify one unused-JavaScript re
 
 The protected snapshot at `bd9a0895` was validated by GitHub Actions run [`32681957371`](https://github.com/aliahmed-io/mousa-glass/actions/runs/32681957371). It completed frozen installation, production dependency audit, type checking, all 66 tests, and the production build. The GitHub default branch was not changed. This validation covers the evidence-only CI record, not a performance improvement.
 
+## Built-document attribution
+
+A follow-up inspection found that the local production `index.html` is 370,256 bytes raw and 105,894 bytes gzip-compressed. Its single large inline script is 259,423 characters and is injected by the template-managed `vite-plugin-manus-runtime` plugin, not by storefront source. The plugin is part of the managed project template and has no documented production-disable option in its installed interface; it provides runtime/editor functionality through an inline `manus-runtime` script.[4] [5]
+
+| Finding | Technical implication | Safe decision |
+| --- | --- | --- |
+| Large HTML payload contains a template-managed inline runtime | It plausibly contributes to document-transfer and parse cost, distinct from the application’s 36.5–37.1 KiB unused shared JavaScript finding. | Keep the runtime intact. Removing or conditionally suppressing an undocumented management/runtime component would be a speculative platform-behavior change. |
+| Debug collector is already development-only | The project’s own debug collector returns the source document unchanged in production. | No change required. |
+
+This attribution narrows the next performance investigation: a platform-supported method to reduce or externalize the managed runtime would be needed before treating the large document payload as application-remediable. It does **not** justify weakening management capabilities, CSP, or production safety controls.
+
 ## References
 
 [1]: ./published-home-51f7b42b-1787536610.json "Published Home Lighthouse capture"
 [2]: ./published-shop-51f7b42b-1787536610.json "Published Shop Lighthouse capture"
 [3]: ./shared-entry-reassessment-2026-08-24.md "Shared entry and stylesheet reassessment"
+[4]: ../vite.config.ts "Managed runtime and development-only debug collector configuration"
+[5]: ../node_modules/.pnpm/vite-plugin-manus-runtime@0.0.59/node_modules/vite-plugin-manus-runtime/dist/index.js "Installed managed runtime plugin implementation"
