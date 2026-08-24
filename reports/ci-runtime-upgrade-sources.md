@@ -10,3 +10,13 @@ The following official sources were reviewed on 24 August 2026 before updating t
 | [pnpm/action-setup README](https://github.com/pnpm/action-setup) | The maintained action-setup v6 documentation retains pnpm v10 support; its v11-only successor is not appropriate for a pnpm 10 project. | Upgrade the action pin without changing the project package-manager major version or install semantics. |
 
 The project uses GitHub-hosted runners, so the documented minimum runner versions for Node 24-capable action majors are supplied by the managed platform. The workflow will still be validated on its non-default verified snapshot branch before this is considered resolved.
+
+## Administrator authorization CI evidence
+
+The administrator passphrase path requires both a verification value and a cookie-signing value. Managed project secrets are deliberately unavailable to the GitHub-hosted runner, so the validation workflow supplies **test-only** values for `ADMIN_ACCESS_PASSPHRASE` and `JWT_SECRET`. These values exist solely inside the hosted test job, are not the project’s managed runtime credentials, and permit coverage of the signed, user-bound administrator cookie rather than weakening that check.
+
+| Snapshot branch | Commit | Hosted run | Result | Verified workflow stages |
+| --- | --- | --- | --- | --- |
+| `production-readiness-verified-4211f37` | `b6539854` | [32680175269](https://github.com/aliahmed-io/mousa-glass/actions/runs/32680175269) | Success | Install, production audit, type check, 66 tests, and production build. |
+
+The preceding two snapshot runs documented the expected missing-test-environment diagnosis: one lacked the test passphrase and one lacked the test cookie-signing secret. Neither run exposed a managed credential. The successful run confirms that the repaired workflow exercises the authorization-cookie acceptance path with isolated inputs while the GitHub default branch remains unchanged.
