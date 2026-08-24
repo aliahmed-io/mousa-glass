@@ -22,3 +22,15 @@ Source-map source-content attribution is directional rather than an emitted-byte
 ## Decision
 
 No speculative source rewrite was retained. The remaining performance work stays open for a fresh **published** measurement that distinguishes application-controlled unused JavaScript from framework/runtime weight and that separately captures managed cold-server response behavior. The prior successful responsive-image work remains intact; this reassessment neither closes the published performance gate nor changes the staging-only launch decision.
+
+## Render-blocking stylesheet boundary
+
+The same published Home audit identifies one render-blocking resource: the 20.93 kB production stylesheet. Lighthouse attributes an estimated 100 ms FCP saving and **no LCP saving** to moving it from the render path. The document head already loads Cairo through an asynchronous preload pattern with a no-script fallback, so the remaining resource is the application stylesheet that establishes the Arabic RTL layout, responsive geometry, noir/gold palette, focus states, disclosure footprint, and loading-state dimensions.
+
+| Candidate | Expected audit effect | Visual and accessibility consequence | Decision |
+| --- | --- | --- | --- |
+| Defer the production stylesheet | Approximately 100 ms FCP-only estimate; no LCP estimate | Risks an unstyled first paint, RTL reflow, layout shift, and briefly unreadable or low-contrast controls | Rejected. |
+| Inline a hand-maintained critical subset, then defer the remainder | Unmeasured; could reduce blocking | Requires maintaining a duplicate subset across public, administrator, responsive, reduced-motion, and accessibility styles; a stale subset can introduce visual or focus regressions | Deferred pending stronger published evidence. |
+| Preserve the current stylesheet render path | Retains the observed small FCP opportunity | Keeps the Arabic storefront visually stable from first paint | Retained. |
+
+This is a deliberate non-change. It does not claim to close the published render-blocking insight; it avoids trading a small FCP-only estimate for a broadly visible RTL stability regression without a measured critical-CSS implementation.
