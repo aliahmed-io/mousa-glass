@@ -1,0 +1,9 @@
+target,method,trial,http_code,time_starttransfer_seconds,time_total_seconds,size_download_bytes,content_length_bytes,outcome
+published,GET,1,200,12.482053,16.940162,371267,,completed
+published,GET,2,,,,213168,,client_timeout_after_30_seconds
+published,HEAD,1,200,15.349621,15.349773,,370192,completed
+published,HEAD,2,200,4.222487,4.222606,,370192,completed
+published,HEAD,3,200,7.436499,7.436626,,370192,completed
+local_development,GET,1,200,1.697870,1.698077,370436,,completed
+local_development,GET,2,200,0.716080,0.716322,370436,,completed
+local_development,GET,3,200,0.244252,0.244430,370436,,completed

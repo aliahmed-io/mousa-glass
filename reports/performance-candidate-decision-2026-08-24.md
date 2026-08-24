@@ -31,6 +31,12 @@ A follow-up inspection found that the local production `index.html` is 370,256 b
 
 This attribution narrows the next performance investigation: a platform-supported method to reduce or externalize the managed runtime would be needed before treating the large document payload as application-remediable. It does **not** justify weakening management capabilities, CSP, or production safety controls.
 
+### Fresh response-boundary sample
+
+Three cache-busting, header-only requests to the published root route returned the same 370,192-byte document with time-to-first-byte values of 15.35 s, 4.22 s, and 7.44 s. Because these are `HEAD` probes, body transfer was not part of the measured delay. A preceding full-document probe completed after 12.48 s to first byte and 16.94 s total; the following full-document probe exceeded the 30-second client limit after receiving only 213,168 bytes. This is a small diagnostic sample, not a Core Web Vitals measurement, but it independently reinforces that the dominant current delivery problem occurs before or at initial response rather than in the application’s post-load JavaScript.[6]
+
+For comparison only, three local development-server document probes returned in 1.70 s, 0.72 s, and 0.24 s after the fresh restart. Development timing is not production-equivalent, so this comparison is not used to assign root cause. It does support retaining the existing conservative decision: do not rewrite shared client code, rendering, or RTL CSS based on a delivery-bound symptom.
+
 ## References
 
 [1]: ./published-home-51f7b42b-1787536610.json "Published Home Lighthouse capture"
@@ -38,3 +44,4 @@ This attribution narrows the next performance investigation: a platform-supporte
 [3]: ./shared-entry-reassessment-2026-08-24.md "Shared entry and stylesheet reassessment"
 [4]: ../vite.config.ts "Managed runtime and development-only debug collector configuration"
 [5]: ../node_modules/.pnpm/vite-plugin-manus-runtime@0.0.59/node_modules/vite-plugin-manus-runtime/dist/index.js "Installed managed runtime plugin implementation"
+[6]: ./published-response-boundary-sample-2026-08-24.csv "Published and local response-boundary diagnostic sample"
