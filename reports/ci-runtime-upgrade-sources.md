@@ -18,5 +18,6 @@ The administrator passphrase path requires both a verification value and a cooki
 | Snapshot branch | Commit | Hosted run | Result | Verified workflow stages |
 | --- | --- | --- | --- | --- |
 | `production-readiness-verified-4211f37` | `b6539854` | [32680175269](https://github.com/aliahmed-io/mousa-glass/actions/runs/32680175269) | Success | Install, production audit, type check, 66 tests, and production build. |
+| `production-readiness-verified-4211f37` | `b9a5e3fe` | [32680585521](https://github.com/aliahmed-io/mousa-glass/actions/runs/32680585521) | Success | Install, production audit, type check, 66 tests, and production build after the source-map and stylesheet render-path evidence updates. |
 
-The preceding two snapshot runs documented the expected missing-test-environment diagnosis: one lacked the test passphrase and one lacked the test cookie-signing secret. Neither run exposed a managed credential. The successful run confirms that the repaired workflow exercises the authorization-cookie acceptance path with isolated inputs while the GitHub default branch remains unchanged.
+The preceding two snapshot runs documented the expected missing-test-environment diagnosis: one lacked the test passphrase and one lacked the test cookie-signing secret. Neither run exposed a managed credential. The two subsequent successful runs confirm that the repaired workflow exercises the authorization-cookie acceptance path with isolated inputs while the GitHub default branch remains unchanged.
