@@ -15,6 +15,9 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Test-only value for administrator authorization coverage; never a production credential.
+      ADMIN_ACCESS_PASSPHRASE: ci-test-only-admin-passphrase
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6

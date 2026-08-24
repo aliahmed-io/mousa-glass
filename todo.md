@@ -184,3 +184,4 @@
 - [x] Investigate the latest published `/api/healthz` response body observation: repeated HTTP/1.1, no-cache HTTP/2, and preview probes return the documented minimal JSON payload and opaque request ID; no current regression was confirmed.
 - [x] Add a server-verified, time-bounded administrator passphrase authorization path for signed-in users, backed by a managed secret and protected by regression tests; retain the existing role model and do not expose the passphrase in source or client bundles.
 - [ ] Perform a final live signed-in administrator passphrase smoke test after OAuth account selection; this remains blocked because browser takeover and account selection were explicitly declined.
+- [ ] Make administrator-passphrase regression coverage deterministic in hosted CI without exposing or depending on the managed production secret.
