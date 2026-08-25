@@ -87,7 +87,15 @@ describe("public storefront routes", () => {
     const responsiveImages = readProjectFile("client/src/lib/responsiveStagingImages.ts");
 
     expect(shop).toContain('import { responsiveStagingProductImage } from "@/lib/responsiveStagingImages"');
-    expect(shop).toContain("<img {...responsiveStagingProductImage(primaryImage(product.images))}");
+    expect(shop).toContain("function ShopCardImage");
+    expect(shop).toContain("<ShopCardImage url={primaryImage(product.images)}");
+    expect(shop).toContain('const shouldPrioritizeImage = index < 4;');
+    expect(shop).toContain('loading={prioritize ? "eager" : "lazy"}');
+    expect(shop).toContain('fetchPriority={prioritize ? "high" : "auto"}');
+    expect(shop).toContain("جارٍ تحميل صورة المنتج");
+    expect(shop).toContain('aria-busy={!isLoaded}');
+    expect(shop).toContain('onLoad={() => setStatus("loaded")}');
+    expect(shop).toContain('onError={() => setStatus("error")}');
     expect(home).toContain('import { responsiveStagingProductImage } from "@/lib/responsiveStagingImages"');
     expect(home).toContain("<img {...responsiveStagingProductImage(primaryImage(product.images))}");
     expect(responsiveImages).toContain("mousa-glass-staging-amber-vase-480_2b5a53c5.webp");

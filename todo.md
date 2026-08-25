@@ -190,3 +190,4 @@
 - [x] Expand only safely supportable staging fixtures and interfaces to exercise catalog scale, stock states, visibility, comparison-price logic, order states, and operational analytics without enabling customer ordering or promoting accounts.
 - [x] Generate and document original, rights-clear fictional product imagery for any expanded staging catalog through the existing media architecture; do not use hotlinked or unclear-rights images.
 - [x] Validate dataset consistency, staging disclosures, checkout blocking, access controls, and release checks after the staging-only expansion.
+- [x] Resolve the observed dark or empty-looking synthetic fixture media frames on staging Shop cards, without changing managed asset provenance, staging disclosures, or checkout safeguards. The Shop cards now disclose pending or failed managed-image delivery explicitly; full release validation and staging-mode verification passed.
