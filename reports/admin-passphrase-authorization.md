@@ -21,6 +21,10 @@ The centralized `adminProcedure` is the security boundary for all administrator 
 
 ## Verification record
 
-Automated verification passed on the current working tree: focused endpoint and client-gate tests, the full **66-test** suite, production dependency audit, TypeScript check, production build, and twelve staged-media integrity checks. The passphrase tests cover a valid signed-in authorization, a signed user-bound cookie, expiry metadata, rejection without cookie minting, and logout cleanup.
+Automated verification passed on the current working tree: focused endpoint and client-gate tests, the full **76-test** suite, production dependency audit, TypeScript check, production build, and twenty-two staged-media integrity checks. The passphrase tests cover a valid signed-in authorization, a signed user-bound cookie, expiry metadata, rejection without cookie minting, and logout cleanup.
 
 An interactive signed-in browser smoke test could not be completed because the browser was deliberately left at the external OAuth account-selection page and the user explicitly declined browser takeover. The repository therefore retains a separate open checklist item for live OAuth-to-passphrase confirmation. This limitation does not weaken the server-side tests or imply that an unauthenticated browser can use the passphrase.
+
+### Non-invasive published-route recheck — 25 August 2026
+
+The published `/admin` route was opened without clicking a sign-in control, entering a passphrase, selecting an account, or changing browser state. It displayed the expected Arabic gate: **"يتطلب الوصول إلى الإدارة اعتماداً"** and **"سجّل الدخول أولاً، ثم أدخل رمز الإدارة لفتح مساحة الإدارة."** This confirms that no already-authenticated administrative session was available in the connected browser at the time of the check. The live end-to-end smoke test remains open because it inherently requires OAuth account selection, which the user has explicitly declined.
