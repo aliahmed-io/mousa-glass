@@ -10,6 +10,7 @@ const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const DeliveryReturns = lazy(() => import("@/pages/DeliveryReturns"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
+const PolicyStatus = lazy(() => import("@/pages/PolicyStatus"));
 const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
 const Cart = lazy(() => import("@/pages/Cart"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
@@ -32,6 +33,7 @@ function Router() {
     <Route path="/delivery-returns" component={DeliveryReturns} />
     <Route path="/delivery&returns" component={DeliveryReturns} />
     <Route path="/faq" component={FAQ} />
+    <Route path="/policy-status" component={PolicyStatus} />
     <Route path="/products/:slug" component={ProductDetail} />
     <Route path="/cart" component={Cart} />
     <Route path="/checkout" component={Checkout} />

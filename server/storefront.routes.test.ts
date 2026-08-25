@@ -30,6 +30,20 @@ describe("public storefront routes", () => {
     expect(llms).toContain("## Public pages");
   });
 
+  it("publishes a clearly non-binding Arabic policy-status route without presenting unapproved terms", () => {
+    const app = readProjectFile("client/src/App.tsx");
+    const layout = readProjectFile("client/src/components/StoreLayout.tsx");
+    const policyStatus = readProjectFile("client/src/pages/PolicyStatus.tsx");
+
+    expect(app).toContain('path="/policy-status"');
+    expect(app).toContain('const PolicyStatus = lazy');
+    expect(layout).toContain('href="/policy-status"');
+    expect(policyStatus).toContain("هذه الصفحة توضح ما لم يُعتمد بعد");
+    expect(policyStatus).toContain("إنها ليست سياسة خصوصية أو شروط بيع أو عرضاً تعاقدياً");
+    expect(policyStatus).toContain("قيد الاعتماد");
+    expect(policyStatus).toContain("إنشاء الطلبات الحقيقية معطّل");
+  });
+
   it("does not load unused global toast or tooltip providers in the public application entry", () => {
     const app = readProjectFile("client/src/App.tsx");
     const showcase = readProjectFile("client/src/pages/ComponentShowcase.tsx");

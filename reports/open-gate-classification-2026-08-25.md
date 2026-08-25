@@ -24,3 +24,9 @@ The two top-level governance tasks are now complete: all remaining items have be
 > `isCatalogStaging` remains enabled, server-side customer order creation remains blocked, and no user role, payment destination, merchant fact, policy, or production-order setting was altered during this reassessment.
 
 The current deployment is therefore suitable only for **generated-catalog staging and engineering validation**. The complete operating sequence for the external owners remains in [`OWNER_PRODUCTION_HANDOVER.md`](../OWNER_PRODUCTION_HANDOVER.md).
+
+## Public policy-status disclosure — retained boundary
+
+The public Arabic route [`/policy-status`](../client/src/pages/PolicyStatus.tsx) now makes the legal-information gap visible without pretending to publish a legal policy. It identifies privacy/data handling, sales terms, delivery/returns, COD and InstaPay-proof handling, and contact/complaint procedure as **pending approval**. It expressly states that it is neither a privacy policy, a sale term, nor a contractual offer, and that the staging storefront cannot create real orders.
+
+This is a disclosure and navigation improvement only. It does not state a retention period, delivery promise, return rule, payment destination, complaint process, or other merchant/legal fact. Source regression coverage, desktop and mobile presentation checks, and the complete release gate passed. A read-only database query again confirmed `storeSettings.isCatalogStaging = 1`; the qualified legal-approval items remain open.
