@@ -28,3 +28,16 @@ An interactive signed-in browser smoke test could not be completed because the b
 ### Non-invasive published-route recheck — 25 August 2026
 
 The published `/admin` route was opened without clicking a sign-in control, entering a passphrase, selecting an account, or changing browser state. It displayed the expected Arabic gate: **"يتطلب الوصول إلى الإدارة اعتماداً"** and **"سجّل الدخول أولاً، ثم أدخل رمز الإدارة لفتح مساحة الإدارة."** This confirms that no already-authenticated administrative session was available in the connected browser at the time of the check. The live end-to-end smoke test remains open because it inherently requires OAuth account selection, which the user has explicitly declined.
+
+### Deployed administrator-chunk diagnosis — 25 August 2026
+
+A stateless text extractor once reported a failed dynamic import for `AdminDashboard-TmBGpQDm.js`. This was investigated before any source change was considered. The exact published asset returned `HTTP 200`, JavaScript content, non-zero bytes, and the current deployed entry bundle imported that same hash. An isolated headless-browser render of a cache-busted public `/admin` URL completed normally and displayed the expected Arabic unauthenticated gate, with no dynamic-import error.
+
+| Check | Observed result | Decision |
+| --- | --- | --- |
+| Exact published dashboard chunk | `200`, JavaScript, 51,533 bytes | Current asset is available. |
+| Current entry-bundle import | References `AdminDashboard-TmBGpQDm.js` | Asset hash matches the deployed entry. |
+| Isolated browser render | Renders the unauthenticated Arabic administrator gate | No public route-loading correction is justified. |
+| Connected authenticated-browser inspection | Browser-extension request timed out; no credential or account action was attempted | The signed-in OAuth-to-passphrase smoke test remains open. |
+
+The prior extractor-only error is therefore recorded as non-reproducible in a normal browser render, not as evidence of a production route failure. No authentication, role, passphrase, administrative data, catalog, staging, or checkout setting changed during this diagnosis.
