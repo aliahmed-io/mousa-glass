@@ -1,7 +1,7 @@
 # Project TODO
 
-- [ ] Complete every remaining application-controlled remediation autonomously while preserving staging mode and documenting any gate that depends on merchant, legal, account-authority, or managed-platform action.
-- [ ] Do not modify account roles, merchant facts, legal terms, catalog staging mode, payment behavior, or production ordering merely to close an otherwise externally dependent verification item.
+- [ ] Complete any remaining application-controlled remediation supported by fresh evidence while preserving staging mode and documenting any gate that depends on merchant, legal, account-authority, or managed-platform action. The 25 August 2026 reconciliation records that no further low-risk application patch is currently supported; the published-performance items remain open for future evidence-based reassessment.
+- [x] Do not modify account roles, merchant facts, legal terms, catalog staging mode, payment behavior, or production ordering merely to close an otherwise externally dependent verification item. This boundary was retained throughout the reconciliation.
 
 - [x] Define the low-maintenance production architecture, data model, and operational assumptions.
 - [x] Add product, category, product image, order, order item, payment proof, and store settings tables.
