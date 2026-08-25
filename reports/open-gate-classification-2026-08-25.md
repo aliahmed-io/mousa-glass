@@ -32,3 +32,9 @@ The public Arabic route [`/policy-status`](../client/src/pages/PolicyStatus.tsx)
 This is a disclosure and navigation improvement only. It does not state a retention period, delivery promise, return rule, payment destination, complaint process, or other merchant/legal fact. Source regression coverage, desktop and mobile presentation checks, and the complete release gate passed. A read-only database query again confirmed `storeSettings.isCatalogStaging = 1`; the qualified legal-approval items remain open.
 
 The published route was rechecked after deployment at `https://mousaglass-393f3nnk.manus.space/policy-status`. It displays the staging-only notice and every pending topic without a final legal or commercial assertion. This verifies deployed presentation only; it is not evidence of legal approval and does not close checklist items 106, 113, or 114.
+
+## Staging-disclosure wording correction — retained boundary
+
+The shared public staging notice now distinguishes the configured enquiry channel from the information that is not approved for real commerce. It says that the displayed contact method is available for enquiries only, while prices, stock, payment, delivery, tax, returns, and legal terms await store-management approval. It still states that real orders cannot be completed.
+
+This correction does not certify the contact channel as an approved merchant/legal fact, provide payment instructions, or alter the checkout safeguard. Type checking, the focused storefront suite, desktop and mobile rendering checks, and the full release gate passed. The release check again verified all 22 documented managed staging-media resources, and a read-only database query confirmed `isCatalogStaging = 1` with no payment-proof retention term set.

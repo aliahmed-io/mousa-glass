@@ -176,4 +176,13 @@ describe("public storefront routes", () => {
     expect(layout).toContain('isCatalogStaging ? "" : "invisible"');
     expect(layout).toContain('aria-live={isCatalogStaging ? "polite" : undefined}');
   });
+
+  it("distinguishes the configured enquiry channel from unapproved staging catalog and policy facts", () => {
+    const layout = readProjectFile("client/src/components/StoreLayout.tsx");
+
+    expect(layout).toContain("وسيلة التواصل المعروضة متاحة للاستفسار فقط");
+    expect(layout).toContain("تفاصيل الأسعار والمخزون والدفع والتوصيل والضرائب والاستبدال والشروط القانونية فتنتظر اعتماد إدارة المتجر");
+    expect(layout).toContain("لا يمكن إتمام طلبات حقيقية");
+    expect(layout).not.toContain("المخزون وبيانات التواصل والدفع");
+  });
 });
