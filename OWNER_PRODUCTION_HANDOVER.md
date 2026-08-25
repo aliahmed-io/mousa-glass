@@ -159,7 +159,7 @@ Only after Sections 3–6 are complete and with deliberate authorization, run a 
 
 ## 8. Finish the remaining performance and release-quality work
 
-Published accessibility is strong and responsive image-delivery work is verified, but the current published performance gate is still open. Recent cache-busting diagnostics measured variable first-byte response times before body transfer and no longer support speculative client, CSS, server-rendering, or managed-runtime rewrites.[4] [5]
+Published accessibility is strong and responsive image-delivery work is verified, but the current published performance gate is still open. The latest cache-busted Home/Shop sample, captured after the public policy-status route deployment, measured 5,338 ms / 4,534 ms LCP with effectively unchanged framework-dominated shared-entry unused code. Together with earlier response-boundary diagnostics, this does not support speculative client, CSS, server-rendering, or managed-runtime rewrites.[4] [5] [6]
 
 ### 8.1 Set an approved performance target
 
@@ -211,6 +211,7 @@ The following repository records are the source of truth for technical detail an
 | `reports/admin-passphrase-authorization.md` | Temporary administrator authorization model and the remaining live OAuth smoke-test boundary. |
 | `reports/independent-monitoring-authority-assessment-2026-08-24.md` | Why monitoring must be owned and have an approved alert/escalation path. |
 | `reports/performance-candidate-decision-2026-08-24.md` and `reports/published-response-boundary-sample-2026-08-24.csv` | Measured performance constraints and raw response-boundary observations. |
+| `reports/published-performance-cb75f6b8-2026-08-25.md` | The two cache-busted published Lighthouse evidence samples, including the post-policy-route recheck and retained no-change decision. |
 | `reports/ci-runtime-upgrade-sources.md` | Hosted CI evidence for the protected non-default validation snapshot. |
 
 ## References
@@ -220,3 +221,4 @@ The following repository records are the source of truth for technical detail an
 [3]: ./PRODUCTION_OPERATIONS.md "Mousa Glass Production Operations Guide"  
 [4]: ./reports/performance-candidate-decision-2026-08-24.md "Performance candidate decision"  
 [5]: ./reports/published-response-boundary-sample-2026-08-24.csv "Published and local response-boundary diagnostic sample"
+[6]: ./reports/published-performance-cb75f6b8-2026-08-25.md "Published performance reassessment"
