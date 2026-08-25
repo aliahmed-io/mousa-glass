@@ -11,10 +11,12 @@ import {
   createCategory,
   createCheckoutOrder,
   createProduct,
+  createProductVariant,
   deletePaymentProof,
   deleteCategory,
   deleteProduct,
   deleteProductImage,
+  deleteProductVariant,
   getAdminProducts,
   getAllOrders,
   getCategories,
@@ -29,6 +31,7 @@ import {
   updateCategory,
   updateOrder,
   updateProduct,
+  updateProductVariant,
   updateStoreSettings,
 } from "./db";
 import { storagePut } from "./storage";
@@ -46,12 +49,35 @@ const catalogQuery = z.object({
 const productInput = z.object({
   name: z.string().trim().min(2).max(200),
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words separated by hyphens.").max(220),
+  sku: z.string().trim().max(80).nullable().optional(),
   description: z.string().trim().max(10000).nullable().optional(),
+  referenceDescriptionEn: z.string().trim().max(10000).nullable().optional(),
   categoryId: z.number().int().positive().nullable().optional(),
   priceAmount: z.number().int().min(0).max(100000000),
+  compareAtAmount: z.number().int().min(0).max(100000000).nullable().optional(),
   stock: z.number().int().min(0).max(1000000),
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
+}).superRefine((input, ctx) => {
+  if (input.compareAtAmount !== null && input.compareAtAmount !== undefined && input.compareAtAmount <= input.priceAmount) {
+    ctx.addIssue({ code: "custom", path: ["compareAtAmount"], message: "Comparison price must be higher than the selling price." });
+  }
+});
+
+const variantInput = z.object({
+  productId: z.number().int().positive(),
+  label: z.string().trim().min(1).max(120),
+  referenceLabelEn: z.string().trim().max(120).nullable().optional(),
+  sku: z.string().trim().min(2).max(100),
+  priceAmount: z.number().int().min(0).max(100000000),
+  compareAtAmount: z.number().int().min(0).max(100000000).nullable().optional(),
+  stock: z.number().int().min(0).max(1000000),
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().int().min(0).max(10000).default(0),
+}).superRefine((input, ctx) => {
+  if (input.compareAtAmount !== null && input.compareAtAmount !== undefined && input.compareAtAmount <= input.priceAmount) {
+    ctx.addIssue({ code: "custom", path: ["compareAtAmount"], message: "Comparison price must be higher than the selling price." });
+  }
 });
 
 const orderStatus = z.enum(["pending", "confirmed", "shipped", "delivered", "cancelled"]);
@@ -159,6 +185,21 @@ export const appRouter = router({
       }
       return { success: true };
     }),
+    createVariant: adminProcedure.input(variantInput).mutation(async ({ input }) => ({ id: await createProductVariant(input) })),
+    updateVariant: adminProcedure.input(variantInput.partial().extend({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+      const { id, productId: _productId, ...changes } = input;
+      if (!Object.keys(changes).length) throw new TRPCError({ code: "BAD_REQUEST", message: "No variant changes were supplied." });
+      await updateProductVariant(id, changes);
+      return { success: true };
+    }),
+    deleteVariant: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+      try {
+        await deleteProductVariant(input.id);
+      } catch (error) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: error instanceof Error ? error.message : "Variant deletion was rejected." });
+      }
+      return { success: true };
+    }),
     uploadImage: adminProcedure
       .input(z.object({ productId: z.number().int().positive(), fileName: z.string().trim().min(1).max(255), imageData: imageDataSchema, altText: z.string().trim().max(255).nullable().optional(), sortOrder: z.number().int().min(0).max(100).default(0) }))
       .mutation(async ({ input }) => {
@@ -184,7 +225,7 @@ export const appRouter = router({
         shippingAddress: z.string().trim().min(8).max(2000),
         notes: z.string().trim().max(1500).nullable().optional(),
         paymentMethod: z.enum(["cash_on_delivery", "instapay"]),
-        items: z.array(z.object({ productId: z.number().int().positive(), quantity: z.number().int().min(1).max(99) })).min(1).max(50),
+        items: z.array(z.object({ productId: z.number().int().positive(), variantId: z.number().int().positive().nullable().optional(), quantity: z.number().int().min(1).max(99) })).min(1).max(50),
         idempotencyKey: z.string().uuid(),
       }))
       .mutation(async ({ ctx, input }) => {

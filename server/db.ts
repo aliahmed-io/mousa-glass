@@ -21,6 +21,7 @@ import {
   orders,
   paymentProofs,
   productImages,
+  productVariants,
   products,
   sharedRateLimitBuckets,
   storeSettings,
@@ -124,31 +125,43 @@ export async function getUserByOpenId(openId: string) {
 
 type ImageRow = typeof productImages.$inferSelect;
 type ProductRow = typeof products.$inferSelect;
+type VariantRow = typeof productVariants.$inferSelect;
 export type CatalogProduct = ProductRow & {
   category: Pick<Category, "id" | "name" | "slug"> | null;
   images: ImageRow[];
+  variants: VariantRow[];
 };
 
-async function enrichProducts(rows: ProductRow[]): Promise<CatalogProduct[]> {
+async function enrichProducts(rows: ProductRow[], includeInactiveVariants = false): Promise<CatalogProduct[]> {
   const db = await getDb();
   if (!db || rows.length === 0) return [];
   const productIds = rows.map(row => row.id);
   const categoryIds = Array.from(new Set(rows.map(row => row.categoryId).filter((id): id is number => id !== null)));
-  const [imageRows, categoryRows] = await Promise.all([
+  const [imageRows, categoryRows, variantRows] = await Promise.all([
     db.select().from(productImages).where(inArray(productImages.productId, productIds)).orderBy(asc(productImages.sortOrder)),
     categoryIds.length
       ? db.select({ id: categories.id, name: categories.name, slug: categories.slug }).from(categories).where(inArray(categories.id, categoryIds))
       : Promise.resolve([]),
+    db.select().from(productVariants)
+      .where(includeInactiveVariants
+        ? inArray(productVariants.productId, productIds)
+        : and(inArray(productVariants.productId, productIds), eq(productVariants.isActive, true)))
+      .orderBy(asc(productVariants.sortOrder), asc(productVariants.id)),
   ]);
   const imagesByProduct = new Map<number, ImageRow[]>();
   for (const image of imageRows) {
     imagesByProduct.set(image.productId, [...(imagesByProduct.get(image.productId) ?? []), image]);
   }
   const categoryById = new Map(categoryRows.map(category => [category.id, category]));
+  const variantsByProduct = new Map<number, VariantRow[]>();
+  for (const variant of variantRows) {
+    variantsByProduct.set(variant.productId, [...(variantsByProduct.get(variant.productId) ?? []), variant]);
+  }
   return rows.map(product => ({
     ...product,
     category: product.categoryId ? categoryById.get(product.categoryId) ?? null : null,
     images: imagesByProduct.get(product.id) ?? [],
+    variants: variantsByProduct.get(product.id) ?? [],
   }));
 }
 
@@ -251,18 +264,22 @@ export async function getProductById(id: number, includeInactive = false) {
 export async function getAdminProducts() {
   const db = await getDb();
   if (!db) return [];
-  return enrichProducts(await db.select().from(products).orderBy(desc(products.updatedAt)));
+  return enrichProducts(await db.select().from(products).orderBy(desc(products.updatedAt)), true);
 }
 
 export async function createProduct(input: {
   name: string;
   slug: string;
   description?: string | null;
+  referenceDescriptionEn?: string | null;
   categoryId?: number | null;
+  sku?: string | null;
   priceAmount: number;
+  compareAtAmount?: number | null;
   stock: number;
   isActive: boolean;
   isFeatured: boolean;
+  isStagingFixture?: boolean;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -274,15 +291,52 @@ export async function updateProduct(id: number, input: Partial<{
   name: string;
   slug: string;
   description: string | null;
+  referenceDescriptionEn: string | null;
   categoryId: number | null;
+  sku: string | null;
   priceAmount: number;
+  compareAtAmount: number | null;
   stock: number;
   isActive: boolean;
   isFeatured: boolean;
+  isStagingFixture: boolean;
 }>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(products).set(input).where(eq(products.id, id));
+}
+
+export type ProductVariantInput = {
+  productId: number;
+  label: string;
+  referenceLabelEn?: string | null;
+  sku: string;
+  priceAmount: number;
+  compareAtAmount?: number | null;
+  stock: number;
+  isActive: boolean;
+  sortOrder: number;
+};
+
+export async function createProductVariant(input: ProductVariantInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(productVariants).values(input);
+  return Number((result as unknown as [{ insertId: number }])[0]?.insertId);
+}
+
+export async function updateProductVariant(id: number, input: Partial<Omit<ProductVariantInput, "productId">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(productVariants).set(input).where(eq(productVariants.id, id));
+}
+
+export async function deleteProductVariant(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const referenced = await db.select({ id: orderItems.id }).from(orderItems).where(eq(orderItems.variantId, id)).limit(1);
+  if (referenced.length) throw new Error("Variants referenced by order history cannot be deleted. Archive the variant instead.");
+  await db.delete(productVariants).where(eq(productVariants.id, id));
 }
 
 export function assertProductCanBeDeleted(orderReferenceCount: number) {
@@ -321,7 +375,7 @@ export async function deletePaymentProof(id: number) {
   await db.delete(paymentProofs).where(eq(paymentProofs.id, id));
 }
 
-type CheckoutLine = { productId: number; quantity: number };
+type CheckoutLine = { productId: number; variantId?: number | null; quantity: number };
 type CheckoutInput = {
   userId: number;
   customerName: string;
@@ -343,7 +397,7 @@ function fingerprintCheckout(input: CheckoutInput) {
       shippingAddress: input.shippingAddress,
       notes: input.notes ?? null,
       paymentMethod: input.paymentMethod,
-      items: [...input.items].sort((left, right) => left.productId - right.productId || left.quantity - right.quantity),
+      items: [...input.items].sort((left, right) => left.productId - right.productId || (left.variantId ?? 0) - (right.variantId ?? 0) || left.quantity - right.quantity),
     }))
     .digest("hex");
 }
@@ -366,14 +420,20 @@ export async function createCheckoutOrder(input: CheckoutInput) {
     return await db.transaction(async tx => {
     const settings = (await tx.select().from(storeSettings).where(eq(storeSettings.id, 1)).limit(1))[0];
     const shippingAmount = settings?.shippingFeeAmount ?? 0;
-    const stagedItems: Array<{ product: ProductRow; quantity: number; imageUrl: string | null }> = [];
+    const stagedItems: Array<{ product: ProductRow; variant: VariantRow | null; quantity: number; imageUrl: string | null }> = [];
     let subtotalAmount = 0;
     for (const line of input.items) {
       const product = (await tx.select().from(products).where(and(eq(products.id, line.productId), eq(products.isActive, true))).limit(1))[0];
       if (!product || product.stock < line.quantity) throw new Error("One or more products are unavailable in the requested quantity.");
+      const variant = line.variantId
+        ? (await tx.select().from(productVariants).where(and(eq(productVariants.id, line.variantId), eq(productVariants.productId, product.id), eq(productVariants.isActive, true))).limit(1))[0] ?? null
+        : null;
+      if (line.variantId && (!variant || variant.stock < line.quantity)) {
+        throw new Error("One or more product variants are unavailable in the requested quantity.");
+      }
       const primaryImage = (await tx.select({ url: productImages.url }).from(productImages).where(eq(productImages.productId, product.id)).orderBy(asc(productImages.sortOrder)).limit(1))[0];
-      stagedItems.push({ product, quantity: line.quantity, imageUrl: primaryImage?.url ?? null });
-      subtotalAmount += product.priceAmount * line.quantity;
+      stagedItems.push({ product, variant, quantity: line.quantity, imageUrl: primaryImage?.url ?? null });
+      subtotalAmount += (variant?.priceAmount ?? product.priceAmount) * line.quantity;
     }
 
     const orderNumber = `MG-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -398,12 +458,19 @@ export async function createCheckoutOrder(input: CheckoutInput) {
       const stockUpdate = await tx.update(products).set({ stock: sql`${products.stock} - ${item.quantity}` }).where(and(eq(products.id, item.product.id), gte(products.stock, item.quantity)));
       const affected = Number((stockUpdate as unknown as [{ affectedRows: number }])[0]?.affectedRows ?? 0);
       if (affected !== 1) throw new Error("Stock changed while placing the order. Please try again.");
+      if (item.variant) {
+        const variantStockUpdate = await tx.update(productVariants).set({ stock: sql`${productVariants.stock} - ${item.quantity}` }).where(and(eq(productVariants.id, item.variant.id), gte(productVariants.stock, item.quantity)));
+        const variantAffected = Number((variantStockUpdate as unknown as [{ affectedRows: number }])[0]?.affectedRows ?? 0);
+        if (variantAffected !== 1) throw new Error("Variant stock changed while placing the order. Please try again.");
+      }
       await tx.insert(orderItems).values({
         orderId,
         productId: item.product.id,
+        variantId: item.variant?.id ?? null,
         productName: item.product.name,
+        variantLabel: item.variant?.label ?? null,
         imageUrl: item.imageUrl,
-        unitPriceAmount: item.product.priceAmount,
+        unitPriceAmount: item.variant?.priceAmount ?? item.product.priceAmount,
         quantity: item.quantity,
       });
     }
@@ -583,6 +650,9 @@ export async function updateOrder(input: { id: number; status?: OrderStatus; pay
       const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, input.id));
       for (const item of items) {
         await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
+        if (item.variantId) {
+          await tx.update(productVariants).set({ stock: sql`${productVariants.stock} + ${item.quantity}` }).where(eq(productVariants.id, item.variantId));
+        }
       }
     }
   });

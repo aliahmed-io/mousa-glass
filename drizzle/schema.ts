@@ -48,18 +48,47 @@ export const products = mysqlTable(
     categoryId: int("categoryId").references(() => categories.id, { onDelete: "set null" }),
     name: varchar("name", { length: 200 }).notNull(),
     slug: varchar("slug", { length: 220 }).notNull(),
+    sku: varchar("sku", { length: 80 }),
     description: text("description"),
+    referenceDescriptionEn: text("referenceDescriptionEn"),
     priceAmount: int("priceAmount").notNull(),
+    compareAtAmount: int("compareAtAmount"),
     stock: int("stock").default(0).notNull(),
     isActive: boolean("isActive").default(true).notNull(),
     isFeatured: boolean("isFeatured").default(false).notNull(),
+    isStagingFixture: boolean("isStagingFixture").default(false).notNull(),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   },
   table => [
     uniqueIndex("products_slug_unique").on(table.slug),
+    uniqueIndex("products_sku_unique").on(table.sku),
     index("products_category_idx").on(table.categoryId),
     index("products_catalog_idx").on(table.isActive, table.isFeatured),
+  ],
+);
+
+/** Variants provide a separate SKU, price, and stock bucket without changing the parent product identity. */
+export const productVariants = mysqlTable(
+  "productVariants",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    productId: int("productId").notNull().references(() => products.id, { onDelete: "cascade" }),
+    label: varchar("label", { length: 120 }).notNull(),
+    referenceLabelEn: varchar("referenceLabelEn", { length: 120 }),
+    sku: varchar("sku", { length: 100 }).notNull(),
+    priceAmount: int("priceAmount").notNull(),
+    compareAtAmount: int("compareAtAmount"),
+    stock: int("stock").default(0).notNull(),
+    isActive: boolean("isActive").default(true).notNull(),
+    sortOrder: int("sortOrder").default(0).notNull(),
+    isStagingFixture: boolean("isStagingFixture").default(false).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("product_variants_sku_unique").on(table.sku),
+    index("product_variants_product_idx").on(table.productId, table.isActive, table.sortOrder),
   ],
 );
 
@@ -88,6 +117,7 @@ export const orders = mysqlTable(
   {
     id: int("id").autoincrement().primaryKey(),
     orderNumber: varchar("orderNumber", { length: 32 }).notNull(),
+    isStagingFixture: boolean("isStagingFixture").default(false).notNull(),
     userId: int("userId").references(() => users.id, { onDelete: "set null" }),
     customerName: varchar("customerName", { length: 160 }).notNull(),
     customerPhone: varchar("customerPhone", { length: 40 }).notNull(),
@@ -121,7 +151,9 @@ export const orderItems = mysqlTable(
     id: int("id").autoincrement().primaryKey(),
     orderId: int("orderId").notNull().references(() => orders.id, { onDelete: "cascade" }),
     productId: int("productId").notNull().references(() => products.id, { onDelete: "restrict" }),
+    variantId: int("variantId").references(() => productVariants.id, { onDelete: "restrict" }),
     productName: varchar("productName", { length: 200 }).notNull(),
+    variantLabel: varchar("variantLabel", { length: 120 }),
     imageUrl: varchar("imageUrl", { length: 1000 }),
     unitPriceAmount: int("unitPriceAmount").notNull(),
     quantity: int("quantity").notNull(),
@@ -184,6 +216,7 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Category = typeof categories.$inferSelect;
 export type Product = typeof products.$inferSelect;
+export type ProductVariant = typeof productVariants.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type PaymentProof = typeof paymentProofs.$inferSelect;

@@ -41,24 +41,41 @@ import { Link, useLocation } from "wouter";
 type ProductForm = {
   name: string;
   slug: string;
+  sku: string;
   description: string;
+  referenceDescriptionEn: string;
   categoryId: string;
   price: string;
+  compareAtPrice: string;
   stock: string;
   isActive: boolean;
   isFeatured: boolean;
 };
 
+type VariantForm = {
+  label: string;
+  referenceLabelEn: string;
+  sku: string;
+  price: string;
+  compareAtPrice: string;
+  stock: string;
+};
+
 const blankProduct: ProductForm = {
   name: "",
   slug: "",
+  sku: "",
   description: "",
+  referenceDescriptionEn: "",
   categoryId: "",
   price: "",
+  compareAtPrice: "",
   stock: "0",
   isActive: true,
   isFeatured: false,
 };
+
+const blankVariant: VariantForm = { label: "", referenceLabelEn: "", sku: "", price: "", compareAtPrice: "", stock: "0" };
 
 const allowedOrderStatusOptions: Record<string, string[]> = {
   pending: ["pending", "confirmed", "cancelled"],
@@ -99,12 +116,14 @@ function DashboardLoading() {
 
 function Overview() {
   const q = trpc.admin.dashboard.useQuery(undefined, { refetchInterval: 30000 });
+  const settings = trpc.store.settings.useQuery();
   if (q.isLoading) return <DashboardLoading />;
   const data = q.data;
   const totalStatusCount = data?.statusBreakdown.reduce((sum, item) => sum + item.count, 0) || 0;
   const statusRows = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
   return <div className="space-y-7">
-    <PageHeader eyebrow="مركز تشغيل المتجر" title="نظرة عامة" description="كل ما يحتاجه فريق موسى لمتابعة المبيعات، المخزون، الدفع، والتوصيل من شاشة واحدة." actions={<><Link href="/admin/products"><Button className="rounded-xl bg-gold-gradient font-black text-black"><PackagePlus className="ml-2 h-4 w-4" />إضافة منتج</Button></Link><Link href="/admin/orders"><Button variant="outline" className="rounded-xl border-[#d4af37]/30 text-[#d4af37]"><ReceiptText className="ml-2 h-4 w-4" />مراجعة الطلبات</Button></Link></>} />
+    <PageHeader eyebrow="مركز تشغيل المتجر" title="نظرة عامة" description={settings.data?.isCatalogStaging ? "مؤشرات كتالوج وسجلات تشغيل مولّدة للاختبار فقط؛ لا تمثل مبيعات أو عملاء أو مدفوعات حقيقية." : "كل ما يحتاجه فريق موسى لمتابعة المبيعات، المخزون، الدفع، والتوصيل من شاشة واحدة."} actions={<><Link href="/admin/products"><Button className="rounded-xl bg-gold-gradient font-black text-black"><PackagePlus className="ml-2 h-4 w-4" />إضافة منتج</Button></Link><Link href="/admin/orders"><Button variant="outline" className="rounded-xl border-[#d4af37]/30 text-[#d4af37]"><ReceiptText className="ml-2 h-4 w-4" />مراجعة الطلبات</Button></Link></>} />
+    {settings.data?.isCatalogStaging && <div className="flex items-start gap-3 rounded-xl border border-amber-400/25 bg-amber-400/10 p-4 text-sm leading-7 text-amber-100"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" /><p><strong>وضع تجريبي:</strong> الأرقام والطلبات المعروضة أدناه بيانات QA مولّدة. لا توجد طلبات عملاء أو مبيعات أو عمليات دفع حقيقية، ولا تزال عملية إنشاء الطلبات محظورة من الخادم.</p></div>}
     {q.isError && <div className="flex items-center gap-3 rounded-xl border border-rose-400/25 bg-rose-400/5 p-4 text-sm text-rose-200"><AlertTriangle className="h-5 w-5" />تعذر تحميل الإحصائيات. اضغط تحديث وحاول مرة أخرى.<Button variant="ghost" className="mr-auto text-rose-200" onClick={() => void q.refetch()}><RefreshCw className="h-4 w-4" /></Button></div>}
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><StatCard icon={CircleDollarSign} label="صافي المبيعات" value={formatMoney(data?.revenueAmount || 0)} hint="بعد استبعاد الطلبات الملغاة" accent="gold" /><StatCard icon={ShoppingBag} label="إجمالي الطلبات" value={data?.totalOrders || 0} hint={`${data?.pendingOrders || 0} طلب يحتاج متابعة الآن`} accent="blue" /><StatCard icon={WalletCards} label="مدفوعات تحتاج مراجعة" value={data?.awaitingPayments || 0} hint="إثبات InstaPay أو انتظار التحويل" accent="rose" /><StatCard icon={Package} label="منتجات منخفضة المخزون" value={data?.lowStockCount || 0} hint={`${data?.activeProducts || 0} منتج ظاهر في المتجر`} accent={data?.lowStockCount ? "rose" : "green"} /></div>
     <div className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]"><section className={`${panelClass} p-5`}><div className="flex items-center justify-between"><div><h2 className="font-black">حالة الطلبات</h2><p className="mt-1 text-xs text-[#f5f0e8]/40">توزيع الطلبات الحالية حسب مرحلة التنفيذ</p></div><Link href="/admin/orders" className="text-xs font-bold text-[#d4af37]">فتح الطلبات <ChevronLeft className="inline h-3 w-3" /></Link></div><div className="mt-6 space-y-4">{statusRows.map(status => { const count = data?.statusBreakdown.find(item => item.status === status)?.count || 0; const width = totalStatusCount ? Math.max((count / totalStatusCount) * 100, count ? 4 : 0) : 0; return <div key={status}><div className="mb-2 flex items-center justify-between text-sm"><span className="font-bold">{statusLabel(status)}</span><span className="text-[#f5f0e8]/50">{count}</span></div><div className="h-2 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-gold-gradient transition-all" style={{ width: `${width}%` }} /></div></div>; })}</div></section><section className={`${panelClass} p-5`}><div className="flex items-center justify-between"><div><h2 className="font-black">مؤشرات الكتالوج</h2><p className="mt-1 text-xs text-[#f5f0e8]/40">صحة المنتجات والأقسام الحالية</p></div><Link href="/admin/products" className="text-xs font-bold text-[#d4af37]">إدارة المنتجات <ChevronLeft className="inline h-3 w-3" /></Link></div><div className="mt-6 grid grid-cols-2 gap-3"><div className="rounded-xl bg-black/25 p-4"><Layers3 className="h-4 w-4 text-[#d4af37]" /><p className="mt-3 text-2xl font-black">{data?.productsCount || 0}</p><p className="mt-1 text-xs text-[#f5f0e8]/45">كل المنتجات</p></div><div className="rounded-xl bg-black/25 p-4"><Tags className="h-4 w-4 text-[#d4af37]" /><p className="mt-3 text-2xl font-black">{data?.categoriesCount || 0}</p><p className="mt-1 text-xs text-[#f5f0e8]/45">الأقسام</p></div><div className="rounded-xl bg-black/25 p-4"><Eye className="h-4 w-4 text-emerald-300" /><p className="mt-3 text-2xl font-black">{data?.activeProducts || 0}</p><p className="mt-1 text-xs text-[#f5f0e8]/45">ظاهر للعميل</p></div><div className="rounded-xl bg-black/25 p-4"><AlertTriangle className="h-4 w-4 text-rose-300" /><p className="mt-3 text-2xl font-black">{data?.lowStockCount || 0}</p><p className="mt-1 text-xs text-[#f5f0e8]/45">يحتاج إعادة طلب</p></div></div></section></div>
@@ -117,7 +136,43 @@ function readSlug(name: string) {
   return value || `product-${Date.now()}`;
 }
 
-function ProductFormPanel({ editing, done }: { editing?: any; done: () => void }) {
+function VariantManager({ product, onChanged }: { product: any; onChanged: () => void }) {
+  const [form, setForm] = useState<VariantForm>(blankVariant);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [error, setError] = useState("");
+  const create = trpc.products.createVariant.useMutation();
+  const update = trpc.products.updateVariant.useMutation();
+  const remove = trpc.products.deleteVariant.useMutation();
+  const variants = product.variants || [];
+  const busy = create.isPending || update.isPending || remove.isPending;
+  const set = <K extends keyof VariantForm>(key: K, value: VariantForm[K]) => setForm(current => ({ ...current, [key]: value }));
+  const reset = () => { setForm(blankVariant); setEditingId(null); setError(""); };
+  useEffect(() => reset(), [product.id]);
+  function edit(variant: any) {
+    setEditingId(variant.id);
+    setForm({ label: variant.label, referenceLabelEn: variant.referenceLabelEn || "", sku: variant.sku, price: String(variant.priceAmount / 100), compareAtPrice: variant.compareAtAmount ? String(variant.compareAtAmount / 100) : "", stock: String(variant.stock) });
+    setError("");
+  }
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const price = Number(form.price); const compareAt = form.compareAtPrice.trim() ? Number(form.compareAtPrice) : null; const stock = Number(form.stock);
+    if (!form.label.trim() || form.sku.trim().length < 2 || !Number.isFinite(price) || price < 0 || (compareAt !== null && (!Number.isFinite(compareAt) || compareAt < price)) || !Number.isInteger(stock) || stock < 0) return setError("تحقق من الاسم والرمز والسعر وسعر المقارنة والمخزون.");
+    const payload = { label: form.label.trim(), referenceLabelEn: form.referenceLabelEn.trim() || null, sku: form.sku.trim(), priceAmount: Math.round(price * 100), compareAtAmount: compareAt === null ? null : Math.round(compareAt * 100), stock };
+    try {
+      if (editingId) await update.mutateAsync({ id: editingId, ...payload });
+      else await create.mutateAsync({ productId: product.id, ...payload });
+      onChanged(); reset();
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "تعذر حفظ التكوين."); }
+  }
+  async function deleteVariant(variant: any) {
+    if (!window.confirm(`حذف التكوين «${variant.label}»؟ لا يمكن حذف تكوين مستخدم في سجل طلبات.`)) return;
+    try { await remove.mutateAsync({ id: variant.id }); onChanged(); if (editingId === variant.id) reset(); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "تعذر حذف التكوين."); }
+  }
+  return <section className={`${panelClass} mt-5 p-5`}><div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-black">التكوينات والمقاسات</h2><p className="mt-1 text-xs leading-6 text-[#f5f0e8]/45">لكل تكوين رمز وسعر ومخزون مستقل. لا تحذف تكوينًا مرتبطًا بسجل طلبات.</p></div><span className="rounded-full bg-[#d4af37]/10 px-3 py-1 text-xs font-bold text-[#d4af37]">{variants.length} تكوين</span></div>{variants.length > 0 && <div className="mt-4 overflow-x-auto rounded-xl border border-[#d4af37]/10"><table className="w-full min-w-[560px] text-right text-xs"><thead className="bg-black/35 text-[#d4af37]/75"><tr><th className="p-3">التكوين</th><th className="p-3">SKU</th><th className="p-3">السعر</th><th className="p-3">المخزون</th><th className="p-3">إجراءات</th></tr></thead><tbody>{variants.map((variant: any) => <tr key={variant.id} className="border-t border-[#d4af37]/10"><td className="p-3 font-bold">{variant.label}</td><td dir="ltr" className="p-3 text-right text-[#f5f0e8]/55">{variant.sku}</td><td className="p-3 text-[#d4af37]">{formatMoney(variant.priceAmount)}</td><td className="p-3">{variant.stock}</td><td className="p-3"><div className="flex gap-2"><Button type="button" size="sm" variant="outline" className="h-8 rounded-lg border-[#d4af37]/30 px-2 text-[#d4af37]" onClick={() => edit(variant)} aria-label={`تعديل ${variant.label}`}><Pencil className="h-3.5 w-3.5" /></Button><Button type="button" size="sm" variant="ghost" className="h-8 rounded-lg px-2 text-rose-200 hover:bg-rose-400/10" disabled={busy} onClick={() => void deleteVariant(variant)} aria-label={`حذف ${variant.label}`}><Trash2 className="h-3.5 w-3.5" /></Button></div></td></tr>)}</tbody></table></div>}<form onSubmit={event => void submit(event)} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"><label className="text-xs font-bold">اسم التكوين<Input required className={fieldClass} value={form.label} onChange={event => set("label", event.target.value)} placeholder="أسود مطفي / زجاج 10 مم" /></label><label className="text-xs font-bold">SKU التكوين<Input required dir="ltr" className={`${fieldClass} text-left`} value={form.sku} onChange={event => set("sku", event.target.value)} placeholder="GLS-001-BK" /></label><label className="text-xs font-bold">السعر بالجنيه<Input required type="number" min="0" step="0.01" className={fieldClass} value={form.price} onChange={event => set("price", event.target.value)} /></label><label className="text-xs font-bold">سعر المقارنة<Input type="number" min="0" step="0.01" className={fieldClass} value={form.compareAtPrice} onChange={event => set("compareAtPrice", event.target.value)} /></label><label className="text-xs font-bold">المخزون<Input required type="number" min="0" step="1" className={fieldClass} value={form.stock} onChange={event => set("stock", event.target.value)} /></label><label className="text-xs font-bold sm:col-span-2 lg:col-span-3">مرجع داخلي بالإنجليزية <span className="font-normal text-[#f5f0e8]/40">(اختياري)</span><Input dir="ltr" className={`${fieldClass} text-left`} value={form.referenceLabelEn} onChange={event => set("referenceLabelEn", event.target.value)} placeholder="Internal option reference" /></label>{error && <p className="sm:col-span-2 lg:col-span-3 rounded-xl border border-rose-400/20 bg-rose-400/5 p-3 text-xs text-rose-200">{error}</p>}<div className="flex gap-2 sm:col-span-2 lg:col-span-3"><Button type="submit" disabled={busy} className="rounded-xl bg-gold-gradient text-xs font-black text-black">{busy ? "جارٍ الحفظ…" : editingId ? "حفظ التكوين" : "إضافة تكوين"}</Button>{editingId && <Button type="button" variant="outline" className="rounded-xl border-[#d4af37]/30 text-xs text-[#d4af37]" onClick={reset}>إلغاء</Button>}</div></form></section>;
+}
+
+function ProductBaseFormPanel({ editing, done }: { editing?: any; done: () => void }) {
   const [form, setForm] = useState<ProductForm>(blankProduct);
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState("");
@@ -126,22 +181,29 @@ function ProductFormPanel({ editing, done }: { editing?: any; done: () => void }
   const create = trpc.products.create.useMutation();
   const update = trpc.products.update.useMutation();
   const upload = trpc.products.uploadImage.useMutation();
-  useEffect(() => { setForm(editing ? { name: editing.name, slug: editing.slug, description: editing.description || "", categoryId: editing.categoryId ? String(editing.categoryId) : "", price: String(editing.priceAmount / 100), stock: String(editing.stock), isActive: editing.isActive, isFeatured: editing.isFeatured } : blankProduct); setFiles([]); setError(""); }, [editing]);
+  useEffect(() => { setForm(editing ? { name: editing.name, slug: editing.slug, sku: editing.sku || "", description: editing.description || "", referenceDescriptionEn: editing.referenceDescriptionEn || "", categoryId: editing.categoryId ? String(editing.categoryId) : "", price: String(editing.priceAmount / 100), compareAtPrice: editing.compareAtAmount ? String(editing.compareAtAmount / 100) : "", stock: String(editing.stock), isActive: editing.isActive, isFeatured: editing.isFeatured } : blankProduct); setFiles([]); setError(""); }, [editing]);
   const set = <K extends keyof ProductForm>(key: K, value: ProductForm[K]) => setForm(value => ({ ...value, [key]: value }));
   async function submit(event: FormEvent) {
     event.preventDefault(); setError("");
     if (!form.name.trim()) return setError("اكتب اسم المنتج أولاً.");
-    const numericPrice = Number(form.price); const numericStock = Number(form.stock);
-    if (!Number.isFinite(numericPrice) || numericPrice < 0 || !Number.isInteger(numericStock) || numericStock < 0) return setError("تحقق من السعر والمخزون.");
+    const numericPrice = Number(form.price); const numericCompareAt = form.compareAtPrice.trim() ? Number(form.compareAtPrice) : null; const numericStock = Number(form.stock);
+    if (!Number.isFinite(numericPrice) || numericPrice < 0 || (numericCompareAt !== null && (!Number.isFinite(numericCompareAt) || numericCompareAt < numericPrice)) || !Number.isInteger(numericStock) || numericStock < 0) return setError("تحقق من السعر وسعر المقارنة والمخزون.");
     try {
-      const payload = { name: form.name.trim(), slug: form.slug.trim() || readSlug(form.name), description: form.description.trim() || null, categoryId: form.categoryId ? Number(form.categoryId) : null, priceAmount: Math.round(numericPrice * 100), stock: numericStock, isActive: form.isActive, isFeatured: form.isFeatured };
+      const payload = { name: form.name.trim(), slug: form.slug.trim() || readSlug(form.name), sku: form.sku.trim() || null, description: form.description.trim() || null, referenceDescriptionEn: form.referenceDescriptionEn.trim() || null, categoryId: form.categoryId ? Number(form.categoryId) : null, priceAmount: Math.round(numericPrice * 100), compareAtAmount: numericCompareAt === null ? null : Math.round(numericCompareAt * 100), stock: numericStock, isActive: form.isActive, isFeatured: form.isFeatured };
       const id = editing ? (await update.mutateAsync({ id: editing.id, ...payload }), editing.id) : (await create.mutateAsync(payload)).id;
       for (const file of files) { const reader = new FileReader(); const data = await new Promise<string>((resolve, reject) => { reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(file); }); await upload.mutateAsync({ productId: id, fileName: file.name, imageData: data }); }
       await utils.products.adminList.invalidate(); done();
     } catch (caught) { setError(caught instanceof Error ? caught.message : "تعذر حفظ المنتج. حاول مرة أخرى."); }
   }
   const pending = create.isPending || update.isPending || upload.isPending;
-  return <form onSubmit={event => void submit(event)} className={`${panelClass} mt-6 p-5 sm:p-6`}><div className="flex items-start justify-between gap-4"><div><h2 className="font-black">{editing ? "تعديل بيانات المنتج" : "إضافة منتج جديد"}</h2><p className="mt-1 text-xs text-[#f5f0e8]/45">أكمل البيانات الأساسية ثم أضف الصور من نفس النموذج.</p></div><button type="button" onClick={done} className="text-[#f5f0e8]/50 hover:text-[#d4af37]" aria-label="إغلاق"><X className="h-5 w-5" /></button></div><div className="mt-6 grid gap-4 sm:grid-cols-2"><label className="text-sm font-bold sm:col-span-2">اسم المنتج<Input required className={fieldClass} value={form.name} onChange={event => { set("name", event.target.value); if (!editing && !form.slug) set("slug", readSlug(event.target.value)); }} placeholder="مثال: مفصلة زجاج ثقيلة" /></label><label className="text-sm font-bold">الرابط المختصر <span className="font-normal text-[#f5f0e8]/40">(اختياري)</span><Input dir="ltr" className={`${fieldClass} text-left`} value={form.slug} onChange={event => set("slug", event.target.value)} placeholder="glass-hinge" /></label><label className="text-sm font-bold">القسم<select className={fieldClass} value={form.categoryId} onChange={event => set("categoryId", event.target.value)}><option value="">بدون قسم</option>{categories.data?.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label className="text-sm font-bold">السعر بالجنيه المصري<Input required type="number" min="0" step="0.01" className={fieldClass} value={form.price} onChange={event => set("price", event.target.value)} placeholder="0.00" /></label><label className="text-sm font-bold">المخزون<Input required type="number" min="0" step="1" className={fieldClass} value={form.stock} onChange={event => set("stock", event.target.value)} /></label><label className="text-sm font-bold sm:col-span-2">الوصف التفصيلي<Textarea className={`${fieldClass} min-h-28`} value={form.description} onChange={event => set("description", event.target.value)} placeholder="اكتب المواصفات، الخامة، المقاس، والاستخدام…" /></label><label className="text-sm font-bold sm:col-span-2"><span className="flex items-center gap-2"><ImagePlus className="h-4 w-4 text-[#d4af37]" />صور المنتج <span className="font-normal text-[#f5f0e8]/40">(يمكن اختيار أكثر من صورة)</span></span><Input type="file" multiple accept="image/png,image/jpeg,image/webp" className={fieldClass} onChange={event => setFiles(Array.from(event.target.files || []))} />{files.length > 0 && <p className="mt-2 text-xs text-[#d4af37]">تم اختيار {files.length} صورة للإضافة.</p>}</label><label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d4af37]/15 bg-black/20 p-3 text-sm"><input type="checkbox" checked={form.isActive} onChange={event => set("isActive", event.target.checked)} />ظاهر في المتجر</label><label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d4af37]/15 bg-black/20 p-3 text-sm"><input type="checkbox" checked={form.isFeatured} onChange={event => set("isFeatured", event.target.checked)} />منتج مميز</label></div>{error && <p className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/5 p-3 text-sm text-rose-200">{error}</p>}<div className="mt-6 flex flex-wrap gap-3"><Button type="submit" disabled={pending} className="rounded-xl bg-gold-gradient font-black text-black">{pending ? "جارٍ الحفظ…" : editing ? "حفظ التعديلات" : "إضافة المنتج"}</Button><Button type="button" variant="outline" className="rounded-xl border-[#d4af37]/30 text-[#d4af37]" onClick={done}>إلغاء</Button></div></form>;
+  return <form onSubmit={event => void submit(event)} className={`${panelClass} mt-6 p-5 sm:p-6`}><div className="flex items-start justify-between gap-4"><div><h2 className="font-black">{editing ? "تعديل بيانات المنتج" : "إضافة منتج جديد"}</h2><p className="mt-1 text-xs text-[#f5f0e8]/45">أكمل البيانات الأساسية ثم أضف الصور من نفس النموذج.</p></div><button type="button" onClick={done} className="text-[#f5f0e8]/50 hover:text-[#d4af37]" aria-label="إغلاق"><X className="h-5 w-5" /></button></div><div className="mt-6 grid gap-4 sm:grid-cols-2"><label className="text-sm font-bold sm:col-span-2">اسم المنتج<Input required className={fieldClass} value={form.name} onChange={event => { set("name", event.target.value); if (!editing && !form.slug) set("slug", readSlug(event.target.value)); }} placeholder="مثال: مفصلة زجاج ثقيلة" /></label><label className="text-sm font-bold">الرابط المختصر <span className="font-normal text-[#f5f0e8]/40">(اختياري)</span><Input dir="ltr" className={`${fieldClass} text-left`} value={form.slug} onChange={event => set("slug", event.target.value)} placeholder="glass-hinge" /></label><label className="text-sm font-bold">رمز المنتج SKU <span className="font-normal text-[#f5f0e8]/40">(اختياري)</span><Input dir="ltr" className={`${fieldClass} text-left`} value={form.sku} onChange={event => set("sku", event.target.value)} placeholder="GLS-001" /></label><label className="text-sm font-bold">القسم<select className={fieldClass} value={form.categoryId} onChange={event => set("categoryId", event.target.value)}><option value="">بدون قسم</option>{categories.data?.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label className="text-sm font-bold">السعر بالجنيه المصري<Input required type="number" min="0" step="0.01" className={fieldClass} value={form.price} onChange={event => set("price", event.target.value)} placeholder="0.00" /></label><label className="text-sm font-bold">سعر المقارنة <span className="font-normal text-[#f5f0e8]/40">(اختياري)</span><Input type="number" min="0" step="0.01" className={fieldClass} value={form.compareAtPrice} onChange={event => set("compareAtPrice", event.target.value)} placeholder="يجب أن يكون أعلى من السعر" /></label><label className="text-sm font-bold">المخزون<Input required type="number" min="0" step="1" className={fieldClass} value={form.stock} onChange={event => set("stock", event.target.value)} /></label><label className="text-sm font-bold sm:col-span-2">الوصف التفصيلي<Textarea className={`${fieldClass} min-h-28`} value={form.description} onChange={event => set("description", event.target.value)} placeholder="اكتب المواصفات، الخامة، المقاس، والاستخدام…" /></label><label className="text-sm font-bold sm:col-span-2">مرجع داخلي بالإنجليزية <span className="font-normal text-[#f5f0e8]/40">(اختياري، لا يظهر للعميل)</span><Textarea dir="ltr" className={`${fieldClass} min-h-20 text-left`} value={form.referenceDescriptionEn} onChange={event => set("referenceDescriptionEn", event.target.value)} placeholder="Internal merchandising or supplier reference" /></label><label className="text-sm font-bold sm:col-span-2"><span className="flex items-center gap-2"><ImagePlus className="h-4 w-4 text-[#d4af37]" />صور المنتج <span className="font-normal text-[#f5f0e8]/40">(يمكن اختيار أكثر من صورة)</span></span><Input type="file" multiple accept="image/png,image/jpeg,image/webp" className={fieldClass} onChange={event => setFiles(Array.from(event.target.files || []))} />{files.length > 0 && <p className="mt-2 text-xs text-[#d4af37]">تم اختيار {files.length} صورة للإضافة.</p>}</label><label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d4af37]/15 bg-black/20 p-3 text-sm"><input type="checkbox" checked={form.isActive} onChange={event => set("isActive", event.target.checked)} />ظاهر في المتجر</label><label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d4af37]/15 bg-black/20 p-3 text-sm"><input type="checkbox" checked={form.isFeatured} onChange={event => set("isFeatured", event.target.checked)} />منتج مميز</label></div>{error && <p className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/5 p-3 text-sm text-rose-200">{error}</p>}<div className="mt-6 flex flex-wrap gap-3"><Button type="submit" disabled={pending} className="rounded-xl bg-gold-gradient font-black text-black">{pending ? "جارٍ الحفظ…" : editing ? "حفظ التعديلات" : "إضافة المنتج"}</Button><Button type="button" variant="outline" className="rounded-xl border-[#d4af37]/30 text-[#d4af37]" onClick={done}>إلغاء</Button></div></form>;
+}
+
+function ProductFormPanel({ editing, done }: { editing?: any; done: () => void }) {
+  const utils = trpc.useUtils();
+  const catalog = trpc.products.adminList.useQuery(undefined, { enabled: Boolean(editing) });
+  const currentProduct = editing ? catalog.data?.find(product => product.id === editing.id) ?? editing : undefined;
+  return <><ProductBaseFormPanel editing={editing} done={done} />{currentProduct ? <VariantManager product={currentProduct} onChanged={() => { void utils.products.adminList.invalidate(); }} /> : <div className={`${panelClass} mt-5 p-4 text-sm leading-7 text-[#f5f0e8]/50`}>احفظ المنتج أولاً ثم افتح «تعديل» لإضافة تكوينات أو مقاسات برموز وأسعار ومخزون مستقل.</div>}</>;
 }
 
 function Products() {

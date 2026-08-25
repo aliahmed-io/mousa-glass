@@ -107,6 +107,36 @@ describe("public storefront routes", () => {
     expect(shop).toContain('<main id="main-content" role="main"');
   });
 
+  it("requires explicit selection for variant-bearing products and keeps comparison prices transparent", () => {
+    const shop = readProjectFile("client/src/pages/Shop.tsx");
+    const detail = readProjectFile("client/src/pages/ProductDetail.tsx");
+    const dashboard = readProjectFile("client/src/pages/AdminDashboard.tsx");
+
+    expect(shop).toContain("const hasVariants = product.variants.some");
+    expect(shop).toContain("اختر التكوين");
+    expect(shop).toContain("product.compareAtAmount");
+    expect(detail).toContain("variantId");
+    expect(dashboard).toContain("رمز المنتج SKU");
+    expect(dashboard).toContain("سعر المقارنة");
+    expect(dashboard).toContain("function VariantManager");
+    expect(dashboard).toContain("trpc.products.createVariant.useMutation");
+    expect(dashboard).toContain("trpc.products.updateVariant.useMutation");
+    expect(dashboard).toContain("trpc.products.deleteVariant.useMutation");
+    expect(dashboard).toContain("لا يمكن حذف تكوين مستخدم في سجل طلبات");
+    expect(dashboard).toContain("بيانات QA مولّدة");
+    expect(dashboard).toContain("لا تمثل مبيعات أو عملاء أو مدفوعات حقيقية");
+  });
+
+  it("keeps synthetic fixture seeding staging-guarded and clearly marked as non-customer data", () => {
+    const seed = readProjectFile("scripts/seed-staging-fixtures.mjs");
+
+    expect(seed).toContain('ALLOW_STAGING_FIXTURE_SEED=true');
+    expect(seed).toContain("Refusing to seed fixtures because catalog staging is not enabled.");
+    expect(seed).toContain("عميل اختبار داخلي — لا يمثل عميلاً");
+    expect(seed).toContain("customer ordering remains blocked by store settings");
+    expect(seed).toContain("mousa-staging-pivot-hinge-960_a720bd2c.webp");
+  });
+
   it("keeps development and production SPA fallbacks compatible with Express 5", () => {
     const viteServer = readProjectFile("server/_core/vite.ts");
 

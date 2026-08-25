@@ -14,6 +14,16 @@ const assets = [
   ["طقم أكواب بحافة كهرمانية — مصدر بطاقة متجاوب 480px", "/manus-storage/mousa-glass-staging-amber-glassware-480_0fabe6c3.webp"],
   ["طقم أكواب بحافة كهرمانية — مصدر بطاقة متجاوب 720px", "/manus-storage/mousa-glass-staging-amber-glassware-720_441c281f.webp"],
   ["طقم أكواب بحافة كهرمانية — مصدر بطاقة متجاوب 800px", "/manus-storage/mousa-glass-staging-amber-glassware-800_1dd3b6d6.webp"],
+  ["مفصلة Pivot ستانلس 180° — أصل صورة fixture", "/manus-storage/mousa-staging-pivot-hinge-960_a720bd2c.webp"],
+  ["جلدة مانعة لتسرب باب الشاور — أصل صورة fixture", "/manus-storage/mousa-staging-shower-seal-960_c44931f4.webp"],
+  ["مشبك زجاج أسود مطفي — أصل صورة fixture", "/manus-storage/mousa-staging-glass-clamp-960_edf2c9ae.webp"],
+  ["دليل أرضي شامبين — أصل صورة fixture", "/manus-storage/mousa-staging-floor-guide-960_d187b195.webp"],
+  ["طقم مشابك مرايا نحاسية — أصل صورة fixture", "/manus-storage/mousa-staging-mirror-clip-960_073fce64.webp"],
+  ["وصلة Patch ستانلس — أصل صورة fixture", "/manus-storage/mousa-staging-patch-fitting-960_d0b4966c.webp"],
+  ["بكرة باب زجاج منزلق — أصل صورة fixture", "/manus-storage/mousa-staging-sliding-roller-960_be865525.webp"],
+  ["قناة U سوداء للزجاج — أصل صورة fixture", "/manus-storage/mousa-staging-u-channel-960_0b6cfcad.webp"],
+  ["مقبض باب زجاج نحاسي — أصل صورة fixture", "/manus-storage/mousa-staging-pull-handle-960_b543fb3c.webp"],
+  ["موصل زاوية زجاج 90° — أصل صورة fixture", "/manus-storage/mousa-staging-corner-connector-960_3c10ce6c.webp"],
 ];
 
 function isJpeg(bytes) {

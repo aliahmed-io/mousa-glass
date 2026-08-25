@@ -155,7 +155,7 @@
 - [x] Expand automated tests for abuse controls, idempotency, order transitions, stock restoration, private storage, and failure paths.
 - [ ] Perform an authenticated real-business end-to-end test after catalog setup for COD and InstaPay proof workflows, including owner/admin handoff.
 - [ ] Complete the final launch-gate review and maintain an explicit go/no-go record before enabling unrestricted customer ordering.
-- [ ] Generate original, rights-clear product imagery for a clearly labelled staging catalog that matches the Arabic Mousa Glass visual identity.
+- [x] Generate original, rights-clear product imagery for a clearly labelled staging catalog that matches the Arabic Mousa Glass visual identity.
 - [x] Seed realistic Arabic glass-accessory categories, product descriptions, prices, stock, and product-media records for browsing and workflow validation.
 - [x] Clearly disclose generated/seed catalog status in the administration workflow and storefront until merchant-approved commercial data replaces it.
 - [x] Keep business-specific contact, payment, delivery, tax, and legal terms visibly pending where merchant approval is required.
@@ -186,3 +186,7 @@
 - [ ] Perform a final live signed-in administrator passphrase smoke test after OAuth account selection; this remains blocked because browser takeover and account selection were explicitly declined.
 - [x] Make administrator-passphrase regression coverage deterministic in hosted CI without exposing or depending on the managed production secret; protected snapshot run `32680175269` passed with isolated test-only passphrase and cookie-signing values.
 - [x] Create a clear owner handover Markdown document that maps every remaining production gate to required actions, accountable party, evidence, and safe sequencing.
+- [x] Audit the existing model and define a coherent, clearly disclosed staging-only QA dataset for catalog, inventory, orders, analytics, and administrative workflows; exclude fabricated customer reviews, ratings, testimonials, and real business/legal claims.
+- [x] Expand only safely supportable staging fixtures and interfaces to exercise catalog scale, stock states, visibility, comparison-price logic, order states, and operational analytics without enabling customer ordering or promoting accounts.
+- [x] Generate and document original, rights-clear fictional product imagery for any expanded staging catalog through the existing media architecture; do not use hotlinked or unclear-rights images.
+- [x] Validate dataset consistency, staging disclosures, checkout blocking, access controls, and release checks after the staging-only expansion.

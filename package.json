@@ -11,6 +11,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "release:check": "pnpm audit --prod --json && pnpm check && pnpm test && pnpm build && node scripts/verify-staging-assets.mjs",
+    "seed:staging-fixtures": "ALLOW_STAGING_FIXTURE_SEED=true node scripts/seed-staging-fixtures.mjs",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {
