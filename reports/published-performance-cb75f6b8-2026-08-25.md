@@ -30,6 +30,24 @@ The fresh findings reproduce the same narrow opportunity set already documented:
 
 The Shop media-presentation correction remains in place, but its staging-only metadata, managed provenance, and server-side order block are unchanged. Read-only database verification at checkpoint `cb75f6b8` confirmed `storeSettings.isCatalogStaging = 1`; customer checkout remains blocked. No merchant facts, legal content, payment destination, account role, or external monitoring authority was created or changed.
 
+## Post-policy-route recheck — checkpoint `a6a53fd3`
+
+A second Lighthouse 13.4.1 cache-busted sample was captured after the Arabic `/policy-status` route was deployed. This route is registered as a public-route chunk, and the fresh inspection does not show a separate policy-route resource in either Home or Shop. The same 103,192-byte shared entry is the only unused-JavaScript row in both routes.
+
+| Metric | Home baseline | Home recheck | Shop baseline | Shop recheck |
+| --- | ---: | ---: | ---: | ---: |
+| Performance score | 67 | 63 | 73 | 67 |
+| FCP | 3,344 ms | 3,645 ms | 3,026 ms | 3,331 ms |
+| LCP | 4,779 ms | 5,338 ms | 4,227 ms | 4,534 ms |
+| TBT | 99 ms | 132 ms | 137 ms | 174 ms |
+| CLS | 0.000 | 0.000 | 0.0024 | 0.0024 |
+| Initial document response | 1,854 ms | 1,109 ms | 673 ms | 690 ms |
+| Unused shared-entry JavaScript | 37,232 bytes | 37,259 bytes | 36,395 bytes | 36,462 bytes |
+
+The one-run recheck is diagnostic evidence, not a statistically valid regression claim. It preserves the existing pattern: response time varies materially between samples, while the framework-dominated shared entry remains effectively unchanged (a 27-byte Home and 67-byte Shop difference). The new sample contains no render-blocking-resource item and no isolated application asset that can be removed without sacrificing a required public route, shared Arabic RTL styling, staging disclosure, cart/navigation behavior, or accessibility.
+
+> **Decision:** retain no performance-source change. The external performance acceptance and the two published-performance checklist items remain open. The page addition is not treated as proof of a release regression, and no speculative bundle, stylesheet, or rendering rewrite is justified by this sample.
+
 ## References
 
 [1]: ./performance-candidate-decision-2026-08-24.md "Prior measured performance candidate decision"
