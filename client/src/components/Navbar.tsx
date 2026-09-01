@@ -6,9 +6,10 @@
  */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, MapPin, Clock, Menu, X, ShoppingCart, Store } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Phone, MapPin, Clock, Menu, X, ShoppingCart, ShieldCheck, LayoutDashboard } from "lucide-react";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const NAV_LINKS = [
   { label: "الرئيسية", href: "/" },
@@ -31,6 +32,8 @@ function CartBadge() {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = isAuthenticated && user?.role === "admin";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -77,14 +80,14 @@ export default function Navbar() {
       >
         <div className="container flex items-center justify-between">
           {/* Logo - using actual brand logo */}
-          <a href="#home" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-3 group">
             <img
               src="/images/pasted_file_nStI0h_WhatsAppImage2026-08-01at8.25.58PM_d193407d.jpeg"
               alt="موسى"
               className="w-10 h-10 rounded-full object-cover ring-2 ring-[#D4AF37]/40 group-hover:ring-[#D4AF37]/70 transition-all duration-300"
             />
             <span className="text-gold-gradient font-black text-2xl tracking-tight">موسى</span>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-10">
@@ -100,9 +103,19 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA */}
+          {/* CTA & Admin Link */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link href="/shop" className="text-[#D4AF37] hover:text-[#F5F0E8] transition-colors relative">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/40 bg-gold/10 text-gold hover:bg-gold hover:text-black font-semibold text-xs transition-all duration-300 shadow-sm shadow-gold/20"
+              >
+                <ShieldCheck size={15} />
+                <span>لوحة الإدارة</span>
+              </Link>
+            )}
+
+            <Link href="/cart" className="text-[#D4AF37] hover:text-[#F5F0E8] transition-colors relative p-1.5">
               <ShoppingCart size={20} />
               <CartBadge />
             </Link>
@@ -135,6 +148,17 @@ export default function Navbar() {
               style={{ background: "rgba(10,10,10,0.98)", backdropFilter: "blur(20px)" }}
             >
               <div className="container py-6 flex flex-col gap-4">
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 p-3 rounded-lg bg-gold/10 border border-gold/30 text-gold font-bold text-base"
+                  >
+                    <LayoutDashboard size={18} />
+                    <span>لوحة التحكم الإدارية</span>
+                  </Link>
+                )}
+
                 {NAV_LINKS.map((link, i) => (
                   <motion.a
                     key={link.href}
@@ -148,6 +172,19 @@ export default function Navbar() {
                     {link.label}
                   </motion.a>
                 ))}
+
+                <Link
+                  href="/cart"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-between text-[#F5F0E8]/80 hover:text-[#D4AF37] py-2 border-b border-[#D4AF37]/10"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShoppingCart size={18} />
+                    سلة المشتريات
+                  </span>
+                  <CartBadge />
+                </Link>
+
                 <a
                   href="tel:01020848619"
                   className="mt-4 px-6 py-3 rounded-full bg-gold-gradient text-black font-bold text-center text-sm"
@@ -162,3 +199,4 @@ export default function Navbar() {
     </>
   );
 }
+

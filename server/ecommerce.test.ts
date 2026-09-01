@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
-type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
-
 function createAdminContext(): TrpcContext {
   return {
     user: {
@@ -13,6 +11,32 @@ function createAdminContext(): TrpcContext {
       name: "Admin User",
       loginMethod: "manus",
       role: "admin",
+      phone: "01020848619",
+      address: "القاهرة الجديدة",
+      city: "القاهرة",
+      notes: "إدارة",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    },
+    req: { protocol: "https", headers: {} } as TrpcContext["req"],
+    res: { clearCookie: () => {} } as TrpcContext["res"],
+  };
+}
+
+function createUserContext(): TrpcContext {
+  return {
+    user: {
+      id: 2,
+      openId: "regular-user",
+      email: "customer@example.com",
+      name: "محمد العميل",
+      loginMethod: "manus",
+      role: "user",
+      phone: "01099998888",
+      address: "مدينة نصر، القاهرة",
+      city: "القاهرة",
+      notes: "يرجى الاتصال قبل الوصول",
       createdAt: new Date(),
       updatedAt: new Date(),
       lastSignedIn: new Date(),
@@ -24,22 +48,52 @@ function createAdminContext(): TrpcContext {
 
 function createGuestContext(): TrpcContext {
   return {
-    user: undefined,
+    user: null,
     req: { protocol: "https", headers: {} } as TrpcContext["req"],
     res: { clearCookie: () => {} } as TrpcContext["res"],
   };
 }
 
-describe("categories.list", () => {
-  it("returns categories for public users", async () => {
+describe("categories router", () => {
+  it("returns categories list for public users", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
     const result = await caller.categories.list();
     expect(Array.isArray(result)).toBe(true);
   });
+
+  it("returns categories with product counts", async () => {
+    const ctx = createGuestContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.categories.listWithCount();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("allows admin to create a category", async () => {
+    const ctx = createAdminContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.categories.create({
+      name: "Glass Accessories",
+      nameAr: "اكسسوارات زجاج",
+      description: "فئة تجريبية",
+      icon: "Sparkles",
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it("denies regular user from creating category", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.categories.create({
+        name: "Test",
+        nameAr: "تجربة",
+      })
+    ).rejects.toThrow();
+  });
 });
 
-describe("products.list", () => {
+describe("products router", () => {
   it("returns products with pagination for public users", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
@@ -66,9 +120,7 @@ describe("products.list", () => {
       expect(result.products[0].price).toBeLessThanOrEqual(result.products[1].price);
     }
   });
-});
 
-describe("products.featured", () => {
   it("returns featured products", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
@@ -77,17 +129,15 @@ describe("products.featured", () => {
   });
 });
 
-describe("cart.get (guest)", () => {
+describe("cart router", () => {
   it("returns an array for guests", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
     const result = await caller.cart.get();
     expect(Array.isArray(result)).toBe(true);
   });
-});
 
-describe("cart.add (guest)", () => {
-  it("allows guests to add items to cart", async () => {
+  it("allows adding items to cart", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
     const result = await caller.cart.add({ productId: 1, quantity: 2 });
@@ -95,88 +145,119 @@ describe("cart.add (guest)", () => {
   });
 });
 
-describe("orders.create (guest)", () => {
-  it("allows guests to create orders", async () => {
+describe("orders router & payment methods", () => {
+  it("creates order with Cash on Delivery (COD)", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
-    // First add a product to cart
-    await caller.cart.add({ productId: 1, quantity: 1 });
-    const cartItems = await caller.cart.get();
-    
-    // Get product details for the order items
-    const products = await caller.products.list({ page: 1, limit: 1 });
-    const firstProduct = products.products[0];
-    
-    if (firstProduct && cartItems.length > 0) {
-      const orderItems = [{
-        productId: firstProduct.id,
-        quantity: 1,
-        name: firstProduct.name,
-        nameAr: firstProduct.nameAr,
-        price: firstProduct.price,
-        image: firstProduct.image,
-      }];
-      
-      const result = await caller.orders.create({
-        items: orderItems,
-        total: firstProduct.price,
-        shippingFee: 30,
-        customerName: "محمد أحمد",
-        customerPhone: "01020848619",
-        customerEmail: "test@example.com",
-        shippingAddress: "القاهرة، مصر",
-        city: "القاهرة",
-        notes: "",
-      });
-      expect(result).toHaveProperty("success");
-      expect(result.success).toBe(true);
-    } else {
-      // Skip if no products available
-      expect(true).toBe(true);
-    }
+
+    const orderItems = [{
+      productId: 1,
+      quantity: 2,
+      name: "Glass Handle",
+      nameAr: "مقبض باب زجاجي",
+      price: 450,
+      image: "/images/glass-door-product_113bd9cd.jpg",
+    }];
+
+    const result = await caller.orders.create({
+      items: orderItems,
+      total: 900,
+      shippingFee: 50,
+      paymentMethod: "cash",
+      customerName: "أحمد علي",
+      customerPhone: "01020848619",
+      customerEmail: "ahmed@example.com",
+      shippingAddress: "المعادي، القاهرة",
+      city: "القاهرة",
+      notes: "التسليم عصراً",
+    });
+
+    expect(result).toHaveProperty("success", true);
+    expect(result).toHaveProperty("orderId");
+  });
+
+  it("creates order with InstaPay payment method", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const orderItems = [{
+      productId: 2,
+      quantity: 1,
+      name: "Shower Hinge",
+      nameAr: "مفصلة دوش",
+      price: 280,
+      image: "/images/glass-shower_83a35009.jpg",
+    }];
+
+    const result = await caller.orders.create({
+      items: orderItems,
+      total: 330,
+      shippingFee: 50,
+      paymentMethod: "instapay",
+      customerName: "محمد العميل",
+      customerPhone: "01099998888",
+      shippingAddress: "مدينة نصر، القاهرة",
+      city: "القاهرة",
+      notes: "الدفع عبر انستاباي مع المندوب",
+    });
+
+    expect(result).toHaveProperty("success", true);
   });
 });
 
-describe("reviews.create (guest)", () => {
-  it("allows guests to create reviews", async () => {
+describe("reviews router", () => {
+  it("allows users to submit reviews", async () => {
     const ctx = createGuestContext();
     const caller = appRouter.createCaller(ctx);
     const result = await caller.reviews.create({
       productId: 1,
       rating: 5,
-      comment: "منتج ممتاز!",
-      reviewerName: "محمد أحمد",
+      comment: "جودة ممتازة وسرعة في التوصيل",
+      customerName: "م. إبراهيم",
     });
-    expect(result).toHaveProperty("success");
-    expect(result.success).toBe(true);
+    expect(result).toEqual({ success: true });
+  });
+
+  it("allows admin to moderate and approve reviews", async () => {
+    const ctx = createAdminContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.reviews.approve({ id: 1, isApproved: true });
+    expect(result).toEqual({ success: true });
   });
 });
 
-describe("admin access control", () => {
-  it("denies non-admin users from accessing admin routes", async () => {
-    const ctx: TrpcContext = {
-      user: {
-        id: 2,
-        openId: "regular-user",
-        email: "user@example.com",
-        name: "Regular User",
-        loginMethod: "manus",
-        role: "user",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastSignedIn: new Date(),
-      },
-      req: { protocol: "https", headers: {} } as TrpcContext["req"],
-      res: { clearCookie: () => {} } as TrpcContext["res"],
-    };
+describe("admin dashboard & stats", () => {
+  it("denies non-admin users from accessing dashboard stats", async () => {
+    const ctx = createUserContext();
     const caller = appRouter.createCaller(ctx);
-    await expect(caller.products.all()).rejects.toThrow();
+    await expect(caller.admin.stats()).rejects.toThrow();
   });
 
-  it("allows admin users to access admin routes", async () => {
+  it("allows admin users to get comprehensive stats", async () => {
     const ctx = createAdminContext();
     const caller = appRouter.createCaller(ctx);
-    const result = await caller.products.all();
-    expect(Array.isArray(result)).toBe(true);
+    const stats = await caller.admin.stats();
+    expect(stats).toHaveProperty("products");
+    expect(stats).toHaveProperty("orders");
+    expect(stats).toHaveProperty("pendingOrders");
+    expect(stats).toHaveProperty("lowStock");
+    expect(stats).toHaveProperty("outOfStock");
+    expect(stats).toHaveProperty("reviews");
+    expect(stats).toHaveProperty("unapprovedReviews");
+    expect(stats).toHaveProperty("revenue");
+  });
+});
+
+describe("auth router profile update", () => {
+  it("allows logged-in users to update their profile info", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.auth.updateProfile({
+      phone: "01011112222",
+      address: "التجمع الخامس، القاهرة",
+      city: "القاهرة",
+      notes: "بجوار المسجد",
+    });
+    expect(result).toEqual({ success: true });
   });
 });

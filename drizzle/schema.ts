@@ -1,6 +1,6 @@
 import {
   int, mysqlEnum, mysqlTable, text, timestamp, varchar,
-  double, boolean
+  double, boolean, index
 } from "drizzle-orm/mysql-core";
 
 /**
@@ -13,6 +13,10 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  phone: varchar("phone", { length: 50 }),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -38,7 +42,7 @@ export const categories = mysqlTable("categories", {
 export type Category = typeof categories.$inferSelect;
 
 /**
- * Products table
+ * Products table with query performance indexes
  */
 export const products = mysqlTable("products", {
   id: int("id").autoincrement().primaryKey(),
@@ -59,7 +63,13 @@ export const products = mysqlTable("products", {
   isFeatured: boolean("isFeatured").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  index("products_category_idx").on(table.categoryId),
+  index("products_featured_idx").on(table.isFeatured),
+  index("products_active_idx").on(table.isActive),
+  index("products_price_idx").on(table.price),
+  index("products_sku_idx").on(table.sku),
+]);
 
 export type Product = typeof products.$inferSelect;
 
@@ -70,6 +80,7 @@ export const orders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   status: mysqlEnum("status", ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]).default("pending").notNull(),
+  paymentMethod: varchar("paymentMethod", { length: 50 }).default("cash").notNull(),
   total: double("total").notNull(),
   shippingFee: double("shippingFee").default(0).notNull(),
   customerName: varchar("customerName", { length: 200 }).notNull(),
@@ -81,7 +92,10 @@ export const orders = mysqlTable("orders", {
   stripePaymentId: varchar("stripePaymentId", { length: 200 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  index("orders_user_idx").on(table.userId),
+  index("orders_status_idx").on(table.status),
+]);
 
 export type Order = typeof orders.$inferSelect;
 
@@ -98,7 +112,10 @@ export const orderItems = mysqlTable("orderItems", {
   quantity: int("quantity").notNull(),
   image: varchar("image", { length: 500 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+  index("order_items_order_idx").on(table.orderId),
+  index("order_items_product_idx").on(table.productId),
+]);
 
 export type OrderItem = typeof orderItems.$inferSelect;
 
@@ -115,7 +132,10 @@ export const reviews = mysqlTable("reviews", {
   isApproved: boolean("isApproved").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  index("reviews_product_idx").on(table.productId),
+  index("reviews_approved_idx").on(table.isApproved),
+]);
 
 export type Review = typeof reviews.$inferSelect;
 
@@ -129,6 +149,9 @@ export const cartItems = mysqlTable("cartItems", {
   quantity: int("quantity").default(1).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  index("cart_user_idx").on(table.userId),
+]);
 
 export type CartItem = typeof cartItems.$inferSelect;
+
